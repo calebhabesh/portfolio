@@ -1,2 +1,1 @@
-# calebhabesh.github.io
-Source for personal website.
+🐼 My personal portfolio website built with NextJS, Tailwind, and deployed on vercel 
