@@ -1,0 +1,38 @@
+{
+  "name": "caleb-habesh-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "generate:collision": "node scripts/generate-collision-field.mjs",
+    "prebuild": "npm run generate:collision",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "optimize:model": "gltf-transform optimize lion_emblem.vintage.glb lion_emblem.optimized.glb --compress meshopt && npm run generate:collision",
+    "test:smoke": "node scripts/smoke.mjs",
+    "check": "npm run build && npm run test:smoke",
+    "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/newsreader": "5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwindcss": "^4.3.3",
+    "three": "0.185.1",
+    "three-mesh-bvh": "0.9.14"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@gltf-transform/cli": "4.4.2",
+    "playwright-core": "1.62.1",
+    "vite": "8.2.2"
+  },
+  "overrides": {
+    "@gltf-transform/cli": {
+      "sharp": "0.35.3"
+    }
+  }
+}
