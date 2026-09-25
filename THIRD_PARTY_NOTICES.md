@@ -28,11 +28,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Aceternity UI Background Ripple Effect
+## Aceternity UI Comet Card
 
-`src/components/ui/background-ripple-effect.tsx` is sourced from Aceternity UI's
-[component registry](https://ui.aceternity.com/registry/background-ripple-effect.json).
-The local integration supplies a class-name helper, responsive sizing, theme colors,
-reduced-motion handling, and additive animations for overlapping ripples.
+`src/components/ui/comet-card.tsx` is adapted from Aceternity UI's
+[Comet Card](https://ui.aceternity.com/components/comet-card) (`@aceternity/comet-card`).
+The local integration reduces the tilt, translation, and glare, removes the stock scale-up and shadow, and respects reduced-motion preferences.
 
-[Component documentation](https://ui.aceternity.com/components/background-ripple-effect)
+## Aceternity UI Expandable Card
+
+`src/components/expandable-card-demo-standard.tsx` and `src/hooks/use-outside-click.tsx` are sourced from Aceternity UI's
+[component registry](https://ui.aceternity.com/components/expandable-card) (`@aceternity/expandable-card-demo-standard`).
+The local integration uses a short Motion entrance, keyboard Escape handling, and outside-click dismissal to open project details in an accessible modal dialog.

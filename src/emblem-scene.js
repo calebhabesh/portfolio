@@ -414,7 +414,7 @@ export async function initEmblemScene(stage, assets) {
   let isVisible = true;
   const visibilityObserver = new IntersectionObserver(([entry]) => {
     isVisible = entry.isIntersecting;
-  }, { rootMargin: "180px" });
+  });
   visibilityObserver.observe(stage);
 
   let previousTime = performance.now();

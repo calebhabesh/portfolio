@@ -1,5 +1,5 @@
 import "./styles.css";
-import "./ripple-background.tsx";
+import "./projects-island.tsx";
 
 const EMBLEM_MODEL_URL = new URL("../lion_emblem.optimized.glb", import.meta.url).href;
 const EMBLEM_COLLISION_FIELD_URL = new URL("../emblem-collision-field.bin", import.meta.url).href;
@@ -146,38 +146,48 @@ if (stage) {
   });
 }
 
-const mainContent = document.querySelector("#main-content");
 const projectsScrollArrow = document.querySelector("[data-projects-scroll-arrow]");
-const projectsSection = document.querySelector("#work");
-const projectCards = [...document.querySelectorAll(".project-box")];
+const projectsSection = document.querySelector("#work") || document.querySelector("#projects-root");
 
-if (mainContent && projectsSection && projectCards.length) {
+if (projectsScrollArrow && projectsSection) {
+  const getCards = () => [
+    ...projectsSection.querySelectorAll(".project-target, .project-box"),
+  ];
+
   const updateProjectsScrollCue = () => {
-    const sectionTop = projectsSection.getBoundingClientRect().top;
-    const lastCardBottom = projectCards.at(-1).getBoundingClientRect().bottom;
-    const contentBottom = mainContent.getBoundingClientRect().bottom;
-    const hasMoreProjects = sectionTop < contentBottom - 56 && lastCardBottom > contentBottom + 1;
-    mainContent.dataset.moreProjects = String(hasMoreProjects);
-    if (projectsScrollArrow) {
-      projectsScrollArrow.classList.toggle("is-hidden", !hasMoreProjects);
-      projectsScrollArrow.style.top = `${contentBottom - 42}px`;
+    const cards = getCards();
+    if (!cards.length) {
+      projectsScrollArrow.classList.add("is-hidden");
+      return;
     }
+    const lastCard = cards[cards.length - 1];
+    const lastRect = lastCard.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+
+    const hasMore = lastRect.bottom > windowHeight + 30;
+    projectsScrollArrow.classList.toggle("is-hidden", !hasMore);
   };
-  mainContent.addEventListener("scroll", updateProjectsScrollCue, { passive: true });
-  window.addEventListener("resize", updateProjectsScrollCue);
-  const projectsResizeObserver = new ResizeObserver(updateProjectsScrollCue);
-  projectsResizeObserver.observe(mainContent);
-  projectsResizeObserver.observe(projectsSection);
-  projectsScrollArrow?.addEventListener("click", () => {
-    const nextCard = projectCards.find((card) => card.getBoundingClientRect().bottom > mainContent.getBoundingClientRect().bottom);
-    nextCard?.scrollIntoView({ block: "start", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
-  });
-  updateProjectsScrollCue();
-  if (import.meta.hot) {
-    import.meta.hot.dispose(() => {
-      mainContent.removeEventListener("scroll", updateProjectsScrollCue);
-      window.removeEventListener("resize", updateProjectsScrollCue);
-      projectsResizeObserver.disconnect();
+
+  projectsScrollArrow.addEventListener("click", () => {
+    const cards = getCards();
+    const nextCard = cards.find((card) => {
+      const rect = card.getBoundingClientRect();
+      return rect.top > 80;
     });
-  }
+
+    if (nextCard) {
+      nextCard.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+      });
+    }
+  });
+
+  window.addEventListener("scroll", updateProjectsScrollCue, { passive: true });
+  window.addEventListener("resize", updateProjectsScrollCue, { passive: true });
+  const projectsObserver = new ResizeObserver(updateProjectsScrollCue);
+  projectsObserver.observe(projectsSection);
+  updateProjectsScrollCue();
 }

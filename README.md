@@ -1,8 +1,13 @@
 # Caleb Habesh — portfolio
 
-A minimalist single-page portfolio built with Vite and Three.js. The quiet, reading-first layout
-keeps the interactive lion and grass as its one expressive visual. The hero uses the optimized
-vintage derivative of `lion_emblem.blend`; the original GLB and Blender source remain unchanged.
+A minimalist single-page portfolio built with Vite, React, and Three.js. The reading-first layout
+presents five curated engineering projects—Doorlink, LineWatchTO, File Sync, CourtLoad, and Medical Imaging—in
+a generous desktop column with clear typography, genuine evidence media, and restrained card interaction.
+Project cards feature a restrained Aceternity UI Comet Card tilt and Expandable Card modal views with Motion,
+while preserving normal document scrolling, full static no-JS fallback, and accessible keyboard navigation.
+Expanded views now show galleries for all five projects; add future images to `public/projects/` and the
+project's `images` array in `src/data/projects.ts`.
+The hero uses the optimized vintage derivative of `lion_emblem.blend`; the original GLB and Blender source remain unchanged.
 
 ## Local development
 
@@ -14,6 +19,16 @@ npm run dev
 Vite prints the local and LAN URLs. The default local URL is <http://localhost:5173>.
 Because the development command binds to `0.0.0.0`, another device on the same network can use the
 `Network` URL Vite prints. Press `Ctrl+C` in that terminal to stop the server.
+
+To test the same optimized files a deployment serves, run:
+
+```bash
+npm run build
+npm run preview
+```
+
+Open <http://localhost:4173>. Preview serves the generated `dist/` directory without development
+hot reload. Rebuild after each source change, then refresh the page to see the new production output.
 
 The lion uses continuous orbit-style rotation that pauses while the pointer is held, along with
 pointer-delta dragging, capped release inertia, and an underdamped spring that recoils naturally
@@ -62,7 +77,7 @@ immutable cache lifetime on hosts that support the headers file (including Cloud
 ## Content still needed before launch
 
 - Add the final résumé PDF and its navigation link when the document is ready.
-- Decide which in-development project repositories or demos should be public.
+- Make the LineWatchTO, File Sync, and CourtLoad GitHub repositories public; their card links currently return 404 for public visitors.
 - Add a social preview image before sharing the site broadly.
 
 Deployment and DNS are intentionally left for a later pass. The production build is static and

@@ -1,10 +1,23 @@
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { createServer } from "node:net";
 import { chromium } from "playwright-core";
 import AxeBuilder from "@axe-core/playwright";
 
-const port = 4173;
+const port = await new Promise((resolve, reject) => {
+  const listener = createServer();
+  listener.once("error", reject);
+  listener.listen(0, "127.0.0.1", () => {
+    const address = listener.address();
+    if (!address || typeof address === "string") {
+      reject(new Error("Could not allocate a preview port."));
+      listener.close();
+      return;
+    }
+    listener.close(() => resolve(address.port));
+  });
+});
 const baseUrl = `http://127.0.0.1:${port}`;
 const artifactDirectory = new URL("../.artifacts/", import.meta.url);
 const serverOutput = [];
@@ -25,7 +38,7 @@ function quaternionDistance(first, second) {
 
 await mkdir(artifactDirectory, { recursive: true });
 
-const server = spawn("npm", ["run", "preview", "--", "--host", "127.0.0.1", "--port", String(port)], {
+const server = spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
   cwd: new URL("../", import.meta.url),
   env: process.env,
   stdio: ["ignore", "pipe", "pipe"],
@@ -113,12 +126,62 @@ async function checkPage(browser, viewport, screenshotName) {
     "The grass solver did not publish a finite bend value.",
   );
 
-  assert.match(await page.title(), /Caleb Habesh/);
+  assert.equal(await page.title(), "Caleb Habesh");
   assert.match(await page.locator("h1").innerText(), /Caleb Habesh/);
   assert.equal(await page.locator('link[rel="icon"]').getAttribute("href"), "/favicon.svg");
   assert.match(await page.locator(".brand-script").innerText(), /ካሌብ/);
   assert.equal(await page.locator("article[data-project]").count(), 5);
-  assert.equal(await page.locator('a[href="https://linewatchto.ca"]').first().getAttribute("target"), "_blank");
+  const projectIds = await page.locator("article[data-project]").evaluateAll(
+    (articles) => articles.map((el) => el.getAttribute("data-project"))
+  );
+  assert.deepEqual(
+    projectIds,
+    ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging"],
+    `Expected project order Doorlink, LineWatchTO, File Sync, CourtLoad, Medical Imaging. Got: ${projectIds.join(", ")}`
+  );
+
+  const projectTitles = (await page.locator("article[data-project] .project-box-title").allInnerTexts()).map((t) => t.trim());
+  assert.deepEqual(
+    projectTitles,
+    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Imaging"],
+    `Expected exact titles. Got: ${projectTitles.join(", ")}`
+  );
+  assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
+  assert.equal(await page.locator("#ripple-background").count(), 0, "The background ripple layer should be absent.");
+
+  const rifttraceCount = await page.locator('[data-project="rifttrace"]').count();
+  assert.equal(rifttraceCount, 0, "RiftTrace should be absent from the active site.");
+
+  assert.match(
+    await page.locator(".hero-intro").innerText(),
+    /Building across full-stack web, data infrastructure, and connected hardware/,
+    "Hero intro wording did not match reverted text."
+  );
+
+  // Pictures must be removed from project cards
+  assert.equal(
+    await page.locator("article[data-project] img, .project-media").count(),
+    0,
+    "Project descriptions should be text-only with no picture media."
+  );
+
+  // Downward pointing scroll arrow button
+  const scrollArrow = page.locator("[data-projects-scroll-arrow]");
+  assert.equal(await scrollArrow.count(), 1, "Scroll arrow button should exist.");
+  assert.equal(
+    await scrollArrow.evaluate((btn) => !btn.classList.contains("is-hidden")),
+    true,
+    "Scroll arrow should be visible on initial load when projects are below fold."
+  );
+
+  // Project destinations
+  assert.ok(await page.locator('article[data-project="doorlink"] a[href="https://github.com/calebhabesh/doorlink"]').count() >= 1, "Doorlink GitHub link missing.");
+  assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://linewatchto.ca"]').count() >= 1, "LineWatchTO live link missing.");
+  assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
+  assert.ok(await page.locator('article[data-project="file-sync"] a[href="https://github.com/calebhabesh/file-sync"]').count() >= 1, "File Sync GitHub link missing.");
+  assert.ok(await page.locator('article[data-project="courtload"] a[href="https://github.com/calebhabesh/courtload"]').count() >= 1, "CourtLoad GitHub link missing.");
+  assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
+  assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
 
   const idleOrientationBefore = parseQuaternion(
     await emblemStage.getAttribute("data-orientation"),
@@ -325,9 +388,45 @@ async function checkPage(browser, viewport, screenshotName) {
   const doorlinkNotes = page.locator('[data-project="doorlink"] details');
   await doorlinkNotes.locator("summary").click();
   assert.equal(await doorlinkNotes.getAttribute("open"), "");
+  await page.waitForFunction(() =>
+    document.querySelector('[data-project="doorlink"] .notes-body')?.innerText.includes("Custom hardware"),
+  );
   assert.match(await doorlinkNotes.locator(".notes-body").innerText(), /Custom hardware/);
   await doorlinkNotes.locator("summary").click();
   assert.equal(await doorlinkNotes.getAttribute("open"), null);
+
+  const doorlinkTitleLink = page.locator('article[data-project="doorlink"] h3 a');
+  await doorlinkTitleLink.focus();
+  const focusedCard = await page.evaluate(() => {
+    const el = document.activeElement;
+    return el?.closest(".project-box")?.getAttribute("data-project");
+  });
+  assert.equal(focusedCard, "doorlink", "Keyboard focus could not target project card controls.");
+
+  const expandButton = page.locator('[data-project="doorlink"] .project-expand-button');
+  await expandButton.hover();
+  assert.equal(await page.locator("canvas").count(), 1, "Card hover should not create another WebGL canvas.");
+  await expandButton.click();
+  const dialog = page.getByRole("dialog");
+  await dialog.waitFor();
+  assert.equal(
+    await dialog.evaluate((element) => element.contains(document.activeElement)),
+    true,
+    "Opening a project dialog should move keyboard focus inside it.",
+  );
+  await page.keyboard.press("Shift+Tab");
+  assert.equal(
+    await dialog.evaluate((element) => element.contains(document.activeElement)),
+    true,
+    "Shift+Tab should stay inside the project dialog.",
+  );
+  await page.keyboard.press("Escape");
+  await dialog.waitFor({ state: "detached" });
+  assert.equal(
+    await expandButton.evaluate((element) => element === document.activeElement),
+    true,
+    "Closing a project dialog should restore focus to its expand button.",
+  );
 
   const originalTheme = await page.locator("html").getAttribute("data-theme");
   await page.locator("[data-theme-toggle]").click();
@@ -359,6 +458,31 @@ async function checkPage(browser, viewport, screenshotName) {
   await context.close();
 }
 
+async function checkReducedMotion(browser) {
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    colorScheme: "dark",
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+  await page.goto(baseUrl, { waitUntil: "networkidle" });
+
+  assert.equal(await page.locator("article[data-project]").count(), 5);
+  const notes = page.locator('[data-project="doorlink"] details');
+  await notes.locator("summary").click();
+  assert.equal(await notes.getAttribute("open"), "");
+
+  const cursorVisible = await page.evaluate(() => {
+    const cursor = document.querySelector(".target-cursor-wrapper");
+    if (!cursor) return false;
+    const style = window.getComputedStyle(cursor);
+    return style.display !== "none" && style.opacity !== "0";
+  });
+  assert.equal(cursorVisible, false, "Target cursor should remain inactive under prefers-reduced-motion.");
+
+  await context.close();
+}
+
 let browser;
 try {
   await waitForServer();
@@ -368,8 +492,11 @@ try {
     args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
   });
   await checkPage(browser, { width: 1440, height: 1000 }, "portfolio-desktop.png");
+  await checkPage(browser, { width: 768, height: 1024 }, "portfolio-tablet.png");
   await checkPage(browser, { width: 390, height: 844 }, "portfolio-mobile.png");
-  console.log("Smoke checks passed for desktop and mobile layouts.");
+  await checkPage(browser, { width: 320, height: 600 }, "portfolio-320px.png");
+  await checkReducedMotion(browser);
+  console.log("Smoke checks passed for all responsive viewports, keyboard focus, and reduced-motion.");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");
