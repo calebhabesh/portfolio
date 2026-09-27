@@ -103,6 +103,11 @@ async function checkPage(browser, viewport, screenshotName) {
     () => Boolean(document.querySelector("[data-emblem-stage]")?.dataset.orientation),
   );
   assert.equal(await emblemStage.getAttribute("data-motion-state"), "idle");
+  assert.equal(await page.locator("[data-emblem-status], .status-spinner").count(), 0);
+  assert.equal(await emblemStage.getAttribute("data-rendered"), "true");
+  const assetRequests = await page.evaluate(() => performance.getEntriesByType("resource")
+    .filter((entry) => /(?:glb|bin).*\.gzip/.test(entry.name)).map((entry) => entry.name));
+  assert.equal(assetRequests.length, 2, "Each compressed hero asset should be fetched once, reusing its preload.");
   const modelReadyTime = Number(await emblemStage.getAttribute("data-model-ready-ms"));
   const physicsReadyTime = Number(await emblemStage.getAttribute("data-physics-ready-ms"));
   const runtimeCollisionBuildTime = Number(
@@ -158,12 +163,20 @@ async function checkPage(browser, viewport, screenshotName) {
     "Hero intro wording did not match reverted text."
   );
 
-  // Pictures must be removed from project cards
-  assert.equal(
-    await page.locator("article[data-project] img, .project-media").count(),
-    0,
-    "Project descriptions should be text-only with no picture media."
+  // Compact previews reserve their layout before lazy image decoding finishes.
+  const previews = await page.locator("article[data-project] img").evaluateAll(images =>
+    images.map(image => ({
+      preview: Boolean(image.closest(".project-card-preview")),
+      width: Number(image.getAttribute("width")),
+      height: Number(image.getAttribute("height")),
+      loading: image.loading,
+      decoding: image.decoding,
+    })),
   );
+  assert.ok(previews.length > 0, "Project preview thumbnails should be present.");
+  assert.ok(previews.every(image => image.preview && image.width > 0 && image.height > 0 &&
+    image.loading === "lazy" && image.decoding === "async"),
+    "Card previews should reserve space and decode asynchronously without eager loading.");
 
   // Downward pointing scroll arrow button
   const scrollArrow = page.locator("[data-projects-scroll-arrow]");

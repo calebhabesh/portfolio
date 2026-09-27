@@ -8,6 +8,27 @@
       content="Caleb Habesh is a Computer Engineering graduate in Toronto building full-stack products across transit, IoT, analytics, and data infrastructure."
     />
     <meta name="theme-color" content="#f7f6f2" />
+    <style>
+      :root { --paper: #f7f6f2; background-color: var(--paper); color-scheme: light; }
+      :root[data-theme="dark"] { --paper: #111613; color-scheme: dark; }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme]) { --paper: #111613; color-scheme: dark; }
+      }
+      body { margin: 0; background-color: var(--paper); }
+    </style>
+    <script>
+      // Set the canvas and theme before external styles or modules can delay paint.
+      (() => {
+        let savedTheme;
+        try { savedTheme = localStorage.getItem("caleb-portfolio-theme"); } catch {}
+        const theme = savedTheme === "dark" || savedTheme === "light"
+          ? savedTheme
+          : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').content =
+          theme === "dark" ? "#111613" : "#f7f6f2";
+      })();
+    </script>
     <meta property="og:title" content="Caleb Habesh — Computer Engineering Graduate" />
     <meta
       property="og:description"
@@ -20,8 +41,11 @@
     <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
     <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@1,2" />
-    <link rel="preload" href="/lion_emblem.optimized.glb" as="fetch" crossorigin="anonymous" />
-    <link rel="preload" href="/emblem-collision-field.bin" as="fetch" crossorigin="anonymous" />
+    <link rel="preload" href="/src/assets/lion_emblem.optimized.glb.gzip" as="fetch" crossorigin="anonymous" />
+    <link rel="preload" href="/src/assets/emblem-collision-field.bin.gzip" as="fetch" crossorigin="anonymous" />
+    <link rel="preload" href="/src/assets/emblem-textures/normal.webp" as="image" type="image/webp" />
+    <link rel="preload" href="/src/assets/emblem-textures/roughness.webp" as="image" type="image/webp" />
+    <link rel="modulepreload" href="/src/emblem-scene.js" />
     <title>Caleb Habesh</title>
   </head>
   <body>
@@ -123,10 +147,6 @@
               id="emblem-canvas"
               aria-label="Continuously rotating three-dimensional lion emblem in grass. Click and hold to pause it, or drag in any direction to rotate it. After release, it returns to its upright orientation. Use arrow keys and Q or E for keyboard rotation."
             ></canvas>
-            <div class="emblem-status" data-emblem-status role="status" aria-live="polite">
-              <span class="status-spinner" aria-hidden="true"></span>
-              Preparing emblem
-            </div>
           </div>
         </figure>
       </section>
@@ -138,8 +158,9 @@
 
         <div id="projects-root" class="projects-list">
 <!-- PROJECTS_START -->
-          <article class="project-box project-target" data-project="doorlink">
-            <div class="project-box-inner">
+          <div class="project-card-animate" data-card-index="0" data-direction="left">
+            <article class="project-box project-target" data-project="doorlink">
+              <div class="project-box-inner has-preview">
               <div class="project-box-header">
                 <div class="project-box-title-group">
                   <h3 class="project-box-title"><a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer">Doorlink</a></h3>
@@ -160,12 +181,27 @@
               <p class="project-box-type">Embedded systems · self-hosted IoT</p>
               <p class="project-box-summary">A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.</p>
               <ul class="project-box-tags" aria-label="Technologies">
-                <li>ESP32-S3</li><li>Spring Boot</li><li>Raspberry Pi</li><li>KiCad</li>
+                <li>C/C++ · ESP-IDF</li><li>Java · Spring Boot</li><li>TypeScript · Next.js</li><li>PostgreSQL</li><li>MQTT</li><li>ESP32-S3 · KiCad</li>
               </ul>
+
+              <a class="project-card-preview" href="/projects/doorlink-enclosure.jpg" style="--photo-stack-second: url('/projects/doorlink-pcb.jpg'); --photo-stack-third: url('/projects/doorlink-wiring.webp')" aria-label="View 4 Images for Doorlink">
+                <span class="project-card-preview-face">
+                <img src="/projects/doorlink-enclosure.jpg" alt="Finished Doorlink doorbell enclosure mounted on a wall" width="2370" height="3771" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  4 Images
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
               <details class="project-notes">
                 <summary>
                   <span>Notes</span>
-                  <span class="plus-icon" aria-hidden="true">+</span>
+                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </summary>
                 <div class="notes-body">
                   <p><strong>Custom hardware:</strong> The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design.</p>
@@ -174,11 +210,13 @@
                   <a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer">View source on GitHub</a>
                 </div>
               </details>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
 
-          <article class="project-box project-target" data-project="linewatch">
-            <div class="project-box-inner">
+          <div class="project-card-animate" data-card-index="1" data-direction="right">
+            <article class="project-box project-target" data-project="linewatch">
+              <div class="project-box-inner has-preview">
               <div class="project-box-header">
                 <div class="project-box-title-group">
                   <h3 class="project-box-title"><a href="https://linewatchto.ca" target="_blank" rel="noreferrer">LineWatchTO</a></h3>
@@ -211,12 +249,27 @@
               <p class="project-box-type">Transit intelligence · full stack</p>
               <p class="project-box-summary">A map-first reliability dashboard for TTC and GO/UP riders. It brings service alerts, planned closures, station arrivals, and saved-commute impact checks into one view, while labeling stale, scheduled, unavailable, and demo data honestly.</p>
               <ul class="project-box-tags" aria-label="Technologies">
-                <li>Next.js</li><li>Spring Boot</li><li>PostGIS</li><li>Redis</li>
+                <li>TypeScript · Next.js</li><li>Java · Spring Boot</li><li>PostgreSQL · PostGIS</li><li>Redis</li><li>MapLibre</li><li>GTFS / GTFS-RT</li>
               </ul>
+
+              <a class="project-card-preview" href="/projects/linewatch-onboarding-map.png" style="--photo-stack-second: url('/projects/linewatch-onboarding-impact.png'); --photo-stack-third: url('/projects/linewatch-onboarding-personal.png')" aria-label="View 4 Images for LineWatchTO">
+                <span class="project-card-preview-face">
+                <img src="/projects/linewatch-onboarding-map.png" alt="LineWatchTO TTC map showing a suspension, delay, reduced speed zone, and station impact" width="1320" height="764" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  4 Images
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
               <details class="project-notes">
                 <summary>
                   <span>Notes</span>
-                  <span class="plus-icon" aria-hidden="true">+</span>
+                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </summary>
                 <div class="notes-body">
                   <p><strong>Two networks:</strong> Custom TTC and GO/UP map views connect incidents and station details to the lines and stops riders care about.</p>
@@ -226,11 +279,13 @@
                   <a href="https://github.com/calebhabesh/linewatchto" target="_blank" rel="noreferrer">View source on GitHub</a>
                 </div>
               </details>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
 
-          <article class="project-box project-target" data-project="file-sync">
-            <div class="project-box-inner">
+          <div class="project-card-animate" data-card-index="2" data-direction="left">
+            <article class="project-box project-target" data-project="file-sync">
+              <div class="project-box-inner has-preview">
               <div class="project-box-header">
                 <div class="project-box-title-group">
                   <h3 class="project-box-title"><a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer">File Sync</a></h3>
@@ -251,12 +306,27 @@
               <p class="project-box-type">Distributed systems · local-first files</p>
               <p class="project-box-summary">A Go peer-to-peer file sync daemon for trusted Linux devices. It keeps causal version history, transfers content-addressed chunks over authenticated peer connections, and exposes concurrent edits for deliberate resolution through a local interface instead of silently replacing a file.</p>
               <ul class="project-box-tags" aria-label="Technologies">
-                <li>Go</li><li>SQLite</li><li>mTLS</li><li>Linux</li>
+                <li>Go</li><li>TypeScript · React</li><li>SQLite</li><li>mTLS</li><li>Linux</li>
               </ul>
+
+              <a class="project-card-preview" href="/projects/filesync-history.png" style="--photo-stack-second: url('/projects/filesync-folders.png'); --photo-stack-third: url('/projects/filesync-conflicts.png')" aria-label="View 3 Images for File Sync">
+                <span class="project-card-preview-face">
+                <img src="/projects/filesync-history.png" alt="File Sync operator console showing workspace files and version history" width="1200" height="750" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  3 Images
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
               <details class="project-notes">
                 <summary>
                   <span>Notes</span>
-                  <span class="plus-icon" aria-hidden="true">+</span>
+                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </summary>
                 <div class="notes-body">
                   <p><strong>Causal history:</strong> Immutable version heads and vector clocks preserve offline edits; the local UI lets users inspect history and conflicts.</p>
@@ -265,11 +335,13 @@
                   <a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer">View source on GitHub</a>
                 </div>
               </details>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
 
-          <article class="project-box project-target" data-project="courtload">
-            <div class="project-box-inner">
+          <div class="project-card-animate" data-card-index="3" data-direction="right">
+            <article class="project-box project-target" data-project="courtload">
+              <div class="project-box-inner has-preview">
               <div class="project-box-header">
                 <div class="project-box-title-group">
                   <h3 class="project-box-title"><a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer">CourtLoad</a></h3>
@@ -290,12 +362,27 @@
               <p class="project-box-type">NBA analytics · data engineering</p>
               <p class="project-box-summary">An NBA player comparison and analytics dashboard built from three historical regular seasons. It lets users compare player form, usage, and matchup context with source-traceable data and uncertainty informed by time-safe evaluation.</p>
               <ul class="project-box-tags" aria-label="Technologies">
-                <li>Python</li><li>PostgreSQL</li><li>dbt</li><li>Next.js</li>
+                <li>Python · FastAPI</li><li>TypeScript · Next.js</li><li>SQL · dbt</li><li>PostgreSQL</li>
               </ul>
+
+              <a class="project-card-preview" href="/projects/courtload-comparison.png" style="--photo-stack-second: url('/projects/courtload-evaluation.png'); --photo-stack-third: url('/projects/courtload-comparison.png')" aria-label="View 2 Images for CourtLoad">
+                <span class="project-card-preview-face">
+                <img src="/projects/courtload-comparison.png" alt="CourtLoad dashboard comparing LeBron James and Stephen Curry" width="749" height="1200" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  2 Images
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
               <details class="project-notes">
                 <summary>
                   <span>Notes</span>
-                  <span class="plus-icon" aria-hidden="true">+</span>
+                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </summary>
                 <div class="notes-body">
                   <p><strong>Reproducible data:</strong> Python ingestion, PostgreSQL, and tested dbt models turn pinned schedules and box scores into dated player and opponent views.</p>
@@ -304,11 +391,13 @@
                   <a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer">View source on GitHub</a>
                 </div>
               </details>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
 
-          <article class="project-box project-target" data-project="medical-imaging">
-            <div class="project-box-inner">
+          <div class="project-card-animate" data-card-index="4" data-direction="left">
+            <article class="project-box project-target" data-project="medical-imaging">
+              <div class="project-box-inner has-preview">
               <div class="project-box-header">
                 <div class="project-box-title-group">
                   <h3 class="project-box-title"><a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">Medical Imaging</a></h3>
@@ -331,10 +420,25 @@
               <ul class="project-box-tags" aria-label="Technologies">
                 <li>C++17</li><li>OpenMP</li><li>FAST</li><li>DICOM</li>
               </ul>
+
+              <a class="project-card-preview" href="/projects/medical-segmentation.png" style="--photo-stack-second: url('/projects/medical-pipelines.png'); --photo-stack-third: url('/projects/medical-segmentation.png')" aria-label="View 2 Images for Medical Imaging">
+                <span class="project-card-preview-face">
+                <img src="/projects/medical-segmentation.png" alt="Medical imaging application showing an MRI slice through successive processing and segmentation stages" width="881" height="210" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  2 Images
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
               <details class="project-notes">
                 <summary>
                   <span>Notes</span>
-                  <span class="plus-icon" aria-hidden="true">+</span>
+                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </summary>
                 <div class="notes-body">
                   <p><strong>Pipeline:</strong> DICOM ingest, preprocessing, segmentation, morphological operations, and export were integrated with FAST.</p>
@@ -343,8 +447,9 @@
                   <a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">View source on GitHub</a>
                 </div>
               </details>
-            </div>
-          </article>
+              </div>
+            </article>
+          </div>
           <!-- PROJECTS_END -->
         </div>
       </section>

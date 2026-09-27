@@ -4,8 +4,6 @@ import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { createGrassField } from "./grass-field.js";
 import { parseCollisionField } from "./collision-field.js";
 import {
-  createRelicNormalMap,
-  createRelicRoughnessMap,
   createStudioEnvironment,
   upgradeToPhysicalMaterial,
 } from "./emblem-textures.js";
@@ -67,7 +65,6 @@ export async function initEmblemScene(stage, assets) {
   let disposed = false;
   let model = null;
   const canvas = stage.querySelector("#emblem-canvas");
-  const status = stage.querySelector("[data-emblem-status]");
   if (!canvas) throw new Error("The emblem canvas is missing.");
   if (!assets?.modelBufferPromise || !assets?.collisionFieldBufferPromise) {
     throw new Error("The emblem assets were not preloaded.");
@@ -127,8 +124,8 @@ export async function initEmblemScene(stage, assets) {
   scene.add(ambient, keyLeft, keyRight, rim);
 
   const textures = {
-    relicNormal: createRelicNormalMap(512),
-    relicRoughness: createRelicRoughnessMap(512),
+    relicNormal: null,
+    relicRoughness: null,
     albedoCache: {},
   };
   const studioEnv = createStudioEnvironment(renderer);
@@ -155,10 +152,22 @@ export async function initEmblemScene(stage, assets) {
   }
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
-  if (status && status.lastChild) status.lastChild.textContent = " Loading emblem";
   const gltf = await loader.parseAsync(await assets.modelBufferPromise, "");
   if (disposed) {
     return { dispose, physicsReady: Promise.resolve() };
+  }
+
+  const textureImages = await assets.textureImagesPromise;
+  for (const [name, image] of Object.entries(textureImages)) {
+    const texture = new THREE.Texture(image);
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.needsUpdate = true;
+    if (name === "normal") textures.relicNormal = texture;
+    else if (name === "roughness") textures.relicRoughness = texture;
+    else {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      textures.albedoCache[name] = texture;
+    }
   }
 
   model = gltf.scene;
@@ -216,7 +225,6 @@ export async function initEmblemScene(stage, assets) {
 
   stage.dataset.modelState = "ready";
   stage.dataset.modelReadyMs = (performance.now() - assets.startedAt).toFixed(1);
-  if (status) status.lastChild.textContent = " Emblem ready · preparing grass physics";
   stage.dispatchEvent(new CustomEvent("emblem:model-ready", { bubbles: true }));
 
   const physicsReadyPromise = collisionFieldPromise
@@ -234,7 +242,6 @@ export async function initEmblemScene(stage, assets) {
       grass.setTheme(document.documentElement.dataset.theme || "light");
       stage.dataset.physicsState = "ready";
       stage.dataset.physicsReadyMs = (performance.now() - assets.startedAt).toFixed(1);
-      if (status) status.lastChild.textContent = " Emblem and swept grass collisions ready";
       stage.dispatchEvent(new CustomEvent("emblem:ready", { bubbles: true }));
     })
     .catch((error) => {
@@ -414,11 +421,23 @@ export async function initEmblemScene(stage, assets) {
   let isVisible = true;
   const visibilityObserver = new IntersectionObserver(([entry]) => {
     isVisible = entry.isIntersecting;
+    syncAnimation();
   });
   visibilityObserver.observe(stage);
 
   let previousTime = performance.now();
   let animationFrame;
+  let renderingReady = false;
+
+  function syncAnimation() {
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = null;
+    if (renderingReady && !disposed && isVisible && !document.hidden) {
+      previousTime = performance.now();
+      animationFrame = requestAnimationFrame(render);
+    }
+  }
+  document.addEventListener("visibilitychange", syncAnimation);
   const previousOrientation = motion.current.clone();
   const previousColliderPosition = emblem.position.clone();
 
@@ -541,11 +560,23 @@ export async function initEmblemScene(stage, assets) {
       stage.dataset.physicsMs = "0.00";
     }
     renderer.render(scene, camera);
+    if (stage.dataset.rendered !== "true") {
+      stage.dataset.rendered = "true";
+      stage.dataset.firstFrameMs = (performance.now() - assets.startedAt).toFixed(1);
+    }
     previousOrientation.copy(motion.current);
     previousColliderPosition.copy(emblem.position);
   }
 
-  animationFrame = requestAnimationFrame(render);
+  // Prepare the complete scene before revealing it so grass and shaders do not pop in.
+  await physicsReadyPromise;
+  await renderer.compileAsync(scene, camera);
+  // Shader compilation alone does not upload geometry/textures or finish the
+  // first GPU frame. Warm the complete scene while the canvas is still hidden.
+  renderer.render(scene, camera);
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+  renderingReady = true;
+  syncAnimation();
 
   function updateTheme(event) {
     const theme = event.detail?.theme || document.documentElement.dataset.theme;
@@ -562,6 +593,7 @@ export async function initEmblemScene(stage, assets) {
     if (animationFrame) cancelAnimationFrame(animationFrame);
     resizeObserver?.disconnect();
     visibilityObserver?.disconnect();
+    document.removeEventListener("visibilitychange", syncAnimation);
     window.removeEventListener("portfolio:theme", updateTheme);
     grass?.dispose();
     studioEnv?.dispose();

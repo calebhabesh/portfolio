@@ -12,8 +12,27 @@ function escapeHtml(text) {
 
 export function renderProjectsHtml() {
   return projects
-    .map((project) => {
+    .map((project, index) => {
+      const isEven = index % 2 === 0;
+      const direction = isEven ? "left" : "right";
       const primaryLink = project.links[0] || null;
+      const previewImage = project.images?.[0];
+      const imageCount = project.images?.length || 0;
+      const previewMarkup = previewImage ? `
+              <a class="project-card-preview" href="${escapeHtml(previewImage.src)}" style="--photo-stack-second: url('${escapeHtml(project.images?.[1]?.src || previewImage.src)}'); --photo-stack-third: url('${escapeHtml(project.images?.[2]?.src || previewImage.src)}')" aria-label="View ${imageCount} ${imageCount === 1 ? "Image" : "Images"} for ${escapeHtml(project.title)}">
+                <span class="project-card-preview-face">
+                <img src="${escapeHtml(previewImage.src)}" alt="${escapeHtml(previewImage.alt)}" width="${previewImage.width}" height="${previewImage.height}" loading="lazy" decoding="async">
+                <span class="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  ${imageCount} ${imageCount === 1 ? "Image" : "Images"}
+                  <span class="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>` : "";
 
       const titleMarkup = primaryLink
         ? `<a href="${escapeHtml(primaryLink.url)}"${primaryLink.external ? ' target="_blank" rel="noreferrer"' : ""}>${escapeHtml(project.title)}</a>`
@@ -80,14 +99,17 @@ export function renderProjectsHtml() {
         `              <p class="project-box-type">${escapeHtml(project.category)}</p>`,
         `              <p class="project-box-summary">${escapeHtml(project.summary)}</p>`,
         `              <ul class="project-box-tags" aria-label="Technologies">\n                ${tagsMarkup}\n              </ul>`,
-        `              <details class="project-notes">\n                <summary>\n                  <span>Notes</span>\n                  <span class="plus-icon" aria-hidden="true">+</span>\n                </summary>\n                <div class="notes-body">\n${notesContent}\n                </div>\n              </details>`,
+        previewMarkup,
+        `              <details class="project-notes">\n                <summary>\n                  <span>Notes</span>\n                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>\n                </summary>\n                <div class="notes-body">\n${notesContent}\n                </div>\n              </details>`,
       ].filter(Boolean);
 
-      return `          <article class="project-box project-target" data-project="${escapeHtml(project.id)}">
-            <div class="project-box-inner">
+      return `          <div class="project-card-animate" data-card-index="${index}" data-direction="${direction}">
+            <article class="project-box project-target" data-project="${escapeHtml(project.id)}">
+              <div class="project-box-inner${previewImage ? " has-preview" : ""}">
 ${bodyParts.join("\n")}
-            </div>
-          </article>`;
+              </div>
+            </article>
+          </div>`;
     })
     .join("\n\n");
 }

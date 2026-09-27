@@ -57,7 +57,14 @@ After editing `lion_emblem.blend`, rebuild the vintage derivative with Blender i
 npm run weather:model
 ```
 
-The site loads `lion_emblem.optimized.glb`, which uses Meshopt compression. Do not delete the
+The site loads a gzip-packed copy of `lion_emblem.optimized.glb`, which also uses Meshopt compression.
+`npm run pack:emblem` packages the model and collision field into `src/assets/`; it runs automatically
+during production builds and model optimization. Keep these generated assets in version control for
+development. The browser decompresses them with `DecompressionStream`, supported by modern browsers.
+Together they transfer about 486 KB instead of 1.07 MB even on hosts without HTTP compression.
+HTML preloads and runtime fetches share the same hashed URLs and browser cache.
+The project interactions load in a separate bundle, and the emblem fades in after its first rendered
+frame, with no loading label. Animation scheduling pauses while the hero is offscreen or the tab is hidden. Do not delete the
 original GLB or Blender source. `scripts/weather-emblem.py` saves a separate
 `lion_emblem.vintage.blend` with an editable displacement modifier and exports
 `lion_emblem.vintage.glb`. Sparse shallow perimeter dents add actual silhouette wear; the
@@ -68,6 +75,10 @@ roughness, and lower metalness, without excluding the side walls. A translucent
 rubbed residue carries irregular fine grains with shallow positive normal relief,
 separate from the recessed corrosion pits. Flat-field vertices are excluded from displacement to avoid
 long triangulation ridges resembling brushed metal. `npm run optimize:model` optimizes the vintage GLB alone.
+`npm run generate:textures` bakes the procedural emblem surface maps into cached WebP assets.
+Production builds regenerate them automatically, avoiding texture generation on each page load.
+Run it after changing the model materials or texture generators when using the dev server.
+
 Both model commands also regenerate `emblem-collision-field.bin`. To regenerate only that derived collision
 asset, run `npm run generate:collision`.
 

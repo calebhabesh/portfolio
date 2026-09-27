@@ -7,14 +7,16 @@
     "dev": "vite --host 0.0.0.0",
     "generate:collision": "node scripts/generate-collision-field.mjs",
     "generate:projects": "node scripts/generate-static-projects.mjs",
-    "prebuild": "npm run generate:projects && npm run generate:collision",
+    "prebuild": "npm run generate:projects && npm run generate:collision && npm run pack:emblem && npm run generate:textures",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "optimize:model": "gltf-transform optimize lion_emblem.vintage.glb lion_emblem.optimized.glb --compress meshopt && npm run generate:collision",
+    "optimize:model": "gltf-transform optimize lion_emblem.vintage.glb lion_emblem.optimized.glb --compress meshopt && npm run generate:collision && npm run pack:emblem",
     "test:smoke": "node scripts/smoke.mjs",
     "test:cards": "node scripts/test-card-interaction.mjs",
     "check": "npm run build && npm run test:cards && npm run test:smoke",
-    "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model"
+    "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model",
+    "generate:textures": "node scripts/generate-emblem-textures.mjs",
+    "pack:emblem": "node scripts/pack-emblem-assets.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "5.3.0",
@@ -35,6 +37,7 @@
     "@gltf-transform/cli": "4.4.2",
     "@types/three": "^0.186.0",
     "playwright-core": "1.62.1",
+    "sharp": "^0.35.3",
     "vite": "8.2.2"
   },
   "overrides": {

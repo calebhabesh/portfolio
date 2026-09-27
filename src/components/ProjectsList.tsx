@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { projects, type ProjectItem } from "../data/projects";
 import { ProjectCard } from "./ProjectCard";
@@ -6,9 +7,11 @@ import { ProjectGallery } from "./ProjectGallery";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 
-export const ProjectsList: React.FC = () => {
+export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLElement> }> = ({ cardContainers }) => {
   const [active, setActive] = useState<ProjectItem | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [hasMoreBelow, setHasMoreBelow] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -58,6 +61,27 @@ export const ProjectsList: React.FC = () => {
 
   useOutsideClick(modalRef, () => setActive(null));
 
+  useEffect(() => {
+    const scroll = scrollRef.current;
+    if (!active || !scroll) {
+      setHasMoreBelow(false);
+      return;
+    }
+
+    const updateScrollHint = () => {
+      setHasMoreBelow(scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop > 2);
+    };
+    const observer = new ResizeObserver(updateScrollHint);
+    observer.observe(scroll);
+    for (const child of scroll.children) observer.observe(child);
+    scroll.addEventListener("scroll", updateScrollHint, { passive: true });
+    updateScrollHint();
+    return () => {
+      observer.disconnect();
+      scroll.removeEventListener("scroll", updateScrollHint);
+    };
+  }, [active]);
+
   return (
     <>
       <AnimatePresence>
@@ -75,7 +99,7 @@ export const ProjectsList: React.FC = () => {
 
       <AnimatePresence>
         {active ? (
-          <div className="fixed inset-0 grid place-items-center z-50 p-4 sm:p-6 overflow-y-auto">
+          <div className="project-dialog-overlay">
             <motion.div
               initial={{ opacity: 0, scale: 0.97, y: 8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -85,9 +109,9 @@ export const ProjectsList: React.FC = () => {
               role="dialog"
               aria-modal="true"
               aria-labelledby={`dialog-title-${active.id}`}
-              className="project-dialog w-full max-w-[620px] max-h-[calc(100dvh-32px)] flex flex-col rounded-2xl overflow-hidden my-auto"
+              className="project-dialog w-full max-w-[620px] flex flex-col rounded-2xl overflow-hidden"
             >
-              <div className="p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto">
+              <div ref={scrollRef} className="project-dialog-scroll p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-1.5">
                     <div className="flex items-center gap-2.5 flex-wrap">
@@ -119,7 +143,7 @@ export const ProjectsList: React.FC = () => {
                 </p>
 
                 <ul className="project-box-tags m-0 p-0" aria-label="Technologies">
-                  {active.tags.map((tag) => (
+                  {[...active.tags, ...(active.additionalTags || [])].map((tag) => (
                     <li key={tag}>{tag}</li>
                   ))}
                 </ul>
@@ -205,18 +229,24 @@ export const ProjectsList: React.FC = () => {
                   </div>
                 )}
               </div>
+              <div className="project-dialog-scroll-hint" data-visible={hasMoreBelow} aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </div>
             </motion.div>
           </div>
         ) : null}
       </AnimatePresence>
 
-      {projects.map((project) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          onExpand={openProject}
-        />
-      ))}
+      {projects.map((project) => {
+        const container = cardContainers.get(project.id);
+        return container ? createPortal(
+          <ProjectCard project={project} onExpand={openProject} />,
+          container,
+          project.id,
+        ) : null;
+      })}
     </>
   );
 };

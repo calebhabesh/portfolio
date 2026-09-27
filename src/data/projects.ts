@@ -27,6 +27,7 @@ export interface ProjectItem {
   summary: string;
   evidence: ProjectEvidence[];
   tags: string[];
+  additionalTags?: string[];
   links: ProjectLink[];
   images?: ProjectImage[];
 }
@@ -56,7 +57,8 @@ export const projects: ProjectItem[] = [
           "The battery-powered capture/upload/sleep path and audio paths have run on hardware. Final hardened-firmware retest and closed-enclosure current measurements remain.",
       },
     ],
-    tags: ["ESP32-S3", "Spring Boot", "Raspberry Pi", "KiCad"],
+    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad"],
+    additionalTags: ["React", "Raspberry Pi", "MinIO", "Mosquitto"],
     images: [
       {
         src: "/projects/doorlink-enclosure.jpg",
@@ -121,28 +123,36 @@ export const projects: ProjectItem[] = [
           "Java/Spring ingestion, PostGIS, and Redis support source-linked alerts; stale upstream data is not shown as current.",
       },
     ],
-    tags: ["Next.js", "Spring Boot", "PostGIS", "Redis"],
+    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "MapLibre", "GTFS / GTFS-RT"],
+    additionalTags: ["React", "PWA", "Web Push", "Docker Compose", "Caddy"],
     images: [
       {
         src: "/projects/linewatch-onboarding-map.png",
-        alt: "LineWatchTO welcome slideshow introducing the live TTC map and service impact patterns",
-        caption: "New-user guide: read the live map",
+        alt: "LineWatchTO TTC map showing a suspension, delay, reduced speed zone, and station impact",
+        caption: "TTC map and service impact patterns",
         width: 1320,
-        height: 1736,
+        height: 764,
       },
       {
         src: "/projects/linewatch-onboarding-impact.png",
-        alt: "LineWatchTO welcome slideshow explaining how to explore a service impact",
-        caption: "New-user guide: explore an impact",
-        width: 1320,
-        height: 1640,
+        alt: "LineWatchTO selected reduced speed zone details beside its highlighted map segment",
+        caption: "Selected service impact and map segment",
+        width: 2880,
+        height: 1620,
       },
       {
         src: "/projects/linewatch-onboarding-personal.png",
-        alt: "LineWatchTO welcome slideshow introducing saved commutes and stations",
-        caption: "New-user guide: saved commutes and stations",
-        width: 1320,
-        height: 1652,
+        alt: "LineWatchTO My Commutes panel showing a saved route with current impact and planning-time details",
+        caption: "My Commutes: saved route and service impact",
+        width: 1120,
+        height: 1082,
+      },
+      {
+        src: "/projects/linewatch-onboarding-stations.png",
+        alt: "LineWatchTO My Stations panel showing a saved station, active disruptions, and upcoming arrivals",
+        caption: "My Stations: disruptions and arrivals",
+        width: 1056,
+        height: 1020,
       },
     ],
     links: [
@@ -186,7 +196,7 @@ export const projects: ProjectItem[] = [
           "A workstation, Raspberry Pi, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.",
       },
     ],
-    tags: ["Go", "SQLite", "mTLS", "Linux"],
+    tags: ["Go", "TypeScript · React", "SQLite", "mTLS", "Linux"],
     images: [
       {
         src: "/projects/filesync-history.png",
@@ -244,7 +254,8 @@ export const projects: ProjectItem[] = [
           "Out-of-time evaluation kept the EWMA baseline after a gradient-boosted challenger failed promotion gates; the evaluation is shown to users.",
       },
     ],
-    tags: ["Python", "PostgreSQL", "dbt", "Next.js"],
+    tags: ["Python · FastAPI", "TypeScript · Next.js", "SQL · dbt", "PostgreSQL"],
+    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker Compose", "scikit-learn · Evaluation"],
     images: [
       {
         src: "/projects/courtload-comparison.png",
@@ -296,6 +307,7 @@ export const projects: ProjectItem[] = [
       },
     ],
     tags: ["C++17", "OpenMP", "FAST", "DICOM"],
+    additionalTags: ["CMake"],
     images: [
       {
         src: "/projects/medical-segmentation.png",

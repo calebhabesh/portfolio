@@ -9,6 +9,8 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) => {
   const primaryLink = project.links[0] || null;
+  const previewImage = project.images?.[0];
+  const imageCount = project.images?.length || 0;
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (!onExpand) return;
@@ -20,13 +22,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
   };
 
   return (
-    <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2}>
+      <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2}>
       <article
-        className="project-box project-target overflow-hidden"
+        className="project-box project-target"
         data-project={project.id}
         onClick={handleCardClick}
       >
-        <div className="project-box-inner relative z-10">
+        <div className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
             <div className="project-box-header">
               <div className="project-box-title-group">
                 <h3
@@ -128,10 +130,51 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
               ))}
             </ul>
 
+            {previewImage && (
+              <a
+                className="project-card-preview"
+                style={{
+                  "--photo-stack-second": `url("${project.images?.[1]?.src || previewImage.src}")`,
+                  "--photo-stack-third": `url("${project.images?.[2]?.src || previewImage.src}")`,
+                } as React.CSSProperties}
+                href={previewImage.src}
+                aria-label={`View ${imageCount} ${imageCount === 1 ? "Image" : "Images"} for ${project.title}`}
+                aria-haspopup={onExpand ? "dialog" : undefined}
+                onClick={(event) => {
+                  if (onExpand && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+                    event.preventDefault();
+                    onExpand(project);
+                  }
+                }}
+              >
+                <span className="project-card-preview-face">
+                <img
+                  src={previewImage.src}
+                  alt={previewImage.alt}
+                  width={previewImage.width}
+                  height={previewImage.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className="project-card-preview-label" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="6" y="3" width="15" height="15" rx="2" />
+                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
+                    <circle cx="16" cy="7" r="1" />
+                  </svg>
+                  {imageCount} {imageCount === 1 ? "Image" : "Images"}
+                  <span className="project-card-preview-arrow">↗</span>
+                </span>
+                </span>
+              </a>
+            )}
+
             <details className="project-notes">
               <summary>
                 <span>Notes</span>
-                <span className="plus-icon" aria-hidden="true">+</span>
+                <svg className="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
               </summary>
               <div className="notes-body">
                 {project.evidence.map((point) => (
@@ -155,6 +198,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
             </details>
         </div>
       </article>
-    </CometCard>
+      </CometCard>
   );
 };
