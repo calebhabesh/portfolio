@@ -49,6 +49,10 @@ The smoke test starts the production preview, checks desktop and mobile layouts 
 Chromium browser, waits for the 3D emblem, exercises the project notes and theme control, and
 writes screenshots to the ignored `.artifacts/` directory.
 
+An initial spin hitch seen in Chrome was traced to the Simplify browser extension: disabling it
+restored smooth motion, and the hitch was not reproduced in Firefox. If it returns, compare with
+Simplify disabled before changing the model or animation code.
+
 ## Model workflow
 
 After editing `lion_emblem.blend`, rebuild the vintage derivative with Blender installed:
@@ -63,8 +67,25 @@ during production builds and model optimization. Keep these generated assets in 
 development. The browser decompresses them with `DecompressionStream`, supported by modern browsers.
 Together they transfer about 486 KB instead of 1.07 MB even on hosts without HTTP compression.
 HTML preloads and runtime fetches share the same hashed URLs and browser cache.
-The project interactions load in a separate bundle, and the emblem fades in after its first rendered
-frame, with no loading label. Animation scheduling pauses while the hero is offscreen or the tab is hidden. Do not delete the
+The project interactions load in a separate bundle while the emblem assets download. The emblem
+appears after its first rendered frame, with no loading icon or placeholder.
+The grey hand guide appears after the model finishes fading in and dismisses after a press or rotation key, with
+the dismissal remembered in session storage across reloads in the same tab.
+The header and hero copy rise in gently; the project heading and footer reveal as they enter the viewport. Initially
+visible project cards animate after the emblem's first motion frame, or after a 280 ms fallback
+if the model is still loading. The model prepares while hidden during card entrances and appears
+one painted frame after any active entrances finish. The build renders the same React card markup
+used by the client, so hydration preserves card elements and decoded images.
+Project cards alternate 650 ms left and right slides with opacity, staggered by 60 ms in document order.
+Each newly visible group starts a fresh cascade when scrolling. Reduced-motion preferences show cards
+immediately, and keyboard focus reveals its card without waiting.
+Settled cards retain their rendering layer so text and other contents do not change rasterization
+when the entrance finishes; reduced-motion visits do not retain these animation layers.
+`npm run test:startup` checks that initially visible cards animate once, their entrance layers
+settle, and hydration preserves their DOM nodes against the production build, including delayed
+model startup, slow shader compilation, and late hydration. Startup checks also delay module
+responses under 4× CPU throttling.
+Animation scheduling pauses while the hero is offscreen or the tab is hidden. Do not delete the
 original GLB or Blender source. `scripts/weather-emblem.py` saves a separate
 `lion_emblem.vintage.blend` with an editable displacement modifier and exports
 `lion_emblem.vintage.glb`. Sparse shallow perimeter dents add actual silhouette wear; the

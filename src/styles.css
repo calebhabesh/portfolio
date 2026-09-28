@@ -9,6 +9,7 @@
   --ink: #161f1b;
   --ink-soft: #38423d;
   --muted: #57625d;
+  --emblem-guide: #737979;
   --line: rgba(22, 31, 27, 0.12);
   --line-strong: rgba(22, 31, 27, 0.26);
   --green: #1d6141;
@@ -44,6 +45,7 @@
   --ink: #f1eee5;
   --ink-soft: #d3dace;
   --muted: #b9c5b9;
+  --emblem-guide: #a4aaaa;
   --line: rgba(241, 238, 229, 0.14);
   --line-strong: rgba(241, 238, 229, 0.28);
   --green: #a8dfb7;
@@ -317,13 +319,40 @@ canvas:focus-visible {
   z-index: 3;
 }
 
+.hero-identity {
+  --hero-avatar-size: 58px;
+  --hero-name-gap: 12px;
+  --hero-name-max: 3.2rem;
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+  gap: var(--hero-name-gap);
+}
+
+.hero-headshot {
+  display: block;
+  flex-shrink: 0;
+  width: var(--hero-avatar-size);
+  height: var(--hero-avatar-size);
+  border: 2px solid var(--line-strong);
+  border-radius: 30%;
+  object-fit: cover;
+}
+
 .hero-name {
+  flex: 1;
+  min-width: 0;
   margin: 0;
-  font-size: clamp(2.4rem, 4.5vw, 3.2rem);
+  font-size: clamp(1.25rem, calc((100cqi - var(--hero-avatar-size) - var(--hero-name-gap)) / 10.5), var(--hero-name-max));
   font-weight: 750;
   letter-spacing: -0.035em;
   line-height: 1.12;
+  white-space: nowrap;
   color: var(--ink);
+}
+
+.hero-name .brand-script {
+  font-size: 0.65em;
 }
 
 .hero-subtitle {
@@ -401,6 +430,7 @@ canvas:focus-visible {
 }
 
 .emblem-stage {
+  --emblem-reveal-duration: 650ms;
   position: relative;
   width: 100%;
   height: 300px;
@@ -418,7 +448,7 @@ canvas:focus-visible {
   cursor: grab;
   touch-action: none;
   opacity: 0;
-  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity var(--emblem-reveal-duration) ease-in-out;
 }
 
 .emblem-stage[data-rendered="true"] #emblem-canvas {
@@ -429,28 +459,46 @@ canvas:focus-visible {
   cursor: grabbing;
 }
 
-.emblem-fallback {
+.emblem-interaction-guide {
   position: absolute;
-  z-index: 1;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
+  z-index: 3;
+  top: 30px;
+  right: calc(20% - 22px);
+  color: var(--emblem-guide);
   pointer-events: none;
-  transition: opacity 250ms ease;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 350ms ease-out, visibility 0s linear 350ms;
 }
 
-.emblem-fallback img {
+.emblem-interaction-guide svg {
   display: block;
-  width: 80px;
-  height: auto;
-  filter: saturate(0.7);
+  width: 22px;
+  height: 28px;
 }
 
-.emblem-stage[data-model-state="error"] .emblem-fallback {
-  opacity: 0.78;
-  pointer-events: auto;
-  cursor: pointer;
+.emblem-stage[data-rendered="true"]:not([data-guide-dismissed="true"]) .emblem-interaction-guide {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity var(--emblem-reveal-duration) ease-in-out var(--emblem-reveal-duration),
+    visibility 0s linear var(--emblem-reveal-duration);
+}
+
+.emblem-stage[data-rendered="true"] .emblem-interaction-guide svg {
+  animation: emblem-guide-pulse 3.2s ease-in-out calc(var(--emblem-reveal-duration) + var(--emblem-reveal-duration)) infinite;
+}
+
+.emblem-stage[data-guide-dismissed="true"] .emblem-interaction-guide svg {
+  animation-play-state: paused;
+}
+
+@keyframes emblem-guide-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .content-section {
@@ -474,6 +522,48 @@ canvas:focus-visible {
   text-transform: uppercase;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .site-header {
+    --enter-y: 8px;
+    animation: content-rise-in 400ms var(--ease-out) 40ms both;
+  }
+
+  .hero-copy {
+    --enter-y: 14px;
+    animation: content-rise-in 520ms var(--ease-out) 130ms both;
+  }
+
+  .section-header:not([data-content-reveal="pending"]) {
+    --enter-y: 8px;
+    animation: content-rise-in 420ms var(--ease-out) 230ms both;
+  }
+
+  .section-header[data-content-reveal="visible"] {
+    animation-delay: 0ms;
+  }
+
+  .site-footer[data-content-reveal="visible"] {
+    --enter-y: 8px;
+    animation: content-rise-in 420ms var(--ease-out) both;
+  }
+
+  [data-content-reveal="pending"] {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes content-rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--enter-y, 8px), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 .projects-list {
   display: flex;
   flex-direction: column;
@@ -485,29 +575,30 @@ canvas:focus-visible {
 .project-card-animate {
   --fly-x: -80px;
   width: 100%;
-  opacity: 0;
-  transform: translate3d(var(--fly-x), 0, 0);
-}
-
-.project-card-animate[data-direction="left"] {
-  --fly-x: -80px;
+  opacity: 1;
 }
 
 .project-card-animate[data-direction="right"] {
   --fly-x: 80px;
 }
 
-.project-card-animate.is-visible {
-  will-change: transform, opacity;
-  animation: project-fly-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.project-card-animate[data-card-reveal="pending"] {
+  opacity: 0;
+  transform: translate3d(var(--fly-x), 0, 0);
 }
 
-/* Release compositor layers once an entrance finishes. */
+.project-card-animate[data-card-reveal="pending"].is-visible {
+  will-change: transform, opacity;
+  animation: project-fly-in 650ms var(--ease-out) var(--reveal-delay, 0ms) both;
+}
+
+/* Keep the entrance layer and coordinate system stable so text is not
+   rerasterized when the animation finishes. */
 .project-card-animate[data-card-reveal="settled"] {
   opacity: 1;
-  transform: none;
+  transform: translate3d(0, 0, 0);
   animation: none;
-  will-change: auto;
+  will-change: transform, opacity;
 }
 
 @keyframes project-fly-in {
@@ -522,7 +613,7 @@ canvas:focus-visible {
 }
 
 @media (max-width: 640px) {
-  .project-card-animate[data-direction="left"] {
+  .project-card-animate {
     --fly-x: -44px;
   }
 
@@ -661,6 +752,7 @@ canvas:focus-visible {
 }
 
 .project-dialog-link {
+  font-size: 1rem;
   background: var(--dialog-action-bg);
   color: var(--dialog-action-ink);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 16px rgba(0, 0, 0, 0.16);
@@ -1099,10 +1191,14 @@ canvas:focus-visible {
   font-weight: 600;
   list-style: none;
   user-select: none;
-  padding: 4px 0;
+  margin-inline: -12px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: background-color 160ms ease, color 160ms ease;
 }
 
-.project-notes summary:hover {
+.project-notes summary:is(:hover, :focus-visible) {
+  background-color: var(--tag-bg);
   color: var(--ink);
 }
 
@@ -1111,8 +1207,8 @@ canvas:focus-visible {
 }
 
 .plus-icon {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   transition: transform 180ms ease;
 }
@@ -1139,22 +1235,6 @@ canvas:focus-visible {
 .notes-body strong {
   color: var(--ink);
   font-weight: 600;
-}
-
-.notes-body a {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 4px 0;
-  color: var(--green);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.notes-body a:hover {
-  text-decoration: underline;
 }
 
 .site-footer {
@@ -1201,22 +1281,13 @@ canvas:focus-visible {
   transform: translateX(-50%) translateY(8px);
 }
 
+body:has(.project-dialog-overlay) .projects-scroll-arrow {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .projects-scroll-arrow svg {
   display: block;
-}
-
-.projects-scroll-arrow:not(.is-hidden) {
-  animation: scroll-cue-down 2.2s ease-in-out infinite;
-}
-
-@keyframes scroll-cue-down {
-  0%, 20%, 100% {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  55% {
-    transform: translateX(-50%) translateY(4px);
-  }
 }
 
 .footer-email,
@@ -1270,8 +1341,8 @@ canvas:focus-visible {
     gap: 0;
   }
 
-  .hero-name {
-    font-size: 2.3rem;
+  .hero-identity {
+    --hero-name-max: 2.3rem;
   }
 
   .emblem-stage {
@@ -1298,8 +1369,10 @@ canvas:focus-visible {
     font-size: 0.9rem;
   }
 
-  .hero-name {
-    font-size: 1.95rem;
+  .hero-identity {
+    --hero-avatar-size: 46px;
+    --hero-name-gap: 10px;
+    --hero-name-max: 1.95rem;
   }
 
   .hero-subtitle {
@@ -1330,6 +1403,15 @@ canvas:focus-visible {
 
   .project-notes::details-content {
     transition: none;
+  }
+
+  #emblem-canvas,
+  .emblem-interaction-guide {
+    transition: none !important;
+  }
+
+  .emblem-interaction-guide svg {
+    animation: none !important;
   }
 
   *,

@@ -13,7 +13,8 @@
     "optimize:model": "gltf-transform optimize lion_emblem.vintage.glb lion_emblem.optimized.glb --compress meshopt && npm run generate:collision && npm run pack:emblem",
     "test:smoke": "node scripts/smoke.mjs",
     "test:cards": "node scripts/test-card-interaction.mjs",
-    "check": "npm run build && npm run test:cards && npm run test:smoke",
+    "test:startup": "node scripts/test-startup-performance.mjs",
+    "check": "npm run build && npm run test:startup && npm run test:cards && npm run test:smoke",
     "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model",
     "generate:textures": "node scripts/generate-emblem-textures.mjs",
     "pack:emblem": "node scripts/pack-emblem-assets.mjs"

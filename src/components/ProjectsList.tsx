@@ -1,13 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
 import { projects, type ProjectItem } from "../data/projects";
 import { ProjectCard } from "./ProjectCard";
+import { ProjectLinkButton } from "./ProjectLinkButton";
 import { ProjectGallery } from "./ProjectGallery";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 
-export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLElement> }> = ({ cardContainers }) => {
+export const ProjectsList: React.FC = () => {
+  useEffect(() => {
+    const container = document.getElementById("projects-root");
+    container?.setAttribute("data-interactive", "true");
+    return () => container?.removeAttribute("data-interactive");
+  }, []);
+
   const [active, setActive] = useState<ProjectItem | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -24,6 +30,9 @@ export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLEl
   };
 
   useEffect(() => {
+    const root = document.documentElement;
+    const previousRootOverflow = root.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setActive(null);
@@ -44,10 +53,10 @@ export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLEl
     }
 
     if (active) {
+      root.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
       closeButtonRef.current?.focus();
     } else {
-      document.body.style.overflow = "";
       triggerRef.current?.focus();
       triggerRef.current = null;
     }
@@ -55,7 +64,8 @@ export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLEl
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
+      root.style.overflow = previousRootOverflow;
+      document.body.style.overflow = previousBodyOverflow;
     };
   }, [active]);
 
@@ -180,51 +190,7 @@ export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLEl
                 {active.links.length > 0 && (
                   <div className="pt-2 flex flex-wrap gap-3">
                     {active.links.map((link) => (
-                      <a
-                        key={link.url}
-                        href={link.url}
-                        target={link.external ? "_blank" : undefined}
-                        rel={link.external ? "noreferrer" : undefined}
-                        className="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"
-                      >
-                        {link.type === "github" ? (
-                          <>
-                            <svg
-                              viewBox="0 0 24 24"
-                              width="16"
-                              height="16"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                            </svg>
-                            <span>View source on GitHub</span>
-                          </>
-                        ) : (
-                          <>
-                            <svg
-                              viewBox="0 0 24 24"
-                              width="16"
-                              height="16"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                              <polyline points="15 3 21 3 21 9" />
-                              <line x1="10" y1="14" x2="21" y2="3" />
-                            </svg>
-                            <span>{link.label}</span>
-                          </>
-                        )}
-                      </a>
+                      <ProjectLinkButton key={link.url} link={link} />
                     ))}
                   </div>
                 )}
@@ -239,14 +205,19 @@ export const ProjectsList: React.FC<{ cardContainers: ReadonlyMap<string, HTMLEl
         ) : null}
       </AnimatePresence>
 
-      {projects.map((project) => {
-        const container = cardContainers.get(project.id);
-        return container ? createPortal(
-          <ProjectCard project={project} onExpand={openProject} />,
-          container,
-          project.id,
-        ) : null;
-      })}
+      {projects.map((project, index) => (
+        <div
+          key={project.id}
+          className="project-card-animate"
+          data-card-index={index}
+          data-direction={index % 2 === 0 ? "left" : "right"}
+          // The entrance controller owns class/style/reveal attributes before
+          // and after hydration. React owns the unchanged card contents.
+          suppressHydrationWarning
+        >
+          <ProjectCard project={project} onExpand={openProject} />
+        </div>
+      ))}
     </>
   );
 };

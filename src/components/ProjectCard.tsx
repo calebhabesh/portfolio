@@ -1,6 +1,7 @@
 import React from "react";
 import { type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
+import { ProjectLinkButton } from "./ProjectLinkButton";
 
 interface ProjectCardProps {
   project: ProjectItem;
@@ -182,18 +183,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
                     <strong>{point.heading}:</strong> {point.detail}
                   </p>
                 ))}
-                {project.links.map((link) => (
-                  <a
-                    key={link.url}
-                    href={link.url}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noreferrer" : undefined}
-                  >
-                    {link.type === "github"
-                      ? "View source on GitHub"
-                      : link.label}
-                  </a>
-                ))}
+                {project.links.length > 0 && (
+                  <div className="pt-2 flex flex-wrap gap-3">
+                    {project.links.map((link) => (
+                      <ProjectLinkButton key={link.url} link={link} />
+                    ))}
+                  </div>
+                )}
               </div>
             </details>
         </div>

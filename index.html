@@ -77,7 +77,10 @@
     <main id="main-content">
       <section class="hero page-shell" id="top" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <h1 id="hero-title" class="hero-name">Caleb Habesh <span class="brand-script" lang="am">ካሌብ ሐበሽ</span></h1>
+          <div class="hero-identity">
+            <img class="hero-headshot" src="/caleb-headshot.jpg" width="44" height="44" alt="Caleb Habesh" />
+            <h1 id="hero-title" class="hero-name">Caleb Habesh <span class="brand-script" lang="am">ካሌብ ሐበሽ</span></h1>
+          </div>
           <p class="hero-subtitle">Studied Computer Engineering @ TMU</p>
           <p class="hero-location">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -87,7 +90,7 @@
             <span>Toronto, Ontario, Canada</span>
           </p>
           <p class="hero-intro">
-            Building across full-stack web, data infrastructure, and connected hardware.
+            Hi there! I'm Caleb Habesh. I build across full-stack web, data infrastructure, and connected hardware.
             Focused on practical applications of web software, data pipelines, and embedded devices.
           </p>
           <div class="hero-socials">
@@ -140,13 +143,16 @@
 
         <figure class="emblem-figure">
           <div class="emblem-stage" data-emblem-stage>
-            <div class="emblem-fallback" data-emblem-fallback aria-hidden="true">
-              <img src="/lion-mark.svg" width="96" height="112" alt="" />
-            </div>
             <canvas
               id="emblem-canvas"
               aria-label="Continuously rotating three-dimensional lion emblem in grass. Click and hold to pause it, or drag in any direction to rotate it. After release, it returns to its upright orientation. Use arrow keys and Q or E for keyboard rotation."
             ></canvas>
+            <span class="emblem-interaction-guide" aria-hidden="true">
+              <svg viewBox="0 0 32 40" width="30" height="38" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 24V12a3 3 0 0 1 6 0v7a3 3 0 0 1 6 0v3a3 3 0 0 1 6 0v7c0 6-4 10-10 10h-2c-4 0-7-2-9-6L3 23a3 3 0 0 1 5-3l4 4ZM18 19v5M24 22v3" />
+                <path d="M15 2v3M6 5l3 3M2 12h4M24 5l-3 3M25 12h4" />
+              </svg>
+            </span>
           </div>
         </figure>
       </section>
@@ -156,302 +162,7 @@
           <h2 id="work-title" class="section-title">Selected Projects</h2>
         </div>
 
-        <div id="projects-root" class="projects-list">
-<!-- PROJECTS_START -->
-          <div class="project-card-animate" data-card-index="0" data-direction="left">
-            <article class="project-box project-target" data-project="doorlink">
-              <div class="project-box-inner has-preview">
-              <div class="project-box-header">
-                <div class="project-box-title-group">
-                  <h3 class="project-box-title"><a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer">Doorlink</a></h3>
-                </div>
-                <div class="project-box-actions">
-            <a
-              class="project-icon-link"
-              href="https://github.com/calebhabesh/doorlink"
-              target="_blank" rel="noreferrer"
-              aria-label="Doorlink GitHub repository (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-            </a>
-          </div>
-              </div>
-              <p class="project-box-type">Embedded systems · self-hosted IoT</p>
-              <p class="project-box-summary">A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.</p>
-              <ul class="project-box-tags" aria-label="Technologies">
-                <li>C/C++ · ESP-IDF</li><li>Java · Spring Boot</li><li>TypeScript · Next.js</li><li>PostgreSQL</li><li>MQTT</li><li>ESP32-S3 · KiCad</li>
-              </ul>
-
-              <a class="project-card-preview" href="/projects/doorlink-enclosure.jpg" style="--photo-stack-second: url('/projects/doorlink-pcb.jpg'); --photo-stack-third: url('/projects/doorlink-wiring.webp')" aria-label="View 4 Images for Doorlink">
-                <span class="project-card-preview-face">
-                <img src="/projects/doorlink-enclosure.jpg" alt="Finished Doorlink doorbell enclosure mounted on a wall" width="2370" height="3771" loading="lazy" decoding="async">
-                <span class="project-card-preview-label" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="3" width="15" height="15" rx="2" />
-                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
-                    <circle cx="16" cy="7" r="1" />
-                  </svg>
-                  4 Images
-                  <span class="project-card-preview-arrow">↗</span>
-                </span>
-                </span>
-              </a>
-              <details class="project-notes">
-                <summary>
-                  <span>Notes</span>
-                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                </summary>
-                <div class="notes-body">
-                  <p><strong>Custom hardware:</strong> The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design.</p>
-                <p><strong>Device-to-dashboard flow:</strong> ESP-IDF firmware sends events to a Spring Boot gateway with PostgreSQL, MinIO media storage, MQTT, and a Next.js interface.</p>
-                <p><strong>Validation boundary:</strong> The battery-powered capture/upload/sleep path and audio paths have run on hardware. Final hardened-firmware retest and closed-enclosure current measurements remain.</p>
-                  <a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer">View source on GitHub</a>
-                </div>
-              </details>
-              </div>
-            </article>
-          </div>
-
-          <div class="project-card-animate" data-card-index="1" data-direction="right">
-            <article class="project-box project-target" data-project="linewatch">
-              <div class="project-box-inner has-preview">
-              <div class="project-box-header">
-                <div class="project-box-title-group">
-                  <h3 class="project-box-title"><a href="https://linewatchto.ca" target="_blank" rel="noreferrer">LineWatchTO</a></h3>
-                </div>
-                <div class="project-box-actions">
-            <a
-              class="project-icon-link"
-              href="https://linewatchto.ca"
-              target="_blank" rel="noreferrer"
-              aria-label="Visit LineWatchTO (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                      <polyline points="15 3 21 3 21 9" />
-                      <line x1="10" y1="14" x2="21" y2="3" />
-                    </svg>
-            </a>
-            <a
-              class="project-icon-link"
-              href="https://github.com/calebhabesh/linewatchto"
-              target="_blank" rel="noreferrer"
-              aria-label="LineWatchTO GitHub repository (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-            </a>
-          </div>
-              </div>
-              <p class="project-box-type">Transit intelligence · full stack</p>
-              <p class="project-box-summary">A map-first reliability dashboard for TTC and GO/UP riders. It brings service alerts, planned closures, station arrivals, and saved-commute impact checks into one view, while labeling stale, scheduled, unavailable, and demo data honestly.</p>
-              <ul class="project-box-tags" aria-label="Technologies">
-                <li>TypeScript · Next.js</li><li>Java · Spring Boot</li><li>PostgreSQL · PostGIS</li><li>Redis</li><li>MapLibre</li><li>GTFS / GTFS-RT</li>
-              </ul>
-
-              <a class="project-card-preview" href="/projects/linewatch-onboarding-map.png" style="--photo-stack-second: url('/projects/linewatch-onboarding-impact.png'); --photo-stack-third: url('/projects/linewatch-onboarding-personal.png')" aria-label="View 4 Images for LineWatchTO">
-                <span class="project-card-preview-face">
-                <img src="/projects/linewatch-onboarding-map.png" alt="LineWatchTO TTC map showing a suspension, delay, reduced speed zone, and station impact" width="1320" height="764" loading="lazy" decoding="async">
-                <span class="project-card-preview-label" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="3" width="15" height="15" rx="2" />
-                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
-                    <circle cx="16" cy="7" r="1" />
-                  </svg>
-                  4 Images
-                  <span class="project-card-preview-arrow">↗</span>
-                </span>
-                </span>
-              </a>
-              <details class="project-notes">
-                <summary>
-                  <span>Notes</span>
-                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                </summary>
-                <div class="notes-body">
-                  <p><strong>Two networks:</strong> Custom TTC and GO/UP map views connect incidents and station details to the lines and stops riders care about.</p>
-                <p><strong>Personal impact:</strong> Saved commutes and stations surface relevant disruptions, with optional notifications and offline PWA snapshots.</p>
-                <p><strong>Freshness rules:</strong> Java/Spring ingestion, PostGIS, and Redis support source-linked alerts; stale upstream data is not shown as current.</p>
-                  <a href="https://linewatchto.ca" target="_blank" rel="noreferrer">Visit LineWatchTO</a>
-                  <a href="https://github.com/calebhabesh/linewatchto" target="_blank" rel="noreferrer">View source on GitHub</a>
-                </div>
-              </details>
-              </div>
-            </article>
-          </div>
-
-          <div class="project-card-animate" data-card-index="2" data-direction="left">
-            <article class="project-box project-target" data-project="file-sync">
-              <div class="project-box-inner has-preview">
-              <div class="project-box-header">
-                <div class="project-box-title-group">
-                  <h3 class="project-box-title"><a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer">File Sync</a></h3>
-                </div>
-                <div class="project-box-actions">
-            <a
-              class="project-icon-link"
-              href="https://github.com/calebhabesh/file-sync"
-              target="_blank" rel="noreferrer"
-              aria-label="File Sync GitHub repository (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-            </a>
-          </div>
-              </div>
-              <p class="project-box-type">Distributed systems · local-first files</p>
-              <p class="project-box-summary">A Go peer-to-peer file sync daemon for trusted Linux devices. It keeps causal version history, transfers content-addressed chunks over authenticated peer connections, and exposes concurrent edits for deliberate resolution through a local interface instead of silently replacing a file.</p>
-              <ul class="project-box-tags" aria-label="Technologies">
-                <li>Go</li><li>TypeScript · React</li><li>SQLite</li><li>mTLS</li><li>Linux</li>
-              </ul>
-
-              <a class="project-card-preview" href="/projects/filesync-history.png" style="--photo-stack-second: url('/projects/filesync-folders.png'); --photo-stack-third: url('/projects/filesync-conflicts.png')" aria-label="View 3 Images for File Sync">
-                <span class="project-card-preview-face">
-                <img src="/projects/filesync-history.png" alt="File Sync operator console showing workspace files and version history" width="1200" height="750" loading="lazy" decoding="async">
-                <span class="project-card-preview-label" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="3" width="15" height="15" rx="2" />
-                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
-                    <circle cx="16" cy="7" r="1" />
-                  </svg>
-                  3 Images
-                  <span class="project-card-preview-arrow">↗</span>
-                </span>
-                </span>
-              </a>
-              <details class="project-notes">
-                <summary>
-                  <span>Notes</span>
-                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                </summary>
-                <div class="notes-body">
-                  <p><strong>Causal history:</strong> Immutable version heads and vector clocks preserve offline edits; the local UI lets users inspect history and conflicts.</p>
-                <p><strong>Recovery:</strong> SQLite metadata, atomic chunk staging, and fault-injection tests exercise crash durability.</p>
-                <p><strong>Real workflow:</strong> A workstation, Raspberry Pi, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.</p>
-                  <a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer">View source on GitHub</a>
-                </div>
-              </details>
-              </div>
-            </article>
-          </div>
-
-          <div class="project-card-animate" data-card-index="3" data-direction="right">
-            <article class="project-box project-target" data-project="courtload">
-              <div class="project-box-inner has-preview">
-              <div class="project-box-header">
-                <div class="project-box-title-group">
-                  <h3 class="project-box-title"><a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer">CourtLoad</a></h3>
-                </div>
-                <div class="project-box-actions">
-            <a
-              class="project-icon-link"
-              href="https://github.com/calebhabesh/courtload"
-              target="_blank" rel="noreferrer"
-              aria-label="CourtLoad GitHub repository (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-            </a>
-          </div>
-              </div>
-              <p class="project-box-type">NBA analytics · data engineering</p>
-              <p class="project-box-summary">An NBA player comparison and analytics dashboard built from three historical regular seasons. It lets users compare player form, usage, and matchup context with source-traceable data and uncertainty informed by time-safe evaluation.</p>
-              <ul class="project-box-tags" aria-label="Technologies">
-                <li>Python · FastAPI</li><li>TypeScript · Next.js</li><li>SQL · dbt</li><li>PostgreSQL</li>
-              </ul>
-
-              <a class="project-card-preview" href="/projects/courtload-comparison.png" style="--photo-stack-second: url('/projects/courtload-evaluation.png'); --photo-stack-third: url('/projects/courtload-comparison.png')" aria-label="View 2 Images for CourtLoad">
-                <span class="project-card-preview-face">
-                <img src="/projects/courtload-comparison.png" alt="CourtLoad dashboard comparing LeBron James and Stephen Curry" width="749" height="1200" loading="lazy" decoding="async">
-                <span class="project-card-preview-label" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="3" width="15" height="15" rx="2" />
-                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
-                    <circle cx="16" cy="7" r="1" />
-                  </svg>
-                  2 Images
-                  <span class="project-card-preview-arrow">↗</span>
-                </span>
-                </span>
-              </a>
-              <details class="project-notes">
-                <summary>
-                  <span>Notes</span>
-                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                </summary>
-                <div class="notes-body">
-                  <p><strong>Reproducible data:</strong> Python ingestion, PostgreSQL, and tested dbt models turn pinned schedules and box scores into dated player and opponent views.</p>
-                <p><strong>Useful comparison:</strong> A Next.js dashboard and FastAPI service show side-by-side trends, game logs, and matchup context.</p>
-                <p><strong>Honest modeling:</strong> Out-of-time evaluation kept the EWMA baseline after a gradient-boosted challenger failed promotion gates; the evaluation is shown to users.</p>
-                  <a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer">View source on GitHub</a>
-                </div>
-              </details>
-              </div>
-            </article>
-          </div>
-
-          <div class="project-card-animate" data-card-index="4" data-direction="left">
-            <article class="project-box project-target" data-project="medical-imaging">
-              <div class="project-box-inner has-preview">
-              <div class="project-box-header">
-                <div class="project-box-title-group">
-                  <h3 class="project-box-title"><a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">Medical Imaging</a></h3>
-                </div>
-                <div class="project-box-actions">
-            <a
-              class="project-icon-link"
-              href="https://github.com/calebhabesh/NM03-Capstone-Project"
-              target="_blank" rel="noreferrer"
-              aria-label="Medical Imaging capstone repository (opens in new tab)"
-            >
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                    </svg>
-            </a>
-          </div>
-              </div>
-              <p class="project-box-type">Parallel computing · team capstone</p>
-              <p class="project-box-summary">A C++ medical-imaging pipeline for processing DICOM brain scans with FAST and OpenMP. The team batched image work across CPU threads and compared sequential and parallel execution through performance analysis.</p>
-              <ul class="project-box-tags" aria-label="Technologies">
-                <li>C++17</li><li>OpenMP</li><li>FAST</li><li>DICOM</li>
-              </ul>
-
-              <a class="project-card-preview" href="/projects/medical-segmentation.png" style="--photo-stack-second: url('/projects/medical-pipelines.png'); --photo-stack-third: url('/projects/medical-segmentation.png')" aria-label="View 2 Images for Medical Imaging">
-                <span class="project-card-preview-face">
-                <img src="/projects/medical-segmentation.png" alt="Medical imaging application showing an MRI slice through successive processing and segmentation stages" width="881" height="210" loading="lazy" decoding="async">
-                <span class="project-card-preview-label" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="6" y="3" width="15" height="15" rx="2" />
-                    <path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4" />
-                    <circle cx="16" cy="7" r="1" />
-                  </svg>
-                  2 Images
-                  <span class="project-card-preview-arrow">↗</span>
-                </span>
-                </span>
-              </a>
-              <details class="project-notes">
-                <summary>
-                  <span>Notes</span>
-                  <svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
-                </summary>
-                <div class="notes-body">
-                  <p><strong>Pipeline:</strong> DICOM ingest, preprocessing, segmentation, morphological operations, and export were integrated with FAST.</p>
-                <p><strong>Parallel design:</strong> OpenMP distributes scan batches across CPU threads.</p>
-                <p><strong>Evaluation:</strong> Benchmark tooling compares execution modes; present a numerical speedup only if the result and personal contribution can be cited.</p>
-                  <a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">View source on GitHub</a>
-                </div>
-              </details>
-              </div>
-            </article>
-          </div>
-          <!-- PROJECTS_END -->
-        </div>
+        <div id="projects-root" class="projects-list"><!-- PROJECTS_START --><div class="project-card-animate" data-card-index="0" data-direction="left"><div class="perspective-distant project-comet-card"><div class="relative rounded-[14px]" style="transform:none"><article class="project-box project-target" data-project="doorlink"><div class="project-box-inner relative z-10 has-preview"><div class="project-box-header"><div class="project-box-title-group"><h3 class="project-box-title"><a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer">Doorlink</a></h3></div><div class="project-box-actions"><a class="project-icon-link" href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer" aria-label="Doorlink GitHub repository (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a><button type="button" class="project-expand-button" aria-label="Expand details for Doorlink" title="Expand details"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button></div></div><p class="project-box-type">Embedded systems · self-hosted IoT</p><p class="project-box-summary">A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.</p><ul class="project-box-tags" aria-label="Technologies"><li>C/C++ · ESP-IDF</li><li>Java · Spring Boot</li><li>TypeScript · Next.js</li><li>PostgreSQL</li><li>MQTT</li><li>ESP32-S3 · KiCad</li></ul><a class="project-card-preview" style="--photo-stack-second:url(&quot;/projects/doorlink-pcb.jpg&quot;);--photo-stack-third:url(&quot;/projects/doorlink-wiring.webp&quot;)" href="/projects/doorlink-enclosure.jpg" aria-label="View 4 Images for Doorlink" aria-haspopup="dialog"><span class="project-card-preview-face"><img src="/projects/doorlink-enclosure.jpg" alt="Finished Doorlink doorbell enclosure mounted on a wall" width="2370" height="3771" loading="lazy" decoding="async"/><span class="project-card-preview-label" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="15" height="15" rx="2"></rect><path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4"></path><circle cx="16" cy="7" r="1"></circle></svg>4<!-- --> <!-- -->Images<span class="project-card-preview-arrow">↗</span></span></span></a><details class="project-notes"><summary><span>Notes</span><svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></summary><div class="notes-body"><p><strong>Custom hardware<!-- -->:</strong> <!-- -->The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design.</p><p><strong>Device-to-dashboard flow<!-- -->:</strong> <!-- -->ESP-IDF firmware sends events to a Spring Boot gateway with PostgreSQL, MinIO media storage, MQTT, and a Next.js interface.</p><p><strong>Validation boundary<!-- -->:</strong> <!-- -->The battery-powered capture/upload/sleep path and audio paths have run on hardware. Final hardened-firmware retest and closed-enclosure current measurements remain.</p><div class="pt-2 flex flex-wrap gap-3"><a href="https://github.com/calebhabesh/doorlink" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg><span>View source on GitHub</span></a></div></div></details></div></article><div class="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]" style="background:radial-gradient(circle at 50% 50%, var(--comet-glare), transparent 70%)"></div></div></div></div><div class="project-card-animate" data-card-index="1" data-direction="right"><div class="perspective-distant project-comet-card"><div class="relative rounded-[14px]" style="transform:none"><article class="project-box project-target" data-project="linewatch"><div class="project-box-inner relative z-10 has-preview"><div class="project-box-header"><div class="project-box-title-group"><h3 class="project-box-title"><a href="https://linewatchto.ca" target="_blank" rel="noreferrer">LineWatchTO</a></h3></div><div class="project-box-actions"><a class="project-icon-link" href="https://linewatchto.ca" target="_blank" rel="noreferrer" aria-label="Visit LineWatchTO (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a><a class="project-icon-link" href="https://github.com/calebhabesh/linewatchto" target="_blank" rel="noreferrer" aria-label="LineWatchTO GitHub repository (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a><button type="button" class="project-expand-button" aria-label="Expand details for LineWatchTO" title="Expand details"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button></div></div><p class="project-box-type">Transit intelligence · full stack</p><p class="project-box-summary">A map-first reliability dashboard for TTC and GO/UP riders. It brings service alerts, planned closures, station arrivals, and saved-commute impact checks into one view, while labeling stale, scheduled, unavailable, and demo data honestly.</p><ul class="project-box-tags" aria-label="Technologies"><li>TypeScript · Next.js</li><li>Java · Spring Boot</li><li>PostgreSQL · PostGIS</li><li>Redis</li><li>MapLibre</li><li>GTFS / GTFS-RT</li></ul><a class="project-card-preview" style="--photo-stack-second:url(&quot;/projects/linewatch-onboarding-impact.png&quot;);--photo-stack-third:url(&quot;/projects/linewatch-onboarding-personal.png&quot;)" href="/projects/linewatch-onboarding-map.png" aria-label="View 4 Images for LineWatchTO" aria-haspopup="dialog"><span class="project-card-preview-face"><img src="/projects/linewatch-onboarding-map.png" alt="LineWatchTO TTC map showing a suspension, delay, reduced speed zone, and station impact" width="1320" height="764" loading="lazy" decoding="async"/><span class="project-card-preview-label" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="15" height="15" rx="2"></rect><path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4"></path><circle cx="16" cy="7" r="1"></circle></svg>4<!-- --> <!-- -->Images<span class="project-card-preview-arrow">↗</span></span></span></a><details class="project-notes"><summary><span>Notes</span><svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></summary><div class="notes-body"><p><strong>Two networks<!-- -->:</strong> <!-- -->Custom TTC and GO/UP map views connect incidents and station details to the lines and stops riders care about.</p><p><strong>Personal impact<!-- -->:</strong> <!-- -->Saved commutes and stations surface relevant disruptions, with optional notifications and offline PWA snapshots.</p><p><strong>Freshness rules<!-- -->:</strong> <!-- -->Java/Spring ingestion, PostGIS, and Redis support source-linked alerts; stale upstream data is not shown as current.</p><div class="pt-2 flex flex-wrap gap-3"><a href="https://linewatchto.ca" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg><span>Visit LineWatchTO</span></a><a href="https://github.com/calebhabesh/linewatchto" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg><span>View source on GitHub</span></a></div></div></details></div></article><div class="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]" style="background:radial-gradient(circle at 50% 50%, var(--comet-glare), transparent 70%)"></div></div></div></div><div class="project-card-animate" data-card-index="2" data-direction="left"><div class="perspective-distant project-comet-card"><div class="relative rounded-[14px]" style="transform:none"><article class="project-box project-target" data-project="file-sync"><div class="project-box-inner relative z-10 has-preview"><div class="project-box-header"><div class="project-box-title-group"><h3 class="project-box-title"><a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer">File Sync</a></h3></div><div class="project-box-actions"><a class="project-icon-link" href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer" aria-label="File Sync GitHub repository (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a><button type="button" class="project-expand-button" aria-label="Expand details for File Sync" title="Expand details"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button></div></div><p class="project-box-type">Distributed systems · local-first files</p><p class="project-box-summary">A Go peer-to-peer file sync daemon for trusted Linux devices. It keeps causal version history, transfers content-addressed chunks over authenticated peer connections, and exposes concurrent edits for deliberate resolution through a local interface instead of silently replacing a file.</p><ul class="project-box-tags" aria-label="Technologies"><li>Go</li><li>TypeScript · React</li><li>SQLite</li><li>mTLS</li><li>Linux</li></ul><a class="project-card-preview" style="--photo-stack-second:url(&quot;/projects/filesync-folders.png&quot;);--photo-stack-third:url(&quot;/projects/filesync-conflicts.png&quot;)" href="/projects/filesync-history.png" aria-label="View 3 Images for File Sync" aria-haspopup="dialog"><span class="project-card-preview-face"><img src="/projects/filesync-history.png" alt="File Sync operator console showing workspace files and version history" width="1200" height="750" loading="lazy" decoding="async"/><span class="project-card-preview-label" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="15" height="15" rx="2"></rect><path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4"></path><circle cx="16" cy="7" r="1"></circle></svg>3<!-- --> <!-- -->Images<span class="project-card-preview-arrow">↗</span></span></span></a><details class="project-notes"><summary><span>Notes</span><svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></summary><div class="notes-body"><p><strong>Causal history<!-- -->:</strong> <!-- -->Immutable version heads and vector clocks preserve offline edits; the local UI lets users inspect history and conflicts.</p><p><strong>Recovery<!-- -->:</strong> <!-- -->SQLite metadata, atomic chunk staging, and fault-injection tests exercise crash durability.</p><p><strong>Real workflow<!-- -->:</strong> <!-- -->A workstation, Raspberry Pi, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.</p><div class="pt-2 flex flex-wrap gap-3"><a href="https://github.com/calebhabesh/file-sync" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg><span>View source on GitHub</span></a></div></div></details></div></article><div class="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]" style="background:radial-gradient(circle at 50% 50%, var(--comet-glare), transparent 70%)"></div></div></div></div><div class="project-card-animate" data-card-index="3" data-direction="right"><div class="perspective-distant project-comet-card"><div class="relative rounded-[14px]" style="transform:none"><article class="project-box project-target" data-project="courtload"><div class="project-box-inner relative z-10 has-preview"><div class="project-box-header"><div class="project-box-title-group"><h3 class="project-box-title"><a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer">CourtLoad</a></h3></div><div class="project-box-actions"><a class="project-icon-link" href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer" aria-label="CourtLoad GitHub repository (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a><button type="button" class="project-expand-button" aria-label="Expand details for CourtLoad" title="Expand details"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button></div></div><p class="project-box-type">NBA analytics · data engineering</p><p class="project-box-summary">An NBA player comparison and analytics dashboard built from three historical regular seasons. It lets users compare player form, usage, and matchup context with source-traceable data and uncertainty informed by time-safe evaluation.</p><ul class="project-box-tags" aria-label="Technologies"><li>Python · FastAPI</li><li>TypeScript · Next.js</li><li>SQL · dbt</li><li>PostgreSQL</li></ul><a class="project-card-preview" style="--photo-stack-second:url(&quot;/projects/courtload-evaluation.png&quot;);--photo-stack-third:url(&quot;/projects/courtload-comparison.png&quot;)" href="/projects/courtload-comparison.png" aria-label="View 2 Images for CourtLoad" aria-haspopup="dialog"><span class="project-card-preview-face"><img src="/projects/courtload-comparison.png" alt="CourtLoad dashboard comparing LeBron James and Stephen Curry" width="749" height="1200" loading="lazy" decoding="async"/><span class="project-card-preview-label" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="15" height="15" rx="2"></rect><path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4"></path><circle cx="16" cy="7" r="1"></circle></svg>2<!-- --> <!-- -->Images<span class="project-card-preview-arrow">↗</span></span></span></a><details class="project-notes"><summary><span>Notes</span><svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></summary><div class="notes-body"><p><strong>Reproducible data<!-- -->:</strong> <!-- -->Python ingestion, PostgreSQL, and tested dbt models turn pinned schedules and box scores into dated player and opponent views.</p><p><strong>Useful comparison<!-- -->:</strong> <!-- -->A Next.js dashboard and FastAPI service show side-by-side trends, game logs, and matchup context.</p><p><strong>Honest modeling<!-- -->:</strong> <!-- -->Out-of-time evaluation kept the EWMA baseline after a gradient-boosted challenger failed promotion gates; the evaluation is shown to users.</p><div class="pt-2 flex flex-wrap gap-3"><a href="https://github.com/calebhabesh/courtload" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg><span>View source on GitHub</span></a></div></div></details></div></article><div class="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]" style="background:radial-gradient(circle at 50% 50%, var(--comet-glare), transparent 70%)"></div></div></div></div><div class="project-card-animate" data-card-index="4" data-direction="left"><div class="perspective-distant project-comet-card"><div class="relative rounded-[14px]" style="transform:none"><article class="project-box project-target" data-project="medical-imaging"><div class="project-box-inner relative z-10 has-preview"><div class="project-box-header"><div class="project-box-title-group"><h3 class="project-box-title"><a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">Medical Imaging</a></h3></div><div class="project-box-actions"><a class="project-icon-link" href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer" aria-label="Medical Imaging capstone repository (opens in new tab)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a><button type="button" class="project-expand-button" aria-label="Expand details for Medical Imaging" title="Expand details"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button></div></div><p class="project-box-type">Parallel computing · team capstone</p><p class="project-box-summary">A C++ medical-imaging pipeline for processing DICOM brain scans with FAST and OpenMP. The team batched image work across CPU threads and compared sequential and parallel execution through performance analysis.</p><ul class="project-box-tags" aria-label="Technologies"><li>C++17</li><li>OpenMP</li><li>FAST</li><li>DICOM</li></ul><a class="project-card-preview" style="--photo-stack-second:url(&quot;/projects/medical-pipelines.png&quot;);--photo-stack-third:url(&quot;/projects/medical-segmentation.png&quot;)" href="/projects/medical-segmentation.png" aria-label="View 2 Images for Medical Imaging" aria-haspopup="dialog"><span class="project-card-preview-face"><img src="/projects/medical-segmentation.png" alt="Medical imaging application showing an MRI slice through successive processing and segmentation stages" width="881" height="210" loading="lazy" decoding="async"/><span class="project-card-preview-label" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="15" height="15" rx="2"></rect><path d="M3 7v12a2 2 0 0 0 2 2h12M6 14l4-4 4 4 3-3 4 4"></path><circle cx="16" cy="7" r="1"></circle></svg>2<!-- --> <!-- -->Images<span class="project-card-preview-arrow">↗</span></span></span></a><details class="project-notes"><summary><span>Notes</span><svg class="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></summary><div class="notes-body"><p><strong>Pipeline<!-- -->:</strong> <!-- -->DICOM ingest, preprocessing, segmentation, morphological operations, and export were integrated with FAST.</p><p><strong>Parallel design<!-- -->:</strong> <!-- -->OpenMP distributes scan batches across CPU threads.</p><p><strong>Evaluation<!-- -->:</strong> <!-- -->Benchmark tooling compares execution modes; present a numerical speedup only if the result and personal contribution can be cited.</p><div class="pt-2 flex flex-wrap gap-3"><a href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer" class="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg><span>View source on GitHub</span></a></div></div></details></div></article><div class="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]" style="background:radial-gradient(circle at 50% 50%, var(--comet-glare), transparent 70%)"></div></div></div></div><!-- PROJECTS_END --></div>
       </section>
     </main>
 

@@ -1,33 +1,34 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
-import { flushSync } from "react-dom";
+import { hydrateRoot } from "react-dom/client";
 import { ProjectsList } from "./components/ProjectsList";
 
+let root: ReturnType<typeof hydrateRoot> | undefined;
 const container = document.getElementById("projects-root");
 
-if (container) {
-  // Keep the original animated shells and their compositor timelines alive.
-  // React owns their contents via portals and the separate dialog host.
-  const cardContainers = new Map(
-    [...container.querySelectorAll<HTMLElement>(".project-card-animate")]
-      .map((card) => {
-        card.dataset.projectId ||= card.querySelector<HTMLElement>("[data-project]")!.dataset.project!;
-        return [card.dataset.projectId, card] as const;
-      }),
-  );
-  const host = document.createElement("div");
-  host.style.display = "contents";
-  container.append(host);
-  const root = createRoot(host);
-  flushSync(() => {
-    for (const card of cardContainers.values()) card.replaceChildren();
-    root.render(<ProjectsList cardContainers={cardContainers} />);
-  });
-
-  if (import.meta.hot) {
-    import.meta.hot.dispose(() => {
-      root.unmount();
-      host.remove();
-    });
+// Attach interactions to the static cards while the emblem assets load.
+// Their entrance is controlled by the separate reveal observer.
+export const projectInteractionsReady = new Promise<void>((resolve) => {
+  if (!container) {
+    resolve();
+    return;
   }
+  const observer = new MutationObserver(() => {
+    if (container.dataset.interactive !== "true") return;
+    observer.disconnect();
+    clearTimeout(fallbackTimer);
+    resolve();
+  });
+  const fallbackTimer = setTimeout(() => {
+    observer.disconnect();
+    resolve();
+  }, 1500);
+  observer.observe(container, { attributes: true, attributeFilter: ["data-interactive"] });
+  root = hydrateRoot(container, <ProjectsList />);
+});
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    root?.unmount();
+    root = undefined;
+  });
 }

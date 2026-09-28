@@ -1,48 +1,53 @@
+export const entranceSelector = ".project-card-animate";
+
 // Static card shells retain ownership of their entrances after React mounts.
-// Bound the wait so model downloads never hold up the project list indefinitely.
+// Give the emblem a brief chance to render before the initial card entrances.
+// Release the cards promptly if loading takes longer or fails.
 export const projectEntranceReady = new Promise((resolve) => {
   const stage = document.querySelector("[data-emblem-stage]");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const stageVisible = () => {
-    const bounds = stage?.getBoundingClientRect();
-    return bounds && bounds.bottom > 0 && bounds.top < window.innerHeight;
-  };
-  if (!stage || reducedMotion.matches || !stageVisible()) {
+  if (!stage || reducedMotion.matches) {
     resolve();
     return;
   }
 
-  let leadTimer;
   let observer;
+  let settleTimer;
+  let finished = false;
   const finish = () => {
+    if (finished) return;
+    finished = true;
     clearTimeout(fallbackTimer);
-    clearTimeout(leadTimer);
+    clearTimeout(settleTimer);
     observer?.disconnect();
-    window.removeEventListener("scroll", onScroll);
     reducedMotion.removeEventListener("change", onMotionChange);
     resolve();
   };
-  const onScroll = () => { if (!stageVisible()) finish(); };
   const onMotionChange = () => { if (reducedMotion.matches) finish(); };
   const checkModel = () => {
-    if (stage.dataset.modelState === "error") finish("error");
-    else if (stage.dataset.rendered === "true" && leadTimer === undefined) {
-      leadTimer = setTimeout(() => finish("model-rendered"), 120);
+    if (stage.dataset.modelState === "error") finish();
+    else if (stage.dataset.rendered === "true" && stage.dataset.motionPrimed === "true" && ["ready", "error"].includes(stage.dataset.physicsState) && settleTimer === undefined) {
+      // Let the emblem show its first animated frame before revealing cards.
+      settleTimer = setTimeout(finish, 120);
     }
   };
-  const fallbackTimer = setTimeout(() => finish("fallback-timer"), 280);
+  const fallbackTimer = setTimeout(finish, 280);
   observer = new MutationObserver(checkModel);
-  observer.observe(stage, { attributes: true, attributeFilter: ["data-rendered", "data-model-state"] });
-  window.addEventListener("scroll", onScroll, { passive: true });
+  observer.observe(stage, { attributes: true, attributeFilter: ["data-rendered", "data-motion-primed", "data-model-state", "data-physics-state"] });
   reducedMotion.addEventListener("change", onMotionChange);
   checkModel();
 });
 
-// If downloads finish after the fallback, let the visible entrances complete
-// before parsing the model, uploading textures, and compiling its shaders.
+// Reveal the prepared model after active card entrances have painted their final frame.
 export async function waitForProjectEntrances() {
-  const animations = [...document.querySelectorAll(".project-card-animate")]
+  const animations = [...document.querySelectorAll(entranceSelector)]
     .flatMap((card) => card.getAnimations())
     .filter((animation) => animation.playState === "running");
   await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
+  if (animations.length && !document.hidden) {
+    // Animation.finished can resolve before its final paint. Leave one frame
+    // for animationend cleanup, then reveal the prepared model.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+  return animations.length > 0 && !document.hidden;
 }

@@ -159,7 +159,7 @@ async function checkPage(browser, viewport, screenshotName) {
 
   assert.match(
     await page.locator(".hero-intro").innerText(),
-    /Building across full-stack web, data infrastructure, and connected hardware/,
+    /(Building|I build) across full-stack web, data infrastructure, and connected hardware/,
     "Hero intro wording did not match reverted text."
   );
 

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { waitForProjectEntrances } from "./project-entrance.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { createGrassField } from "./grass-field.js";
@@ -9,6 +10,7 @@ import {
 } from "./emblem-textures.js";
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const GUIDE_DISMISSED_KEY = "caleb-emblem-guide-dismissed";
 const MODEL_HEIGHT = 1.94;
 const MODEL_CENTER_Y = 0;
 const GROUND_Y = -0.89;
@@ -68,6 +70,24 @@ export async function initEmblemScene(stage, assets) {
   if (!canvas) throw new Error("The emblem canvas is missing.");
   if (!assets?.modelBufferPromise || !assets?.collisionFieldBufferPromise) {
     throw new Error("The emblem assets were not preloaded.");
+  }
+
+  try {
+    if (window.sessionStorage.getItem(GUIDE_DISMISSED_KEY) === "true") {
+      stage.dataset.guideDismissed = "true";
+    }
+  } catch {
+    // The guide still dismisses for this page when browser storage is unavailable.
+  }
+
+  function dismissInteractionGuide() {
+    if (stage.dataset.guideDismissed === "true") return;
+    stage.dataset.guideDismissed = "true";
+    try {
+      window.sessionStorage.setItem(GUIDE_DISMISSED_KEY, "true");
+    } catch {
+      // Keep model interaction available when browser storage is unavailable.
+    }
   }
 
   stage.dataset.physicsState = "loading";
@@ -277,6 +297,7 @@ export async function initEmblemScene(stage, assets) {
 
   function onPointerDown(event) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    dismissInteractionGuide();
     event.preventDefault();
     motion.dragging = true;
     motion.returning = false;
@@ -380,6 +401,7 @@ export async function initEmblemScene(stage, assets) {
     let axis;
     let direction = 1;
     if (event.key === "Home") {
+      dismissInteractionGuide();
       updateTargetUprightOrientation(motion.current, ambientOrientation);
       motion.current.copy(ambientOrientation);
       if (reducedMotion.matches) motion.angularVelocity.set(0, 0, 0);
@@ -395,6 +417,7 @@ export async function initEmblemScene(stage, assets) {
     else if (event.key.toLowerCase() === "e") { axis = new THREE.Vector3(0, 0, 1); direction = -1; }
     else return;
 
+    dismissInteractionGuide();
     rotationDelta.setFromAxisAngle(axis, step * direction);
     motion.current.premultiply(rotationDelta).normalize();
     motion.angularVelocity.copy(axis).multiplyScalar(0.28 * direction);
@@ -411,6 +434,7 @@ export async function initEmblemScene(stage, assets) {
     camera.aspect = width / height;
     camera.fov = width < 520 ? 30 : 27;
     camera.position.z = width < 520 ? 4.8 : 4.4;
+    camera.zoom = window.matchMedia("(min-width: 769px)").matches ? 1.06 : 1;
     camera.updateProjectionMatrix();
   }
 
@@ -432,6 +456,9 @@ export async function initEmblemScene(stage, assets) {
   function syncAnimation() {
     if (animationFrame) cancelAnimationFrame(animationFrame);
     animationFrame = null;
+    if (renderingReady && (!isVisible || document.hidden) && !stage.dataset.motionPrimed) {
+      stage.dataset.motionPrimed = "true";
+    }
     if (renderingReady && !disposed && isVisible && !document.hidden) {
       previousTime = performance.now();
       animationFrame = requestAnimationFrame(render);
@@ -542,6 +569,14 @@ export async function initEmblemScene(stage, assets) {
     stage.dataset.angularSpeed = motion.angularVelocity.length().toFixed(5);
     stage.dataset.dragAngularSpeed = motion.dragAngularSpeed.toFixed(5);
 
+    updateGrass(now, delta);
+    renderer.render(scene, camera);
+    if (!stage.dataset.motionPrimed) stage.dataset.motionPrimed = "true";
+    previousOrientation.copy(motion.current);
+    previousColliderPosition.copy(emblem.position);
+  }
+
+  function updateGrass(now, delta) {
     if (grass) {
       const physicsStart = performance.now();
       grass.update(
@@ -559,13 +594,6 @@ export async function initEmblemScene(stage, assets) {
     } else {
       stage.dataset.physicsMs = "0.00";
     }
-    renderer.render(scene, camera);
-    if (stage.dataset.rendered !== "true") {
-      stage.dataset.rendered = "true";
-      stage.dataset.firstFrameMs = (performance.now() - assets.startedAt).toFixed(1);
-    }
-    previousOrientation.copy(motion.current);
-    previousColliderPosition.copy(emblem.position);
   }
 
   // Prepare the complete scene before revealing it so grass and shaders do not pop in.
@@ -573,8 +601,23 @@ export async function initEmblemScene(stage, assets) {
   await renderer.compileAsync(scene, camera);
   // Shader compilation alone does not upload geometry/textures or finish the
   // first GPU frame. Warm the complete scene while the canvas is still hidden.
+  // Resolve the initial grass contact before revealing the model.
+  emblem.updateMatrixWorld(true);
+  updateGrass(performance.now(), 1 / 60);
   renderer.render(scene, camera);
-  await new Promise((resolve) => requestAnimationFrame(resolve));
+  // Card entrances may be running while the invisible scene is prepared.
+  // Their final painted frame also serves as the GPU warm-up frame.
+  const waitedForEntrance = await waitForProjectEntrances();
+  if (!waitedForEntrance) {
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+  stage.dataset.rendered = "true";
+  stage.dataset.firstFrameMs = (performance.now() - assets.startedAt).toFixed(1);
+  // Start continuous rotation as soon as the prepared model is visible.
+  // Project entrances can begin now, or earlier if the loading fallback elapsed.
+  stage.dataset.motionStartOrientation = [
+    motion.current.x, motion.current.y, motion.current.z, motion.current.w,
+  ].map((value) => value.toFixed(5)).join(",");
   renderingReady = true;
   syncAnimation();
 

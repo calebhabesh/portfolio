@@ -1,5 +1,5 @@
 import "./styles.css";
-import { projectEntranceReady, waitForProjectEntrances } from "./project-entrance.js";
+import { entranceSelector, projectEntranceReady } from "./project-entrance.js";
 
 const EMBLEM_MODEL_URL = new URL("./assets/lion_emblem.optimized.glb.gzip", import.meta.url).href;
 const EMBLEM_COLLISION_FIELD_URL = new URL("./assets/emblem-collision-field.bin.gzip", import.meta.url).href;
@@ -43,6 +43,18 @@ const textureImagesPromise = Promise.all(Object.entries(emblemTextureUrls).map(a
 })).then(Object.fromEntries);
 
 const emblemSceneModulePromise = import("./emblem-scene.js");
+// Hydrate the static cards during asset download so React and Motion setup
+// cannot interrupt the emblem's first spinning frames.
+let projectInteractionsTimeout;
+const projectInteractionsReady = Promise.race([
+  import("./projects-island.tsx")
+    .then(({ projectInteractionsReady }) => projectInteractionsReady)
+    .catch((error) => {
+      console.error("The project interactions could not start.", error);
+    }),
+  // The emblem remains usable if the optional project island stalls.
+  new Promise((resolve) => { projectInteractionsTimeout = setTimeout(resolve, 3000); }),
+]).finally(() => clearTimeout(projectInteractionsTimeout));
 
 const root = document.documentElement;
 
@@ -92,6 +104,33 @@ systemTheme.addEventListener("change", (event) => {
 const currentYearEl = document.querySelector("[data-current-year]");
 if (currentYearEl) currentYearEl.textContent = String(new Date().getFullYear());
 
+// Only sections below the initial viewport need scroll-triggered motion.
+// Visible content keeps its CSS entrance, and no-JS or reduced-motion visits
+// keep the complete page readable without waiting for an observer.
+if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+  const scrollRevealTargets = [
+    document.querySelector(".section-header"),
+    document.querySelector(".site-footer"),
+  ].filter((element) => element?.getBoundingClientRect().top >= window.innerHeight);
+
+  const scrollRevealObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.dataset.contentReveal = "visible";
+      scrollRevealObserver.unobserve(entry.target);
+    }
+  }, { threshold: 0.1 });
+
+  scrollRevealTargets.forEach((element) => {
+    element.dataset.contentReveal = "pending";
+    scrollRevealObserver.observe(element);
+    element.addEventListener("focusin", () => {
+      element.dataset.contentReveal = "visible";
+      scrollRevealObserver.unobserve(element);
+    }, { once: true });
+  });
+}
+
 let activeEmblemScene = null;
 
 if (import.meta.hot) {
@@ -129,6 +168,8 @@ function startEmblemScene() {
 
   stage.dataset.modelState = "loading";
   delete stage.dataset.rendered;
+  delete stage.dataset.motionPrimed;
+  delete stage.dataset.motionStartOrientation;
 
   // Observe every asset promise immediately, including failures that arrive
   // before the scene module. Reserve GPU preparation only after downloads end.
@@ -136,8 +177,8 @@ function startEmblemScene() {
     emblemSceneModulePromise, modelBufferPromise, collisionFieldBufferPromise, textureImagesPromise,
   ])
     .then(async ([{ initEmblemScene }]) => {
-      // A late model must not interrupt entrances released by the fallback.
-      await waitForProjectEntrances();
+      await projectInteractionsReady;
+      // Prepare the invisible scene while any card entrances continue.
       stage.dataset.preparing = "true";
       const sceneInstance = await initEmblemScene(stage, {
         startedAt,
@@ -215,8 +256,11 @@ if (projectsScrollArrow && projectsSection) {
   updateProjectsScrollCue();
 }
 
-// The static shells own entrances for their entire lifetime, including after React loads.
-document.querySelectorAll(".project-card-animate").forEach((card) => {
+// Reveal visible cards in document order; each new viewport batch gets a
+// fresh stagger so below-fold content never waits for a page-wide delay.
+const revealTargets = [...document.querySelectorAll(entranceSelector)];
+revealTargets.forEach((card) => {
+  card.dataset.cardReveal = "pending";
   card.addEventListener("animationend", (event) => {
     if (event.target === card && event.animationName === "project-fly-in") {
       requestAnimationFrame(() => {
@@ -225,24 +269,28 @@ document.querySelectorAll(".project-card-animate").forEach((card) => {
     }
   });
 });
-const cardObserver = new IntersectionObserver((entries) => {
-  for (const entry of entries) {
-    if (!entry.isIntersecting) continue;
-    const card = entry.target;
-    projectEntranceReady.then(() => {
-      if (!card.isConnected || card.classList.contains("is-visible")) return;
+const revealObserver = new IntersectionObserver((entries) => {
+  const intersecting = new Set(entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target));
+  projectEntranceReady.then(() => {
+    const visibleCards = revealTargets.filter((card) => {
+      if (!intersecting.has(card) || !card.isConnected || card.classList.contains("is-visible")) return false;
       const bounds = card.getBoundingClientRect();
-      if (bounds.top >= window.innerHeight - 30 || bounds.bottom <= 0) return;
-      const index = Number(card.dataset.cardIndex);
-      card.style.animationDelay = `${(index % 2) * 100}ms`;
-      card.classList.add("is-visible");
-      cardObserver.unobserve(card);
+      return bounds.top < window.innerHeight - 30 && bounds.bottom > 0;
     });
-  }
+    visibleCards.forEach((card, order) => {
+      card.style.setProperty("--reveal-delay", `${order * 60}ms`);
+      card.classList.add("is-visible");
+      revealObserver.unobserve(card);
+    });
+  });
 }, { threshold: 0.08, rootMargin: "0px 0px -30px 0px" });
-document.querySelectorAll(".project-card-animate").forEach((card) => cardObserver.observe(card));
+revealTargets.forEach((card) => revealObserver.observe(card));
 
-// Static project content is already in the HTML; hydrate independently of the hero.
-import("./projects-island.tsx").catch((error) => {
-  console.error("The project interactions could not start.", error);
+// Keyboard navigation should never land on an invisible control.
+document.addEventListener("focusin", (event) => {
+  const card = event.target.closest?.(entranceSelector);
+  if (!card) return;
+  card.dataset.cardReveal = "settled";
+  card.classList.add("is-visible");
+  revealObserver.unobserve(card);
 });
