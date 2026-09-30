@@ -10,7 +10,6 @@ import {
 } from "./emblem-textures.js";
 
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const GUIDE_DISMISSED_KEY = "caleb-emblem-guide-dismissed";
 const MODEL_HEIGHT = 1.94;
 const MODEL_CENTER_Y = 0;
 const GROUND_Y = -0.89;
@@ -72,22 +71,11 @@ export async function initEmblemScene(stage, assets) {
     throw new Error("The emblem assets were not preloaded.");
   }
 
-  try {
-    if (window.sessionStorage.getItem(GUIDE_DISMISSED_KEY) === "true") {
-      stage.dataset.guideDismissed = "true";
-    }
-  } catch {
-    // The guide still dismisses for this page when browser storage is unavailable.
-  }
+  delete stage.dataset.guideDismissed;
 
   function dismissInteractionGuide() {
     if (stage.dataset.guideDismissed === "true") return;
     stage.dataset.guideDismissed = "true";
-    try {
-      window.sessionStorage.setItem(GUIDE_DISMISSED_KEY, "true");
-    } catch {
-      // Keep model interaction available when browser storage is unavailable.
-    }
   }
 
   stage.dataset.physicsState = "loading";

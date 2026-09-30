@@ -142,13 +142,13 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.deepEqual(
     projectIds,
     ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging"],
-    `Expected project order Doorlink, LineWatchTO, File Sync, CourtLoad, Medical Imaging. Got: ${projectIds.join(", ")}`
+    `Expected project order Doorlink, LineWatchTO, File Sync, CourtLoad, Medical Image Processing. Got: ${projectIds.join(", ")}`
   );
 
   const projectTitles = (await page.locator("article[data-project] .project-box-title").allInnerTexts()).map((t) => t.trim());
   assert.deepEqual(
     projectTitles,
-    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Imaging"],
+    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Image Processing"],
     `Expected exact titles. Got: ${projectTitles.join(", ")}`
   );
   assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
@@ -418,7 +418,13 @@ async function checkPage(browser, viewport, screenshotName) {
 
   const expandButton = page.locator('[data-project="doorlink"] .project-expand-button');
   await expandButton.hover();
-  assert.equal(await page.locator("canvas").count(), 1, "Card hover should not create another WebGL canvas.");
+  assert.equal(await page.locator("canvas:not(.grid-pointer-trail)").count(), 1,
+    "Card hover should not create another WebGL canvas.");
+  assert.equal(await page.locator(".grid-pointer-trail").count(), 1,
+    "The page should have one decorative trail canvas.");
+  assert.equal(await page.locator(".grid-pointer-trail").evaluate(canvas =>
+    canvas.getContext("2d") instanceof CanvasRenderingContext2D), true,
+    "The grid trail should use 2D rendering independently of the WebGL hero.");
   await expandButton.click();
   const dialog = page.getByRole("dialog");
   await dialog.waitFor();

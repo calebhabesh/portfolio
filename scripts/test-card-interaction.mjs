@@ -80,6 +80,84 @@ try {
     await page.close();
   }
 
+  // Freeze real CSS timelines to inspect each stage without timing races.
+  for (const width of [1440, 390]) {
+    const page = await browser.newPage({ viewport: { width, height: 1200 } });
+    await page.addInitScript(() => {
+      const observer = new MutationObserver(() => {
+        const card = document.querySelector('.project-card-animate.is-visible');
+        if (!card || window.frameRevealAnimations) return;
+        window.frameRevealAnimations = card.getAnimations({ subtree: true });
+        for (const animation of window.frameRevealAnimations) {
+          animation.pause();
+          animation.currentTime = 0;
+        }
+      });
+      observer.observe(document, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    });
+    await page.route("**/emblem-scene-*.js", route => route.abort());
+    await page.goto(baseUrl, { waitUntil: "networkidle" });
+    await page.waitForFunction(() => window.frameRevealAnimations?.length);
+    const sample = time => page.evaluate(time => {
+      for (const animation of window.frameRevealAnimations) animation.currentTime = time;
+      const card = document.querySelector('.project-card-animate');
+      const surface = card.querySelector('.project-comet-card');
+      const style = element => getComputedStyle(element);
+      const rect = element => {
+        const { x, y, width, height } = element.getBoundingClientRect();
+        return { x, y, width, height };
+      };
+      return {
+        opacity: Number(style(surface).opacity),
+        x: new DOMMatrixReadOnly(style(surface).transform).m41,
+        frame: rect(card.querySelector('.project-frame')),
+        corners: [...card.querySelectorAll('.project-frame-corner')].map(rect),
+        crossProgress: [...card.querySelectorAll('.project-frame-corner')].map(corner => ({
+          vertical: [...corner.querySelectorAll('.project-cross-stroke--vertical')].map(path => parseFloat(style(path).strokeDashoffset)),
+          horizontal: [...corner.querySelectorAll('.project-cross-stroke--horizontal')].map(path => parseFloat(style(path).strokeDashoffset)),
+        })),
+        outlineProgress: parseFloat(style(card.querySelector('.project-frame-outline rect')).strokeDashoffset),
+      };
+    }, time);
+    const start = await sample(0);
+    for (let corner = 0; corner < 4; corner++) {
+      const vertical = await sample(corner * 200 + 50);
+      assert.ok(vertical.crossProgress[corner].vertical.length && vertical.crossProgress[corner].vertical.every(progress => progress > 0 && progress < 1), 'Each cross should draw its vertical stroke first.');
+      assert.ok(vertical.crossProgress[corner].horizontal.length && vertical.crossProgress[corner].horizontal.every(progress => progress === 1), 'The horizontal stroke must wait for the vertical stroke.');
+      const horizontal = await sample(corner * 200 + 150);
+      assert.ok(horizontal.crossProgress[corner].vertical.every(progress => progress === 0), 'Vertical strokes must finish before horizontal strokes.');
+      assert.ok(horizontal.crossProgress[corner].horizontal.every(progress => progress > 0 && progress < 1), 'The horizontal stroke should draw second.');
+      for (const [index, strokes] of horizontal.crossProgress.entries()) {
+        if (index === corner) continue;
+        assert.ok([...strokes.vertical, ...strokes.horizontal].every(progress => progress === (index < corner ? 0 : 1)), 'Crosses in a card must draw one at a time in clockwise order.');
+      }
+      assert.equal(horizontal.outlineProgress, 1, 'The outline must wait for all four crosses.');
+      assert.equal(horizontal.opacity, 0, 'The card must wait for the frame.');
+    }
+    const outline = await sample(970);
+    assert.ok(outline.crossProgress.every(strokes => [...strokes.vertical, ...strokes.horizontal].every(progress => progress === 0)), 'Crosses must finish before the outline.');
+    assert.ok(outline.outlineProgress > 0 && outline.outlineProgress < 1, 'The outline should trace between the finished crosses.');
+    assert.equal(outline.opacity, 0, 'The card must remain hidden until the outline finishes.');
+    const slide = await sample(1280);
+    assert.equal(slide.outlineProgress, 0);
+    assert.ok(slide.opacity > 0 && slide.opacity < 1 && slide.x < 0, 'The card should retain its left entrance after the frame finishes.');
+    assert.deepEqual(slide.frame, start.frame, 'The frame must not slide with the card.');
+    assert.deepEqual(slide.corners, start.corners, 'Crosses must stay fixed on their vertices throughout the reveal.');
+    const end = await sample(1770);
+    assert.equal(end.opacity, 1);
+    assert.equal(end.x, 0);
+    // Focusing a control skips the reveal, including its delayed slide.
+    await page.locator('.project-expand-button').first().focus();
+    assert.equal(await page.locator('.project-card-animate').first().getAttribute('data-card-reveal'), 'settled');
+    assert.equal(await page.locator('.project-comet-card').first().evaluate(el => getComputedStyle(el).pointerEvents), 'auto');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForFunction(() => [...document.querySelectorAll('.project-card-animate')].every(card => card.dataset.cardReveal === 'settled'));
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await page.locator('.project-comet-card').evaluateAll(cards => cards.some(card => getComputedStyle(card).opacity !== '1')), false,
+      'Changing to reduced motion must immediately reveal even below-fold cards.');
+    await page.close();
+  }
+
   // Preserve the rendered pixels through the entrance-to-settled handoff.
   // Hold the finished entrance before its cleanup so both frames use the
   // exact final coordinates, with fonts, images, and the pointer stationary.
@@ -87,7 +165,7 @@ try {
     const page = await browser.newPage({ viewport: { width, height: 1200 } });
     await page.addInitScript(() => {
       document.addEventListener("animationend", (event) => {
-        if (event.animationName === "project-fly-in" && event.target.dataset.cardIndex === "0") {
+        if (event.animationName === "project-fly-in" && event.target.closest('.project-card-animate')?.dataset.cardIndex === "0") {
           event.stopImmediatePropagation();
           window.cardEntranceFinished = true;
         }
@@ -116,7 +194,7 @@ try {
     window.initialCardAnimations = 0;
     window.contentEntrances = [];
     document.addEventListener("animationstart", (event) => {
-      if (event.animationName === "project-fly-in" && Number(event.target.dataset.cardIndex) < 2) {
+      if (event.animationName === "project-fly-in" && Number(event.target.closest('.project-card-animate')?.dataset.cardIndex) < 2) {
         window.initialCardAnimations++;
       }
       if (event.animationName === "content-rise-in") {
@@ -157,7 +235,7 @@ try {
         for (const record of records) {
           if (record.attributeName !== "data-rendered" || record.target.dataset.rendered !== "true") continue;
           const running = [...document.querySelectorAll(".project-card-animate")]
-            .flatMap(card => card.getAnimations())
+            .flatMap(card => card.getAnimations({ subtree: true }))
             .filter(animation => animation.playState === "running");
           window.revealOverlaps.push(running.length);
         }
@@ -190,10 +268,11 @@ try {
         window.initialCard = document.querySelector('.project-card-animate[data-card-index="0"]');
       });
       document.addEventListener("animationstart", (event) => {
-        if (event.animationName === "project-fly-in" && event.target.matches(".project-card-animate")) {
-          window.cardEntranceStarts.push(event.target.dataset.cardIndex);
-          if (!window.animatedCards.has(event.target.dataset.cardIndex)) {
-            window.animatedCards.set(event.target.dataset.cardIndex, event.target);
+        const card = event.target.closest('.project-card-animate');
+        if (event.animationName === "project-fly-in" && card) {
+          window.cardEntranceStarts.push(card.dataset.cardIndex);
+          if (!window.animatedCards.has(card.dataset.cardIndex)) {
+            window.animatedCards.set(card.dataset.cardIndex, card);
           }
         }
       });
@@ -204,6 +283,8 @@ try {
     });
     await reloadPage.goto(baseUrl, { waitUntil: "networkidle" });
     await reloadPage.locator('#projects-root[data-interactive="true"]').waitFor();
+    await reloadPage.waitForFunction(() => [...document.querySelectorAll('.project-card-animate')]
+      .slice(0, 2).every(card => card.dataset.cardReveal === 'settled'));
     assert.ok(await reloadPage.evaluate(() => window.initialCard?.isConnected),
       "React replaced the initial static card during hydration.");
     assert.deepEqual(await reloadPage.locator('.project-card-animate').evaluateAll((cards) =>
@@ -239,6 +320,9 @@ try {
     const card = page.locator('[data-project="doorlink"]');
     const button = page.locator('[data-project="doorlink"] .project-expand-button');
     await card.scrollIntoViewIfNeeded();
+    const frame = page.locator('.project-frame').first();
+    const frameBounds = await frame.boundingBox();
+    assert.ok(frameBounds, "The project card has no fixed frame.");
     await button.hover();
     const bounds = await card.boundingBox();
     assert.ok(bounds, "The project card has no rendered bounds.");
@@ -250,13 +334,30 @@ try {
     await page.waitForTimeout(180);
     const secondTransform = await comet.evaluate((element) => element.style.transform);
     assert.notEqual(secondTransform, firstTransform, "The Comet Card did not respond to the pointer.");
+    assert.deepEqual(await frame.boundingBox(), frameBounds,
+      "The blueprint frame must stay attached to the grid while its card tilts.");
+    const hoverBackground = frame.locator('.project-hover-background');
+    assert.equal(await hoverBackground.count(), 1, "Hovering a card should reveal its shared highlight.");
+    const highlightBounds = await hoverBackground.boundingBox();
+    assert.ok(Math.abs(highlightBounds.x - frameBounds.x) < 0.75
+      && Math.abs(highlightBounds.width - frameBounds.width) < 0.75
+      && Math.abs(highlightBounds.y - frameBounds.y) < 0.75
+      && Math.abs(highlightBounds.height - frameBounds.height) < 0.75,
+      "The hover highlight must fit inside the calibrated frame.");
+    assert.equal(await card.evaluate(element => getComputedStyle(element).cursor), 'pointer',
+      "The clickable card surface should use a hand cursor.");
+    assert.equal(await card.locator('.project-box-summary').evaluate(element => getComputedStyle(element).cursor), 'text',
+      "Descriptions should retain the text-selection cursor.");
+    await card.locator('.project-box-summary').click();
+    assert.equal(await page.getByRole('dialog').count(), 0,
+      "Clicking selectable description text should not expand the card.");
     assert.ok(!secondTransform.includes('scale'), "The Comet Card should not scale up on hover.");
     assert.equal(
       await page.locator('.project-comet-card').first().locator('.comet-glare').evaluate((element) => getComputedStyle(element).opacity),
       "1",
       "The subtle Comet glare did not appear on hover.",
     );
-    // Hit-test the tilted surface beyond both list edges to catch clipping.
+    // Hit-test beyond the resting surface edges to catch clipping during tilt.
     const restingBounds = await page.locator('.project-comet-card').first().boundingBox();
     assert.ok(restingBounds, "The Comet wrapper has no rendered bounds.");
     for (const side of ["left", "right"]) {
@@ -266,12 +367,24 @@ try {
       );
       await page.waitForTimeout(500);
       const edgeVisible = await card.evaluate((element, side) => {
-        const list = element.closest('.projects-list').getBoundingClientRect();
+        const resting = element.closest('.project-comet-card').getBoundingClientRect();
         const rect = element.getBoundingClientRect();
-        const x = side === "left" ? list.left - 1 : list.right + 1;
+        const x = side === "left" ? resting.left - 1 : resting.right + 1;
         return document.elementFromPoint(x, rect.top + rect.height / 2)?.closest('[data-project]') === element;
       }, side);
-      assert.ok(edgeVisible, `The tilted card is clipped at the ${side} list boundary at ${width}px.`);
+      assert.ok(edgeVisible, `The tilted card is clipped at the ${side} surface boundary at ${width}px.`);
+    }
+    // Pointer extremes must fit within the calibrated frame, without clipping
+    // away the card's tilted edges or moving the frame itself.
+    for (const [x, y] of [[0.02, 0.02], [0.98, 0.02], [0.02, 0.98], [0.98, 0.98]]) {
+      await page.mouse.move(restingBounds.x + restingBounds.width * x, restingBounds.y + restingBounds.height * y);
+      await page.waitForTimeout(400);
+      const tilted = await card.boundingBox();
+      const currentFrame = await frame.boundingBox();
+      assert.ok(tilted.x >= currentFrame.x - 0.75 && tilted.y >= currentFrame.y - 0.75
+        && tilted.x + tilted.width <= currentFrame.x + currentFrame.width + 0.75
+        && tilted.y + tilted.height <= currentFrame.y + currentFrame.height + 0.75,
+      `The tilted surface escaped its frame at ${width}px (${x}, ${y}).`);
     }
     if (width >= 1000) {
       const stage = page.locator("[data-emblem-stage]");
@@ -295,6 +408,7 @@ try {
       const samples = [];
       const emblem = document.querySelector("[data-emblem-stage]");
       const orientationBefore = emblem?.dataset.orientation;
+      const source = document.querySelector('[data-project="doorlink"]').getBoundingClientRect();
       const start = performance.now();
       document.querySelector('[data-project="doorlink"] .project-expand-button').click();
       while (performance.now() - start < 1200) {
@@ -304,6 +418,8 @@ try {
         samples.push({ t: performance.now() - start, x: rect?.x, y: rect?.y, width: rect?.width, height: rect?.height });
       }
       const final = samples.at(-1);
+      const dimension = Math.abs(source.width - final.width) > 80 ? 'width' : 'height';
+      const distance = Math.abs(source[dimension] - final[dimension]);
       const settled = samples.find((sample, index) => sample.width && samples.slice(index).every((later) =>
         later.width &&
         Math.abs(later.x - final.x) < 2 &&
@@ -314,6 +430,8 @@ try {
       return {
         firstMs: samples.find((sample) => sample.width)?.t,
         settledMs: settled?.t,
+        morphsFromCard: samples.some(sample => sample.t < 100
+          && Math.abs(sample[dimension] - source[dimension]) < distance * 0.5),
         projectPauseFlag: document.body.hasAttribute("data-project-interacting") || document.body.dataset.projectDialogOpen === "true",
         orientationBefore,
         orientationAfter: emblem?.dataset.orientation,
@@ -326,6 +444,8 @@ try {
     }
     assert.ok(result.firstMs < 150, `Dialog appeared after ${result.firstMs?.toFixed(0)} ms at ${width}px.`);
     assert.ok(result.settledMs < 600, `Dialog took ${result.settledMs?.toFixed(0)} ms to settle at ${width}px.`);
+    assert.equal(result.morphsFromCard, true,
+      "The expanded view must morph from the original card's dimensions.");
     assert.equal(await page.locator('[data-projects-scroll-arrow]').isVisible(), false,
       "The page scroll cue should be hidden while the project dialog is open.");
     const backgroundScrollBefore = await page.evaluate(() => window.scrollY);
@@ -337,8 +457,19 @@ try {
     const dialogScroll = page.locator('.project-dialog-scroll');
     assert.ok(await dialogScroll.evaluate(element => element.scrollHeight > element.clientHeight),
       "Long project details must remain scrollable inside the dialog.");
+    await dialogScroll.evaluate(element => { element.scrollTop = element.scrollHeight; });
+    await page.waitForTimeout(100);
+    assert.equal(await card.evaluate(element => getComputedStyle(element.closest('.project-comet-card')).opacity), '0',
+      "The original card must stay hidden while the expanded view is scrolled.");
+    assert.equal(await frame.evaluate(element => element.inert), true,
+      "The hidden source card must not receive keyboard focus.");
+    assert.equal(await page.locator('.project-hover-background').count(), 0,
+      "Expanded projects should not leave a hover highlight behind the dialog.");
     await page.keyboard.press('Escape');
     await page.getByRole('dialog').waitFor({ state: 'hidden' });
+    assert.equal(await card.evaluate(element => getComputedStyle(element.closest('.project-comet-card')).opacity), '1',
+      "Closing the expanded view should restore the original card.");
+    assert.equal(await frame.evaluate(element => element.inert), false);
     assert.equal(await page.evaluate(() => document.documentElement.style.overflow), '',
       "Closing the dialog should restore page scrolling.");
     console.log(`${width}px: visible in ${result.firstMs.toFixed(0)} ms, settled in ${result.settledMs.toFixed(0)} ms`);
@@ -349,7 +480,7 @@ try {
   await galleryPage.goto(baseUrl, { waitUntil: "networkidle" });
   await galleryPage.locator('#projects-root[data-interactive="true"]').waitFor();
   for (const [projectId, imagePaths] of [
-    ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png"]],
+    ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png", "/projects/doorlink-pcb-layout.png"]],
     ["linewatch", ["/projects/linewatch-onboarding-map.png", "/projects/linewatch-onboarding-impact.png", "/projects/linewatch-onboarding-personal.png", "/projects/linewatch-onboarding-stations.png"]],
     ["file-sync", ["/projects/filesync-history.png", "/projects/filesync-folders.png", "/projects/filesync-conflicts.png"]],
     ["courtload", ["/projects/courtload-comparison.png", "/projects/courtload-evaluation.png"]],
@@ -380,6 +511,8 @@ try {
       assert.ok(await image.evaluate((element) => element.naturalWidth > 0), `${projectId} gallery image ${index + 1} failed to load.`);
       assert.equal(await dialog.getByRole("link", { name: "View full image" }).getAttribute("href"), imagePath);
       assert.equal(await thumbnails.nth(index).getAttribute("aria-pressed"), "true");
+      assert.equal(await preview.evaluate(element => getComputedStyle(element.closest('.project-comet-card')).opacity), '0',
+        "Gallery changes must not reveal the original card behind the dialog.");
     }
     assert.doesNotMatch(await dialog.locator(".project-dialog-link").first().innerText(), /↗/);
     await dialog.getByRole("button", { name: "Close dialog" }).click();
@@ -410,6 +543,11 @@ try {
     restingTransform,
     "The card moved despite a reduced-motion preference.",
   );
+  await reducedPage.mouse.move(0, 0);
+  await reducedCard.locator('.project-expand-button').focus();
+  await reducedPage.locator('.project-frame').first().locator('.project-hover-background').waitFor();
+  assert.equal(await reducedPage.locator('.project-hover-background').evaluate(element => getComputedStyle(element).opacity), '1',
+    "Keyboard focus should show the highlight immediately with reduced motion.");
   await reducedPage.close();
 } finally {
   await browser?.close();

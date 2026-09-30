@@ -1,14 +1,20 @@
 import React from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { projectLayoutId, projectLayoutTransition } from "../lib/project-motion";
 import { type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
 import { ProjectLinkButton } from "./ProjectLinkButton";
+import { HoverEffectItem } from "./ui/card-hover-effect";
+import { ProjectFrameGuides } from "./ProjectFrameGuides";
 
 interface ProjectCardProps {
   project: ProjectItem;
   onExpand?: (project: ProjectItem) => void;
+  expanded?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false }) => {
+  const reduceMotion = useReducedMotion();
   const primaryLink = project.links[0] || null;
   const previewImage = project.images?.[0];
   const imageCount = project.images?.length || 0;
@@ -16,23 +22,31 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
   const handleCardClick = (e: React.MouseEvent) => {
     if (!onExpand) return;
     const target = e.target as HTMLElement;
-    if (target.closest("a, button, summary, details")) {
+    if (target.closest("a, button, summary, details, .project-box-type, .project-box-summary, .project-box-tags")) {
       return;
     }
     onExpand(project);
   };
 
   return (
-      <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2}>
-      <article
+    <HoverEffectItem itemId={project.id} className="project-frame" data-expanded={expanded || undefined} inert={expanded} aria-hidden={expanded || undefined}>
+      <ProjectFrameGuides projectId={project.id} />
+      <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2} disabled={expanded}>
+      <motion.article
+        layoutId={reduceMotion ? undefined : projectLayoutId(project.id)}
+        transition={{ layout: projectLayoutTransition }}
+        style={{ borderRadius: 6 }}
         className="project-box project-target"
         data-project={project.id}
         onClick={handleCardClick}
       >
-        <div className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
+        <motion.div layout className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
             <div className="project-box-header">
               <div className="project-box-title-group">
-                <h3
+                <motion.h3
+                  layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "title")}
+                  layout="position"
+                  transition={projectLayoutTransition}
                   className="project-box-title"
                 >
                   {primaryLink ? (
@@ -46,7 +60,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
                   ) : (
                     project.title
                   )}
-                </h3>
+                </motion.h3>
               </div>
 
               <div className="project-box-actions">
@@ -121,7 +135,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
               </div>
             </div>
 
-            <p className="project-box-type">{project.category}</p>
+            <motion.p layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "category")} layout="position" transition={projectLayoutTransition} className="project-box-type">{project.category}</motion.p>
 
             <p className="project-box-summary">{project.summary}</p>
 
@@ -149,7 +163,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
                 }}
               >
                 <span className="project-card-preview-face">
-                <img
+                <motion.img
+                  layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "image")}
+                  transition={projectLayoutTransition}
                   src={previewImage.src}
                   alt={previewImage.alt}
                   width={previewImage.width}
@@ -192,8 +208,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand }) =
                 )}
               </div>
             </details>
-        </div>
-      </article>
+        </motion.div>
+      </motion.article>
       </CometCard>
+    </HoverEffectItem>
   );
 };

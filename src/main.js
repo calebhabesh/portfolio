@@ -1,5 +1,9 @@
 import "./styles.css";
 import { entranceSelector, projectEntranceReady } from "./project-entrance.js";
+import { initBlueprintGrid } from "./blueprint-grid.js";
+
+const disposeBlueprintGrid = initBlueprintGrid();
+if (import.meta.hot) import.meta.hot.dispose(() => disposeBlueprintGrid?.());
 
 const EMBLEM_MODEL_URL = new URL("./assets/lion_emblem.optimized.glb.gzip", import.meta.url).href;
 const EMBLEM_COLLISION_FIELD_URL = new URL("./assets/emblem-collision-field.bin.gzip", import.meta.url).href;
@@ -43,6 +47,12 @@ const textureImagesPromise = Promise.all(Object.entries(emblemTextureUrls).map(a
 })).then(Object.fromEntries);
 
 const emblemSceneModulePromise = import("./emblem-scene.js");
+import("./headshot-island.tsx").catch((error) => {
+  console.error("The headshot hover could not start.", error);
+});
+import("./background-boxes-island.tsx").catch((error) => {
+  console.error("The grid pointer trail could not start.", error);
+});
 // Hydrate the static cards during asset download so React and Motion setup
 // cannot interrupt the emblem's first spinning frames.
 let projectInteractionsTimeout;
@@ -259,15 +269,20 @@ if (projectsScrollArrow && projectsSection) {
 // Reveal visible cards in document order; each new viewport batch gets a
 // fresh stagger so below-fold content never waits for a page-wide delay.
 const revealTargets = [...document.querySelectorAll(entranceSelector)];
+const cardMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
 revealTargets.forEach((card) => {
-  card.dataset.cardReveal = "pending";
+  card.dataset.cardReveal = cardMotionPreference.matches ? "settled" : "pending";
   card.addEventListener("animationend", (event) => {
-    if (event.target === card && event.animationName === "project-fly-in") {
+    if (event.target === card.querySelector(".project-comet-card") && event.animationName === "project-fly-in") {
       requestAnimationFrame(() => {
         card.dataset.cardReveal = "settled";
       });
     }
   });
+});
+// A changed motion preference must also release the pending interaction state.
+cardMotionPreference.addEventListener("change", (event) => {
+  if (event.matches) revealTargets.forEach((card) => { card.dataset.cardReveal = "settled"; });
 });
 const revealObserver = new IntersectionObserver((entries) => {
   const intersecting = new Set(entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target));

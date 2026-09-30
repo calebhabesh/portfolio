@@ -515,7 +515,7 @@ export function createGrassField(scene, collider, groundY, distanceField) {
   const timeUniform = { value: 0 };
   const colorUniforms = {
     base: { value: new THREE.Color(0x52662e) },
-    tip: { value: new THREE.Color(0xd2bf64) },
+    tip: { value: new THREE.Color(0xc0a957) },
   };
   const material = createGrassMaterial(timeUniform, colorUniforms);
   const mesh = new THREE.InstancedMesh(geometry, material, tuftCount);
@@ -864,7 +864,7 @@ export function createGrassField(scene, collider, groundY, distanceField) {
 
   function setTheme(theme) {
     colorUniforms.base.value.setHex(theme === "dark" ? 0x5e6e34 : 0x52662e);
-    colorUniforms.tip.value.setHex(theme === "dark" ? 0xd6c66c : 0xd2bf64);
+    colorUniforms.tip.value.setHex(theme === "dark" ? 0xc8b05d : 0xc0a957);
   }
 
   updateBendAttributes();

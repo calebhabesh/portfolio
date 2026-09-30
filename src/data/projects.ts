@@ -39,12 +39,12 @@ export const projects: ProjectItem[] = [
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
     summary:
-      "A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.",
+      "A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi 4B gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.",
     evidence: [
       {
         heading: "Custom hardware",
         detail:
-          "The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design.",
+          "The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design. The ESP32-S3 uses 8 MB PSRAM for camera and audio buffers.",
       },
       {
         heading: "Device-to-dashboard flow",
@@ -58,7 +58,7 @@ export const projects: ProjectItem[] = [
       },
     ],
     tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad"],
-    additionalTags: ["React", "Raspberry Pi", "MinIO", "Mosquitto"],
+    additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
     images: [
       {
         src: "/projects/doorlink-enclosure.jpg",
@@ -87,6 +87,13 @@ export const projects: ProjectItem[] = [
         caption: "Rev C board design in KiCad",
         width: 2363,
         height: 1278,
+      },
+      {
+        src: "/projects/doorlink-pcb-layout.png",
+        alt: "KiCad PCB layout showing routed copper traces and layer structure for the Doorlink Rev C board",
+        caption: "Rev C PCB layout in KiCad",
+        width: 689,
+        height: 1158,
       },
     ],
     links: [
@@ -193,7 +200,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Real workflow",
         detail:
-          "A workstation, Raspberry Pi, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.",
+          "A workstation, Raspberry Pi 4B, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.",
       },
     ],
     tags: ["Go", "TypeScript · React", "SQLite", "mTLS", "Linux"],
@@ -284,7 +291,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "medical-imaging",
-    title: "Medical Imaging",
+    title: "Medical Image Processing",
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:
@@ -329,7 +336,7 @@ export const projects: ProjectItem[] = [
         label: "Capstone GitHub",
         url: "https://github.com/calebhabesh/NM03-Capstone-Project",
         type: "github",
-        ariaLabel: "Medical Imaging capstone repository (opens in new tab)",
+        ariaLabel: "Medical Image Processing capstone repository (opens in new tab)",
         external: true,
       },
     ],

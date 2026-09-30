@@ -68,35 +68,36 @@ try {
         // Animation.finished resolves before animationend is dispatched. Check
         // actual timelines so a mount at that boundary is correctly allowed.
         const running = active && [...document.querySelectorAll('.project-card-animate')]
-          .some(card => card.getAnimations().some(animation => animation.playState === 'running'));
+          .some(card => card.getAnimations({ subtree: true }).some(animation => animation.playState === 'running'));
         if (running) window.entranceProbe.overlappingMounts += records.filter(record =>
           record.target instanceof Element && record.target.matches('.project-card-animate'),
         ).length;
       }).observe(document, { childList: true, subtree: true });
       document.addEventListener("animationstart", event => {
         if (event.animationName !== "project-fly-in") return;
+        const card = event.target.closest('.project-card-animate');
         active++;
         window.entranceProbe.starts++;
-        if (Number(event.target.dataset.cardIndex) < 2) {
+        if (Number(card.dataset.cardIndex) < 2) {
           requestAnimationFrame(() => window.entranceProbe.travel.push({
-            card: event.target.dataset.cardIndex,
+            card: card.dataset.cardIndex,
             x: new DOMMatrixReadOnly(getComputedStyle(event.target).transform).m41,
           }));
         }
         const stage = document.querySelector('[data-emblem-stage]');
         window.entranceProbe.intervals.push({
-          card: event.target.dataset.cardIndex, start: performance.now(), end: null,
+          card: card.dataset.cardIndex, start: performance.now(), end: null,
           modelRendered: stage.dataset.rendered, physicsState: stage.dataset.physicsState,
           motionPrimed: stage.dataset.motionPrimed, orientation: stage.dataset.orientation,
           motionStartOrientation: stage.dataset.motionStartOrientation,
         });
-        if (event.target.matches('.project-card-animate')) window.originalCards.push(event.target.querySelector('[data-project]'));
+        window.originalCards.push(card.querySelector('[data-project]'));
       });
       document.addEventListener("animationend", event => {
         if (event.animationName !== "project-fly-in") return;
         active--;
         window.entranceProbe.ends++;
-        const interval = window.entranceProbe.intervals.find(interval => interval.card === (event.target.dataset.cardIndex) && interval.end === null);
+        const interval = window.entranceProbe.intervals.find(interval => interval.card === (event.target.closest('.project-card-animate').dataset.cardIndex) && interval.end === null);
         interval.end = performance.now();
         interval.endOrientation = document.querySelector('[data-emblem-stage]').dataset.orientation;
       });

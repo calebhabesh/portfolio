@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { projectLayoutTransition } from "../lib/project-motion";
 import type { ProjectImage } from "../data/projects";
 
 interface ProjectGalleryProps {
   images: ProjectImage[];
   projectTitle: string;
+  imageLayoutId?: string;
 }
 
-export function ProjectGallery({ images, projectTitle }: ProjectGalleryProps) {
+export function ProjectGallery({ images, projectTitle, imageLayoutId }: ProjectGalleryProps) {
+  const reduceMotion = useReducedMotion();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const selected = images[selectedIndex];
 
@@ -21,7 +25,10 @@ export function ProjectGallery({ images, projectTitle }: ProjectGalleryProps) {
 
       <figure className="project-gallery-figure">
         <div className="project-gallery-stage">
-          <img
+          <motion.img
+            layoutId={!reduceMotion && selectedIndex === 0 ? imageLayoutId : undefined}
+            transition={projectLayoutTransition}
+            style={{ borderRadius: 6 }}
             key={selected.src}
             src={selected.src}
             alt={selected.alt}

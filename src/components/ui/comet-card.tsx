@@ -14,17 +14,19 @@ export const CometCard = ({
   rotateDepth = 17.5,
   translateDepth = 20,
   className,
+  disabled = false,
   children,
 }: {
   rotateDepth?: number;
   translateDepth?: number;
   className?: string;
+  disabled?: boolean;
   children: React.ReactNode;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const tilt = reduceMotion ? 0 : rotateDepth;
-  const travel = reduceMotion ? 0 : translateDepth;
+  const tilt = reduceMotion || disabled ? 0 : rotateDepth;
+  const travel = reduceMotion || disabled ? 0 : translateDepth;
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -60,9 +62,10 @@ export const CometCard = ({
   const glareBackground = useMotionTemplate`radial-gradient(circle at ${glareX}% ${glareY}%, var(--comet-glare), transparent 70%)`;
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!ref.current || reduceMotion) return;
+    if (!ref.current || reduceMotion || disabled) return;
 
-    const rect = ref.current.getBoundingClientRect();
+    const wrapper = ref.current.parentElement!;
+    const rect = wrapper.getBoundingClientRect();
 
     const width = rect.width;
     const height = rect.height;
@@ -70,8 +73,24 @@ export const CometCard = ({
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
+    let xPct = Math.max(-0.5, Math.min(0.5, mouseX / width - 0.5));
+    let yPct = Math.max(-0.5, Math.min(0.5, mouseY / height - 0.5));
+
+    // Reserve the frame's inset for perspective growth and translation.
+    // This conservative bound also covers taller cards with Notes open.
+    const styles = getComputedStyle(wrapper);
+    const inset = parseFloat(styles.getPropertyValue("--comet-inset"));
+    if (inset > 0) {
+      const perspective = parseFloat(styles.perspective) || 1200;
+      const angle = tilt * Math.PI / 180;
+      const halfSum = (width + height) / 2;
+      const depth = halfSum * angle;
+      const extent = Math.max(width, height) / 2 * depth / Math.max(1, perspective - depth)
+        + travel + halfSum * angle * angle;
+      const limit = Math.min(1, Math.max(0, inset - 0.5) / Math.max(extent, 0.001));
+      xPct *= limit;
+      yPct *= limit;
+    }
 
     x.set(xPct);
     y.set(yPct);
@@ -94,11 +113,11 @@ export const CometCard = ({
           translateX,
           translateY,
         }}
-        className="relative rounded-[14px]"
+        className="comet-surface relative"
       >
         {children}
         <motion.div
-          className="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[14px]"
+          className="comet-glare pointer-events-none absolute inset-0 z-50 h-full w-full"
           style={{
             background: glareBackground,
           }}

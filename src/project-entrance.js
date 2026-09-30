@@ -41,7 +41,7 @@ export const projectEntranceReady = new Promise((resolve) => {
 // Reveal the prepared model after active card entrances have painted their final frame.
 export async function waitForProjectEntrances() {
   const animations = [...document.querySelectorAll(entranceSelector)]
-    .flatMap((card) => card.getAnimations())
+    .flatMap((card) => card.getAnimations({ subtree: true }))
     .filter((animation) => animation.playState === "running");
   await Promise.all(animations.map((animation) => animation.finished.catch(() => {})));
   if (animations.length && !document.hidden) {
