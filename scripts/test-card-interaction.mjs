@@ -121,10 +121,10 @@ try {
     }, time);
     const start = await sample(0);
     for (let corner = 0; corner < 4; corner++) {
-      const vertical = await sample(corner * 200 + 50);
+      const vertical = await sample(corner * 160 + 40);
       assert.ok(vertical.crossProgress[corner].vertical.length && vertical.crossProgress[corner].vertical.every(progress => progress > 0 && progress < 1), 'Each cross should draw its vertical stroke first.');
       assert.ok(vertical.crossProgress[corner].horizontal.length && vertical.crossProgress[corner].horizontal.every(progress => progress === 1), 'The horizontal stroke must wait for the vertical stroke.');
-      const horizontal = await sample(corner * 200 + 150);
+      const horizontal = await sample(corner * 160 + 120);
       assert.ok(horizontal.crossProgress[corner].vertical.every(progress => progress === 0), 'Vertical strokes must finish before horizontal strokes.');
       assert.ok(horizontal.crossProgress[corner].horizontal.every(progress => progress > 0 && progress < 1), 'The horizontal stroke should draw second.');
       for (const [index, strokes] of horizontal.crossProgress.entries()) {
@@ -134,16 +134,16 @@ try {
       assert.equal(horizontal.outlineProgress, 1, 'The outline must wait for all four crosses.');
       assert.equal(horizontal.opacity, 0, 'The card must wait for the frame.');
     }
-    const outline = await sample(970);
+    const outline = await sample(780);
     assert.ok(outline.crossProgress.every(strokes => [...strokes.vertical, ...strokes.horizontal].every(progress => progress === 0)), 'Crosses must finish before the outline.');
     assert.ok(outline.outlineProgress > 0 && outline.outlineProgress < 1, 'The outline should trace between the finished crosses.');
     assert.equal(outline.opacity, 0, 'The card must remain hidden until the outline finishes.');
-    const slide = await sample(1280);
+    const slide = await sample(1060);
     assert.equal(slide.outlineProgress, 0);
     assert.ok(slide.opacity > 0 && slide.opacity < 1 && slide.x < 0, 'The card should retain its left entrance after the frame finishes.');
     assert.deepEqual(slide.frame, start.frame, 'The frame must not slide with the card.');
     assert.deepEqual(slide.corners, start.corners, 'Crosses must stay fixed on their vertices throughout the reveal.');
-    const end = await sample(1770);
+    const end = await sample(1550);
     assert.equal(end.opacity, 1);
     assert.equal(end.x, 0);
     // Focusing a control skips the reveal, including its delayed slide.
@@ -178,6 +178,7 @@ try {
     await page.waitForFunction(() => window.cardEntranceFinished);
     const card = page.locator('.project-card-animate').first();
     await card.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+    await card.scrollIntoViewIfNeeded();
     const before = await card.screenshot();
     await card.evaluate(element => { element.dataset.cardReveal = "settled"; });
     const after = await card.screenshot();
@@ -189,7 +190,8 @@ try {
   }
 
   // Initial cards still fly in when the emblem module is slow.
-  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  // These scenarios require two initially visible cards after row snapping.
+  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   await loadingPage.addInitScript(() => {
     window.initialCardAnimations = 0;
     window.contentEntrances = [];
@@ -260,7 +262,7 @@ try {
 
   // Delayed React still hydrates the same static cards; below-fold cards reveal on scroll.
   for (const islandDelay of [900, 2000]) {
-    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     await reloadPage.addInitScript(() => {
       window.cardEntranceStarts = [];
       window.animatedCards = new Map();

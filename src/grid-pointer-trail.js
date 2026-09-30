@@ -20,7 +20,7 @@ export function initGridPointerTrail(canvas) {
   let pendingPoint;
   let lastPointerPosition;
   let width = 0, height = 0;
-  let unit, originX, originY, peakOpacity;
+  let unit, originX, peakOpacity;
 
   const clear = () => {
     const hadTrail = cells.size > 0 || pendingPoint !== undefined;
@@ -29,6 +29,20 @@ export function initGridPointerTrail(canvas) {
     previousPoint = pendingPoint = undefined;
     cells.clear();
     if (hadTrail) context.clearRect(0, 0, width, height);
+  };
+
+  const reserveContent = () => {
+    // Reserve document cells occupied by the cards and portrait. Account
+    // for browser rounding at exact edges instead of reserving a spare row.
+    occupiedCells = [...cardFrames, document.querySelector(".headshot-frame")].filter(Boolean).map(element => {
+      const rect = element.getBoundingClientRect();
+      return {
+        firstColumn: Math.floor((rect.left - originX) / unit + 0.001),
+        lastColumn: Math.ceil((rect.right - originX) / unit - 0.001),
+        firstRow: Math.floor((rect.top + scrollY) / unit + 0.001),
+        lastRow: Math.ceil((rect.bottom + scrollY) / unit - 0.001),
+      };
+    });
   };
 
   const measure = () => {
@@ -41,27 +55,16 @@ export function initGridPointerTrail(canvas) {
     canvas.height = Math.round(height * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
     unit = parseFloat(root.style.getPropertyValue("--grid-unit"));
-    originX = shell.getBoundingClientRect().left;
-    originY = parseFloat(root.style.getPropertyValue("--grid-origin-y"));
+    originX = parseFloat(root.style.getPropertyValue("--grid-origin-x")) || 0;
     peakOpacity = parseFloat(getComputedStyle(canvas).getPropertyValue("--grid-trail-opacity"));
-    // Frames span whole grid rows. Use their layout rows, rather than the
-    // card entrance's temporary horizontal translation, to reserve cells.
-    occupiedCells = cardFrames.map(element => {
-      const rect = element.getBoundingClientRect();
-      return {
-        columns: Math.round(rect.width / unit),
-        firstRow: Math.floor((rect.top + scrollY - originY) / unit + 0.001),
-        lastRow: Math.ceil((rect.bottom + scrollY - originY) / unit - 0.001),
-      };
-    });
-    // The portrait is the blueprint's first cell.
-    occupiedCells.push({ columns: 1, firstRow: 0, lastRow: 1 });
+    reserveContent();
   };
+  const onScroll = () => { clear(); reserveContent(); };
 
   const activate = (x, y, now) => {
     const column = Math.floor((x - originX) / unit);
-    const row = Math.floor((y + scrollY - originY) / unit);
-    if (occupiedCells.some(area => column >= 0 && column < area.columns
+    const row = Math.floor((y + scrollY) / unit);
+    if (occupiedCells.some(area => column >= area.firstColumn && column < area.lastColumn
       && row >= area.firstRow && row < area.lastRow)) return;
     const key = `${column}:${row}`;
     const color = cells.get(key)?.color || COLORS[Math.floor(Math.random() * COLORS.length)];
@@ -99,7 +102,7 @@ export function initGridPointerTrail(canvas) {
       context.fillStyle = cell.color;
       // Leave the existing one-pixel grid lines visible around each fill.
       context.fillRect(originX + cell.column * unit + 0.5,
-        originY + cell.row * unit - scrollY + 0.5, unit - 1, unit - 1);
+        cell.row * unit - scrollY + 0.5, unit - 1, unit - 1);
     }
     context.globalAlpha = 1;
     // No idle animation loop: the last cell expires even under the cursor.
@@ -132,7 +135,7 @@ export function initGridPointerTrail(canvas) {
   window.addEventListener("pointermove", onPointerMove, { passive: true });
   window.addEventListener("pointerover", onPointerOver, { passive: true });
   window.addEventListener("resize", measure, { passive: true });
-  window.addEventListener("scroll", clear, { passive: true });
+  window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("blur", clear);
   document.addEventListener("pointerleave", clear);
   document.addEventListener("visibilitychange", onVisibility);
@@ -147,7 +150,7 @@ export function initGridPointerTrail(canvas) {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerover", onPointerOver);
     window.removeEventListener("resize", measure);
-    window.removeEventListener("scroll", clear);
+    window.removeEventListener("scroll", onScroll);
     window.removeEventListener("blur", clear);
     document.removeEventListener("pointerleave", clear);
     document.removeEventListener("visibilitychange", onVisibility);

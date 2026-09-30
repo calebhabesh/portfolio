@@ -21,6 +21,7 @@ export interface ProjectImage {
 
 export interface ProjectItem {
   id: string;
+  tone: "sage" | "slate" | "clay" | "ochre" | "lilac";
   title: string;
   category: string;
   status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone";
@@ -35,6 +36,7 @@ export interface ProjectItem {
 export const projects: ProjectItem[] = [
   {
     id: "doorlink",
+    tone: "sage",
     title: "Doorlink",
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
@@ -108,6 +110,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "linewatch",
+    tone: "slate",
     title: "LineWatchTO",
     category: "Transit intelligence · full stack",
     status: "Live",
@@ -181,6 +184,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "file-sync",
+    tone: "clay",
     title: "File Sync",
     category: "Distributed systems · local-first files",
     status: "Pilot tested",
@@ -239,6 +243,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "courtload",
+    tone: "ochre",
     title: "CourtLoad",
     category: "NBA analytics · data engineering",
     status: "Complete",
@@ -291,6 +296,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "medical-imaging",
+    tone: "lilac",
     title: "Medical Image Processing",
     category: "Parallel computing · team capstone",
     status: "Capstone",

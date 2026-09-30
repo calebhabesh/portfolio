@@ -16,7 +16,8 @@
     "test:startup": "node scripts/test-startup-performance.mjs",
     "test:grid": "node scripts/test-blueprint-grid.mjs",
     "test:trail": "node scripts/test-grid-pointer-trail.mjs",
-    "check": "npm run build && npm run test:grid && npm run test:trail && npm run test:startup && npm run test:cards && npm run test:smoke",
+    "test:maze": "node scripts/test-maze-pathfinding.mjs && node scripts/test-gutter-maze.mjs",
+    "check": "npm run build && npm run test:grid && npm run test:trail && npm run test:maze && npm run test:startup && npm run test:cards && npm run test:smoke",
     "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model",
     "generate:textures": "node scripts/generate-emblem-textures.mjs",
     "pack:emblem": "node scripts/pack-emblem-assets.mjs"

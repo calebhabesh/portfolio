@@ -1,10 +1,11 @@
-// The background and content share one square lattice. Measure untransformed
-// layout, so Comet tilt and entrance animations never move the grid itself.
+// Fit a whole, even number of cells across the viewport. Centering a shell
+// with an even cell count then puts both edges on the zero-origin lattice.
 export function initBlueprintGrid() {
   const root = document.documentElement;
   const shell = document.querySelector(".page-shell");
   const portrait = document.querySelector(".hero-headshot");
   const heroCopy = document.querySelector(".hero-copy");
+  const hero = document.querySelector(".hero");
   const projects = document.querySelector("#projects-root");
   if (!shell || !portrait || !heroCopy || !projects) return;
 
@@ -28,22 +29,39 @@ export function initBlueprintGrid() {
 
   const update = () => {
     scheduled = undefined;
-    const columns = Number(getComputedStyle(root).getPropertyValue("--grid-columns"));
-    const inset = parseFloat(getComputedStyle(root).getPropertyValue("--project-frame-inset"));
-    const unit = shell.getBoundingClientRect().width / columns;
+    if (root.style.overflow === "hidden") return;
+    const computed = getComputedStyle(root);
+    const columns = Number(computed.getPropertyValue("--grid-columns"));
+    const inset = parseFloat(computed.getPropertyValue("--project-frame-inset"));
+    const gutter = parseFloat(computed.getPropertyValue("--page-gutter"));
+    const maximum = parseFloat(computed.getPropertyValue("--page-max-width"));
+    const width = root.clientWidth;
+    const mobile = width <= 768;
+    const targetUnit = maximum / 18;
+    const viewportColumns = Math.max(columns + 2, Math.ceil(width / targetUnit / 2) * 2);
+    // Mobile retains its narrow gutters and uses approximately the same
+    // 52px cells as desktop. Its grid columns begin at the content edge.
+    const contentColumns = mobile ? Math.max(4, Math.round((width - 2 * gutter) / targetUnit)) : columns;
+    const unit = mobile ? (width - 2 * gutter) / contentColumns : width / viewportColumns;
     setLength(root.style, "--grid-unit", unit);
+    setLength(root.style, "--page-width", contentColumns * unit);
+    setLength(root.style, "--grid-origin-x", mobile ? gutter : 0);
+    setLength(root.style, "--portrait-unit", unit);
+    setLength(root.style, "--project-grid-gap", unit);
 
-    // The portrait owns the row origin. Subtract the hero entrance's visual
-    // translation to retain its final layout coordinates during startup.
+    // Snap the portrait's final document position to a zero-origin row.
+    // Subtract both the previous correction and the entrance transform to
+    // avoid a feedback loop or following the animated visual position.
     const transform = getComputedStyle(heroCopy).transform;
     const entranceY = transform === "none" ? 0 : new DOMMatrixReadOnly(transform).m42;
-    const origin = portrait.getBoundingClientRect().top + window.scrollY - entranceY;
+    const oldOffset = parseFloat(hero.style.getPropertyValue("--hero-grid-offset")) || 0;
+    const naturalTop = portrait.getBoundingClientRect().top + window.scrollY - entranceY - oldOffset;
+    setLength(hero.style, "--hero-grid-offset", Math.max(0, Math.ceil(naturalTop / unit - 0.001) * unit - naturalTop));
     const projectsTop = projects.getBoundingClientRect().top + window.scrollY;
     const contentHeights = contents.map(content => parseFloat(getComputedStyle(content).height));
-    const firstRow = Math.ceil((projectsTop - origin) / unit - 0.001);
+    const firstRow = Math.ceil(projectsTop / unit - 0.001);
 
-    setLength(root.style, "--grid-origin-y", origin);
-    setLength(projects.style, "--projects-grid-offset", Math.max(0, origin + firstRow * unit - projectsTop));
+    setLength(projects.style, "--projects-grid-offset", Math.max(0, firstRow * unit - projectsTop));
     heightRules.forEach((rule, index) => {
       const rows = Math.ceil((contentHeights[index] + 2 * inset) / unit - 0.001);
       setLength(rule.style, "--project-grid-height", rows * unit);

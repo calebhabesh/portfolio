@@ -29,7 +29,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
   };
 
   return (
-    <HoverEffectItem itemId={project.id} className="project-frame" data-expanded={expanded || undefined} inert={expanded} aria-hidden={expanded || undefined}>
+    <HoverEffectItem itemId={project.id} className="project-frame" data-project-tone={project.tone} data-expanded={expanded || undefined} inert={expanded} aria-hidden={expanded || undefined}>
       <ProjectFrameGuides projectId={project.id} />
       <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2} disabled={expanded}>
       <motion.article

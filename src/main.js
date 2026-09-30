@@ -5,6 +5,16 @@ import { initBlueprintGrid } from "./blueprint-grid.js";
 const disposeBlueprintGrid = initBlueprintGrid();
 if (import.meta.hot) import.meta.hot.dispose(() => disposeBlueprintGrid?.());
 
+let disposeGutterMazes;
+let backgroundDisposed = false;
+import("./gutter-maze.js").then(({ initGutterMazes }) => {
+  if (!backgroundDisposed) disposeGutterMazes = initGutterMazes();
+}).catch(error => console.error("The gutter mazes could not start.", error));
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  backgroundDisposed = true;
+  disposeGutterMazes?.();
+});
+
 const EMBLEM_MODEL_URL = new URL("./assets/lion_emblem.optimized.glb.gzip", import.meta.url).href;
 const EMBLEM_COLLISION_FIELD_URL = new URL("./assets/emblem-collision-field.bin.gzip", import.meta.url).href;
 

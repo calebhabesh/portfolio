@@ -418,7 +418,7 @@ async function checkPage(browser, viewport, screenshotName) {
 
   const expandButton = page.locator('[data-project="doorlink"] .project-expand-button');
   await expandButton.hover();
-  assert.equal(await page.locator("canvas:not(.grid-pointer-trail)").count(), 1,
+  assert.equal(await page.locator("canvas:not(.grid-pointer-trail):not(.gutter-maze-search)").count(), 1,
     "Card hover should not create another WebGL canvas.");
   assert.equal(await page.locator(".grid-pointer-trail").count(), 1,
     "The page should have one decorative trail canvas.");

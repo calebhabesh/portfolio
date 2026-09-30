@@ -122,6 +122,7 @@ export const ProjectsList: React.FC = () => {
               style={{ borderRadius: 16 }}
               ref={modalRef}
               role="dialog"
+              data-project-tone={active.tone}
               aria-modal="true"
               aria-labelledby={`dialog-title-${active.id}`}
               className="project-dialog w-full max-w-[620px] flex flex-col rounded-2xl overflow-hidden"

@@ -10,8 +10,8 @@ const port = await new Promise((resolve) => {
     listener.close(() => resolve(port));
   });
 });
-const baseUrl = `http://127.0.0.1:${port}`;
-const server = spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
+const baseUrl = process.env.PORTFOLIO_TEST_URL || `http://127.0.0.1:${port}`;
+const server = process.env.PORTFOLIO_TEST_URL ? undefined : spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
   cwd: new URL("../", import.meta.url), stdio: "ignore",
 });
 let browser;
@@ -41,6 +41,8 @@ async function checkGrid(page) {
       columns: Number(body.getPropertyValue("--grid-columns")),
       row: parseFloat(body.backgroundSize.split(",")[2].trim().split(" ").at(-1)),
       origin: parseFloat(body.backgroundPosition.split(",")[2].trim().split(" ").at(-1)),
+      columnOrigin: parseFloat(body.backgroundPosition.split(",")[1].trim().split(" ")[0]),
+      attachment: body.backgroundAttachment,
       photo: rect(document.querySelector(".hero-headshot")),
       photoCorners: [...document.querySelectorAll(".headshot-frame .project-frame-corner")].map(corner => {
         const bounds = rect(corner);
@@ -56,24 +58,33 @@ async function checkGrid(page) {
       })),
     };
   });
-  const unit = geometry.shell.width / geometry.columns;
+  const unit = geometry.row;
   const near = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 0.75,
     `${message}: ${actual.toFixed(2)} vs ${expected.toFixed(2)}`);
   const edge = geometry.shell.x + geometry.shell.width;
+  near(geometry.origin, 0, "Background rows must start at document y=0");
+  const attachments = geometry.attachment.split(",").map(value => value.trim());
+  assert.deepEqual(attachments, ["fixed", "scroll", "scroll", "fixed"], "Grid rows must scroll with the crosses");
+  near(geometry.shell.x, geometry.columnOrigin + Math.round((geometry.shell.x - geometry.columnOrigin) / unit) * unit,
+    "Centered content must start on a grid column");
+  assert.ok(unit >= 45 && unit <= 60, "Mobile and desktop must keep similar, spacious cell sizes");
   near(geometry.header.x, geometry.shell.x, "Header must share the project frames' left edge");
   near(geometry.header.x + geometry.header.width, edge, "Header must share the project frames' right edge");
   near(geometry.brand.x, geometry.shell.x, "Brand must start on the left guide");
   near(geometry.logo.x, geometry.shell.x, "Logo must start on the left guide");
-  near(geometry.themeIcon.x + geometry.themeIcon.width, edge, "Theme icon must end on the right guide");
+  near(geometry.themeIcon.x + geometry.themeIcon.width / 2, geometry.toggle.x + geometry.toggle.width / 2,
+    "Theme icon must be centered in its hover target");
+  near(geometry.themeIcon.y + geometry.themeIcon.height / 2, geometry.toggle.y + geometry.toggle.height / 2,
+    "Theme icon must be vertically centered in its hover target");
   near(geometry.toggle.x + geometry.toggle.width, edge, "Theme button must stay within the right guide");
   assert.ok(geometry.brand.x + geometry.brand.width <= geometry.toggle.x, "Header controls must not overlap");
   assert.ok(geometry.toggle.width >= 44 && geometry.toggle.height >= 44, "Theme toggle must keep its accessible touch target");
   for (const frame of geometry.frames) {
     for (const corner of frame.corners) {
-      const column = (corner.x - geometry.shell.x) / unit;
+      const column = (corner.x - geometry.columnOrigin) / unit;
       const row = (corner.y - geometry.origin) / geometry.row;
       near(corner.y, geometry.origin + Math.round(row) * geometry.row, "Cross must meet a background row");
-      near(corner.x, geometry.shell.x + Math.round(column) * unit, "Cross must meet a background column");
+      near(corner.x, geometry.columnOrigin + Math.round(column) * unit, "Cross must meet a background column");
     }
     assert.ok(frame.inset > 0 && frame.inset <= 8, "Card must reserve a small amount of room for tilt");
     near(frame.x + frame.inset, frame.surface.x, "Card must have an even horizontal inset");
@@ -81,11 +92,11 @@ async function checkGrid(page) {
     near(frame.width - 2 * frame.inset, frame.surface.width, "Card width must fill the inset area");
     near(frame.height - 2 * frame.inset, frame.surface.height, "Card height must fill the inset area");
   }
-  near(geometry.row, unit, "Background cells must be square");
-  near(geometry.photo.width, unit, "Portrait must fill one grid column");
-  near(geometry.photo.height, unit, "Portrait must fill one grid row");
+  near(geometry.photo.width, Math.round(geometry.photo.width / unit) * unit, "Portrait must span whole grid columns");
+  near(geometry.photo.height, geometry.photo.width, "Portrait must remain square");
+  near(geometry.photo.y, Math.round(geometry.photo.y / unit) * unit, "Portrait must start on a zero-origin grid row");
   near(geometry.name.y, geometry.photo.y, "Name must start in the portrait row");
-  near(geometry.name.height, unit, "Name must occupy one grid row");
+  near(geometry.name.height, geometry.photo.height, "Name must occupy the portrait row");
   assert.equal(geometry.photoCorners.length, 4, "Portrait must have four mini crosses");
   for (const [index, corner] of geometry.photoCorners.entries()) {
     near(corner.x, geometry.photo.x + (index % 2) * geometry.photo.width, "Portrait cross must meet its column vertex");
@@ -106,9 +117,13 @@ try {
     await page.route("**/emblem-scene-*.js", route => route.abort());
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.locator('#projects-root[data-interactive="true"]').waitFor();
-    for (const width of [1440, 1024, 768, 390, 320]) {
+    for (const width of [2048, 1440, 1024, 991, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.mouse.move(0, 0);
+      await checkGrid(page);
+      await page.evaluate(() => window.scrollTo({ top: 113, behavior: "instant" }));
+      await checkGrid(page);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
       await checkGrid(page);
       const notes = page.locator(".project-notes").first();
       const before = await page.locator(".project-frame").first().boundingBox();
@@ -123,8 +138,8 @@ try {
     }
     await page.close();
   }
-  console.log("Blueprint coordinates passed in both themes at five widths, including resize and Notes expansion.");
+  console.log("Zero-origin blueprint coordinates passed in both themes at seven widths, including resize and Notes expansion.");
 } finally {
   await browser?.close();
-  server.kill("SIGTERM");
+  server?.kill("SIGTERM");
 }

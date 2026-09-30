@@ -10,8 +10,8 @@ const port = await new Promise(resolve => {
     listener.close(() => resolve(port));
   });
 });
-const baseUrl = `http://127.0.0.1:${port}`;
-const server = spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
+const baseUrl = process.env.PORTFOLIO_TEST_URL || `http://127.0.0.1:${port}`;
+const server = process.env.PORTFOLIO_TEST_URL ? undefined : spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], {
   cwd: new URL("../", import.meta.url), stdio: "ignore",
 });
 let browser;
@@ -37,6 +37,10 @@ try {
   for (const theme of ["light", "dark"]) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 950 }, colorScheme: theme, deviceScaleFactor: theme === "dark" ? 2 : 1 });
     await page.route("**/emblem-scene-*.js", route => route.abort());
+    if (process.env.PORTFOLIO_TEST_URL) {
+      await page.route("**/src/emblem-scene.js", route => route.abort());
+      await page.route("**/src/gutter-maze.js", route => route.abort());
+    }
     await page.addInitScript(() => {
       window.trailPaints = [];
       window.addEventListener('pointermove', event => {
@@ -56,15 +60,16 @@ try {
 
     for (const width of [1440, 768, 390]) {
       await page.setViewportSize({ width, height: 950 });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
       await settle(page);
       const grid = await page.evaluate(() => ({
         unit: parseFloat(document.documentElement.style.getPropertyValue('--grid-unit')),
-        origin: parseFloat(document.documentElement.style.getPropertyValue('--grid-origin-y')) - scrollY,
-        left: document.querySelector('.page-shell').getBoundingClientRect().left,
+        origin: -scrollY,
+        left: parseFloat(document.documentElement.style.getPropertyValue('--grid-origin-x')) || 0,
       }));
       const point = {
         x: grid.left + (Math.floor((width * 0.62 - grid.left) / grid.unit) + 0.5) * grid.unit,
-        y: grid.origin - grid.unit / 2,
+        y: grid.origin + (Math.ceil(-grid.origin / grid.unit) + 0.5) * grid.unit,
       };
       const originalBackground = await background(page);
       const clip = { x: Math.floor(point.x), y: Math.floor(point.y), width: 2, height: 2 };
@@ -167,5 +172,5 @@ try {
   console.log("Grid trail passed: coordinates, visible fills, idle fade, unchanged background, dialogs, scroll, reduced motion, and touch.");
 } finally {
   await browser?.close();
-  server.kill("SIGTERM");
+  server?.kill("SIGTERM");
 }
