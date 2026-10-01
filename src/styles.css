@@ -1395,10 +1395,11 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-box-inner {
+  --project-card-inset: 24px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 24px 24px 8px;
+  padding: var(--project-card-inset);
 }
 
 .project-box-inner.has-preview {
@@ -1660,7 +1661,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-box-summary {
-  margin: 0;
+  margin: 12px 0 0;
   max-width: 76ch;
   color: var(--ink-soft);
   font-size: 1.125rem;
@@ -1676,6 +1677,10 @@ body:has(.project-dialog-overlay) .project-hover-background {
   flex-wrap: wrap;
   gap: 10px 8px;
   list-style: none;
+}
+
+.project-box-inner > .project-box-tags {
+  margin-top: 20px;
 }
 
 .project-box-tags li {
@@ -1727,10 +1732,14 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 @media (min-width: 641px) {
+  .project-box:is([data-project="file-sync"], [data-project="courtload"], [data-project="medical-imaging"]) .project-card-preview img {
+    height: 60px;
+  }
+
   .has-preview > .project-details-button {
     position: absolute;
     right: 0;
-    bottom: calc(8px - var(--project-footer-space, 0px));
+    bottom: calc(var(--project-card-inset) - var(--project-footer-space, 0px));
     margin-top: 0;
   }
 
@@ -1898,7 +1907,7 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .project-box-inner {
-    padding: 20px 20px 8px;
+    --project-card-inset: 20px;
   }
 }
 
@@ -1931,7 +1940,7 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .project-box-inner {
-    padding: 16px 16px 8px;
+    --project-card-inset: 16px;
   }
 }
 

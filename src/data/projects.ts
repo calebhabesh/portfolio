@@ -41,7 +41,7 @@ export const projects: ProjectItem[] = [
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
     summary:
-      "A self-hosted smart doorbell with a hand-assembled ESP32-S3 circuit board and a Raspberry Pi 4 Model B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
+      "A self-hosted smart doorbell with a hand-assembled ESP32-S3 circuit board and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
     evidence: [
       {
         heading: "Custom Hardware",
@@ -60,7 +60,7 @@ export const projects: ProjectItem[] = [
       },
     ],
     tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad"],
-    additionalTags: ["React", "Raspberry Pi 4 Model B", "MinIO", "Mosquitto"],
+    additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
     images: [
       {
         src: "/projects/doorlink-enclosure.jpg",
@@ -148,7 +148,7 @@ export const projects: ProjectItem[] = [
           "A separate Terraform lab defines an ARM64 Amazon EC2 deployment. It uses AWS IAM and Systems Manager for access, Amazon S3 for artifacts, and AWS Lambda with Amazon EventBridge to stop the instance on a schedule. Production is hosted on OCI.",
       },
     ],
-    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "GTFS · GTFS Realtime", "Docker Compose", "GitHub Actions", "AWS (lab)"],
+    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "GTFS · GTFS Realtime", "Docker Compose", "GitHub Actions", "AWS (Lab)"],
     additionalTags: ["React", "MapLibre GL JS", "PWA", "Web Push", "Terraform", "Oracle Cloud Infrastructure", "Ubuntu", "Caddy"],
     images: [
       {
@@ -204,7 +204,7 @@ export const projects: ProjectItem[] = [
     category: "Distributed systems · local-first files",
     status: "Pilot tested",
     summary:
-      "A peer-to-peer file synchronization daemon written in Go for trusted Linux devices. It tracks how file versions relate to each other and transfers content-addressed chunks over authenticated connections. When edits conflict, it preserves each version so users can review and resolve the conflict in a local interface.",
+      "A Go peer-to-peer file sync daemon for Linux devices. It preserves concurrent edits and transfers content-addressed chunks over authenticated connections.",
     evidence: [
       {
         heading: "Causal History",
@@ -219,7 +219,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Real Workflow",
         detail:
-          "A pilot tested synchronization across a workstation, a Raspberry Pi 4 Model B, and a cloud relay. A local demo also runs multiple peer processes on one machine.",
+          "A pilot tested synchronization across a workstation, a Raspberry Pi 4B, and a cloud relay. A local demo also runs multiple peer processes on one machine.",
       },
     ],
     tags: ["Go", "TypeScript · React", "SQLite", "Mutual TLS (mTLS)", "Linux"],
@@ -255,7 +255,7 @@ export const projects: ProjectItem[] = [
     category: "NBA analytics · data engineering",
     status: "Complete",
     summary:
-      "An NBA player comparison and analytics dashboard using data from three historical regular seasons. Users can compare recent performance, usage, and matchup context, trace statistics to their sources, and view prediction intervals evaluated on later games that were excluded from training.",
+      "An NBA analytics dashboard comparing player form and matchups across three historical seasons, with source-linked stats and tested prediction intervals.",
     evidence: [
       {
         heading: "Reproducible Data",
@@ -300,7 +300,7 @@ export const projects: ProjectItem[] = [
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:
-      "A team capstone project that processes DICOM brain scans in C++ using the FAST medical imaging framework and OpenMP. The team distributed image batches across CPU threads and benchmarked sequential and parallel execution.",
+      "A C++/OpenMP pipeline for DICOM brain scans, built with FAST and benchmarked against sequential execution.",
     evidence: [
       {
         heading: "Pipeline",
