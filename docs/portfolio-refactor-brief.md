@@ -29,7 +29,7 @@ Agreed decisions from the second design round:
 - `body` is fixed to `100dvh` with `overflow: hidden`; `#main-content` is the scroll container; cards stretch through `grid-auto-rows: 1fr`. Richer copy will compound the awkward scrolling and equal-height whitespace.
 - CourtLoad's current fantasy-week-planner summary is a legacy feature. Its active product is NBA player comparison and analytics. RiftTrace is retired by the locked blueprint and is replaced by File Sync.
 - The existing dark text tokens have nominal contrast, but apparent readability suffers from very small type, subdued colors, thin weights, and the patterned backdrop. Change the type scale and colors together. Do not solve this with browser `zoom` or a single global `transform: scale()`.
-- Existing local edits to `docs/TODO.md` and `src/styles.css` predate this brief. Preserve them when implementing.
+- Existing local edits to `src/styles.css` predate this brief. Preserve them when implementing.
 
 ## Layout and visual specification
 

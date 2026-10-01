@@ -51,5 +51,3 @@ and the external SVG specified by its `svg_path` argument; outputs go to `models
 
 If the emblem's rotation hitches in Chrome, compare with the Simplify extension disabled.
 A previous hitch disappeared with that extension disabled and did not reproduce in Firefox.
-
-See [the project checklist](TODO.md) for outstanding content tasks.
