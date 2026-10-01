@@ -1,7 +1,9 @@
 import { CELL_STATE, createMazeSearch, generateMaze, seededRandom } from "./maze-pathfinding.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
+const PENCIL_GRAIN_URL = new URL("./assets/pencil-grain.svg", import.meta.url).href;
 const STEP_MS = 150;
+const SEARCH_BATCH_SIZE = 6;
 const REVEAL_MS = 900;
 const REVEAL_FADE_MS = 560;
 const ACTIVE_UPDATE_MS = 900;
@@ -19,27 +21,42 @@ const ease = value => {
 function sketchWalls(maze, unit) {
   const random = seededRandom(maze.seed ^ 0x5A17);
   const strokes = [[], []];
+  const scale = unit / 52;
   const line = (x1, y1, x2, y2) => {
-    for (let layer = 0; layer < 2; layer++) {
-      const offset = layer ? (random() - 0.5) * 1.4 : 0;
-      const horizontal = y1 === y2;
-      const points = [];
-      for (let point = 0; point <= 4; point++) {
-        const t = point / 4;
-        const wobble = point === 0 || point === 4 ? 0 : (random() - 0.5) * 1.1;
-        const x = x1 + (x2 - x1) * t + (horizontal ? 0 : wobble + offset);
-        const y = y1 + (y2 - y1) * t + (horizontal ? wobble + offset : 0);
-        points.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
+    const horizontal = y1 === y2;
+    const points = [];
+    // A grainy pencil stroke with a few closely retraced marks.
+    // Keep its endpoints fixed so adjoining walls meet on the page grid.
+    for (let point = 0; point <= 8; point++) {
+      const t = point / 8;
+      const drift = point === 0 || point === 8 ? 0 : (random() - 0.5) * 1.7 * scale;
+      const x = x1 + (x2 - x1) * t + (horizontal ? 0 : drift);
+      const y = y1 + (y2 - y1) * t + (horizontal ? drift : 0);
+      points.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
+    }
+    strokes[0].push(points.join(""));
+    // Keep the occasional second pass within the original stroke's width.
+    // Short spans vary the pencil pressure without separating into strands.
+    if (random() < 0.65) {
+      const start = 0.1 + random() * 0.18;
+      const end = 0.65 + random() * 0.25;
+      const offset = (random() < 0.5 ? -0.35 : 0.35) * scale;
+      const retrace = [];
+      for (let point = 0; point <= 5; point++) {
+        const t = start + (end - start) * point / 5;
+        const drift = offset + (random() - 0.5) * 0.9 * scale;
+        const x = x1 + (x2 - x1) * t + (horizontal ? 0 : drift);
+        const y = y1 + (y2 - y1) * t + (horizontal ? drift : 0);
+        retrace.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
       }
-      strokes[layer].push(points.join(""));
+      strokes[1].push(retrace.join(""));
     }
   };
   for (let row = 0; row < maze.rows; row++) {
     for (let column = 0; column < maze.columns; column++) {
       const walls = maze.walls[row * maze.columns + column];
       const x = column * unit, y = row * unit;
-      // Draw shared walls once; vertices stay on the lattice even though
-      // each stroke has the same slight irregularity as the card crosses.
+      // Draw shared walls once, with their junctions on the page lattice.
       if (walls & 1) line(x, y, x + unit, y);
       // The page grid supplies the outer edges; sketch only interior walls.
       if (column > 0 && walls & 8) line(x, y, x, y + unit);
@@ -69,6 +86,10 @@ function sizeCourse(course, left, geometry) {
   svg.setAttribute("viewBox", `0 0 ${width} ${drawingHeight}`);
   svg.style.height = `${drawingHeight}px`;
   sketchWalls(maze, unit).forEach((stroke, index) => svg.children[index].setAttribute("d", stroke));
+  for (const target of svg.querySelectorAll("mask, mask rect")) {
+    target.setAttribute("width", String(width));
+    target.setAttribute("height", String(drawingHeight));
+  }
   if (element.dataset.outcome === "win") solution.setAttribute("d", solutionCells(maze, search.path, unit));
   canvas.width = Math.round(width * ratio);
   canvas.height = Math.round(drawingHeight * ratio);
@@ -85,14 +106,41 @@ function createCourse(maze, side, left, geometry) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.classList.add("gutter-maze-walls");
   svg.setAttribute("preserveAspectRatio", "none");
-  for (let index = 0; index < 2; index++) {
-    const path = document.createElementNS(SVG_NS, "path");
-    if (index === 1) path.classList.add("gutter-maze-wall-echo");
-    svg.append(path);
-  }
+  const wall = document.createElementNS(SVG_NS, "path");
+  wall.classList.add("gutter-maze-wall-stroke");
+  const grainId = `maze-grain-${side}-${maze.seed}`;
+  wall.setAttribute("mask", `url(#${grainId})`);
+  svg.append(wall);
+  const retrace = document.createElementNS(SVG_NS, "path");
+  retrace.classList.add("gutter-maze-wall-retrace");
+  retrace.setAttribute("mask", `url(#${grainId})`);
+  svg.append(retrace);
   const solution = document.createElementNS(SVG_NS, "path");
   solution.classList.add("gutter-maze-solution");
   svg.append(solution);
+  // Tile one small grain image, rather than filtering the full-page maze.
+  // Mask only the walls so the search and winning cell fills stay legible.
+  const definitions = document.createElementNS(SVG_NS, "defs");
+  const pattern = document.createElementNS(SVG_NS, "pattern");
+  pattern.id = `${grainId}-tile`;
+  pattern.setAttribute("patternUnits", "userSpaceOnUse");
+  pattern.setAttribute("width", "64");
+  pattern.setAttribute("height", "64");
+  const grain = document.createElementNS(SVG_NS, "image");
+  grain.setAttribute("href", PENCIL_GRAIN_URL);
+  grain.setAttribute("width", "64");
+  grain.setAttribute("height", "64");
+  pattern.append(grain);
+  const mask = document.createElementNS(SVG_NS, "mask");
+  mask.id = grainId;
+  mask.setAttribute("maskUnits", "userSpaceOnUse");
+  mask.setAttribute("x", "0");
+  mask.setAttribute("y", "0");
+  const texture = document.createElementNS(SVG_NS, "rect");
+  texture.setAttribute("fill", `url(#${pattern.id})`);
+  mask.append(texture);
+  definitions.append(pattern, mask);
+  svg.append(definitions);
   const canvas = document.createElement("canvas");
   canvas.className = "gutter-maze-search";
   const context = canvas.getContext("2d");
@@ -254,9 +302,14 @@ export function initGutterMazes() {
     // Suspended tabs and galleries resume from the same search decision.
     if (previousTime !== undefined) elapsed += Math.min(now - previousTime, 100);
     previousTime = now;
-    if (resolvedAt === undefined && elapsed >= ENTRY_MS + (courses[0].search.expanded + 1) * STEP_MS) {
-      for (const course of courses) advance(course);
-      resolve();
+    if (resolvedAt === undefined && elapsed >= ENTRY_MS + (courses[0].search.expanded / SEARCH_BATCH_SIZE + 1) * STEP_MS) {
+      // More decisions per beat bring back the winning path sooner. Keep
+      // the 900ms visual cadence and check both sides after every decision
+      // so batching cannot skip the true winner or create a false tie.
+      for (let step = 0; step < SEARCH_BATCH_SIZE && resolvedAt === undefined; step++) {
+        for (const course of courses) advance(course);
+        resolve();
+      }
     }
     if (resolvedAt === undefined && elapsed - revealedAt >= REVEAL_MS) revealSearches();
     if (resolvedAt === undefined && elapsed - activeUpdatedAt >= ACTIVE_UPDATE_MS) updateActiveCells();

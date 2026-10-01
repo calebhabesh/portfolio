@@ -128,26 +128,29 @@ export const ProjectsList: React.FC = () => {
               aria-labelledby={`dialog-title-${active.id}`}
               className="project-dialog w-full max-w-[900px] flex flex-col rounded-2xl overflow-hidden"
             >
-              <motion.div layout layoutScroll ref={scrollRef} className="project-dialog-scroll p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <div className="project-box-title-group">
-                      <ProjectSketch projectId={active.id} />
-                      <motion.h3
-                        layoutId={reduceMotion ? undefined : projectLayoutId(active.id, "title")}
-                        layout="position"
-                        transition={projectLayoutTransition}
-                        id={`dialog-title-${active.id}`}
-                        className="text-2xl font-bold text-[var(--ink)] tracking-tight m-0"
-                      >
-                        {active.title}
-                      </motion.h3>
-                    </div>
-                    <motion.p layoutId={reduceMotion ? undefined : projectLayoutId(active.id, "category")} layout="position" transition={projectLayoutTransition} className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
-                      {active.category}
-                    </motion.p>
+              <motion.div layout className="project-dialog-header">
+                <div className="flex flex-col gap-1.5">
+                  <div className="project-box-title-group">
+                    <ProjectSketch projectId={active.id} />
+                    <motion.h3
+                      layoutId={reduceMotion ? undefined : projectLayoutId(active.id, "title")}
+                      layout="position"
+                      transition={projectLayoutTransition}
+                      id={`dialog-title-${active.id}`}
+                      className="text-2xl font-bold text-[var(--ink)] tracking-tight m-0"
+                    >
+                      {active.title}
+                    </motion.h3>
                   </div>
+                  <motion.p layoutId={reduceMotion ? undefined : projectLayoutId(active.id, "category")} layout="position" transition={projectLayoutTransition} className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
+                    {active.category}
+                  </motion.p>
+                </div>
 
+                <div className="project-dialog-actions">
+                  {active.links.map((link) => (
+                    <ProjectLinkButton key={link.url} link={link} />
+                  ))}
                   <button
                     ref={closeButtonRef}
                     type="button"
@@ -158,6 +161,9 @@ export const ProjectsList: React.FC = () => {
                     <CloseIcon />
                   </button>
                 </div>
+              </motion.div>
+
+              <motion.div layout layoutScroll ref={scrollRef} className="project-dialog-scroll px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4 overflow-y-auto">
 
                 <p className="text-[var(--ink-soft)] text-base leading-relaxed m-0">
                   {active.summary}
@@ -198,14 +204,6 @@ export const ProjectsList: React.FC = () => {
                     ))}
                   </div>
                 </div>
-
-                {active.links.length > 0 && (
-                  <div className="pt-2 flex flex-wrap gap-3">
-                    {active.links.map((link) => (
-                      <ProjectLinkButton key={link.url} link={link} />
-                    ))}
-                  </div>
-                )}
               </motion.div>
               <div className="project-dialog-scroll-hint" data-visible={hasMoreBelow} aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

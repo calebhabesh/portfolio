@@ -407,13 +407,21 @@ async function checkPage(browser, viewport, screenshotName) {
   await page.keyboard.press("Escape");
   await notesDialog.waitFor({ state: "hidden" });
 
-  const doorlinkTitleLink = page.locator('article[data-project="doorlink"] h3 a');
-  await doorlinkTitleLink.focus();
+  const doorlinkTitleButton = page.locator('article[data-project="doorlink"] h3 button');
+  await doorlinkTitleButton.focus();
   const focusedCard = await page.evaluate(() => {
     const el = document.activeElement;
     return el?.closest(".project-box")?.getAttribute("data-project");
   });
   assert.equal(focusedCard, "doorlink", "Keyboard focus could not target project card controls.");
+  await doorlinkTitleButton.press("Enter");
+  await notesDialog.waitFor();
+  assert.match(await notesDialog.innerText(), /Custom Hardware/,
+    "Activating the project title must open its details.");
+  await page.keyboard.press("Escape");
+  await notesDialog.waitFor({ state: "hidden" });
+  assert.ok(await doorlinkTitleButton.evaluate(element => element === document.activeElement),
+    "Closing details must return keyboard focus to the project title.");
 
   const expandButton = page.locator('[data-project="doorlink"] .project-expand-button');
   await expandButton.hover();

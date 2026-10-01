@@ -7,7 +7,7 @@
     "dev": "vite --host 0.0.0.0",
     "generate:collision": "node scripts/generate-collision-field.mjs",
     "generate:projects": "node scripts/generate-static-projects.mjs",
-    "prebuild": "npm run generate:projects && npm run generate:collision && npm run pack:emblem && npm run generate:textures",
+    "prebuild": "npm run generate:projects && npm run generate:collision && npm run pack:emblem && npm run generate:textures && npm run generate:paper",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "optimize:model": "gltf-transform optimize models/emblem/lion_emblem.vintage.glb models/emblem/lion_emblem.optimized.glb --compress meshopt && npm run generate:collision && npm run pack:emblem",
@@ -16,10 +16,12 @@
     "test:startup": "node scripts/test-startup-performance.mjs",
     "test:grid": "node scripts/test-blueprint-grid.mjs",
     "test:trail": "node scripts/test-grid-pointer-trail.mjs",
+    "test:paper": "node scripts/test-paper-grain.mjs",
     "test:maze": "node scripts/test-maze-pathfinding.mjs && node scripts/test-gutter-maze.mjs",
-    "check": "npm run build && npm run test:grid && npm run test:trail && npm run test:maze && npm run test:startup && npm run test:cards && npm run test:smoke",
+    "check": "npm run build && npm run test:grid && npm run test:trail && npm run test:paper && npm run test:maze && npm run test:startup && npm run test:cards && npm run test:smoke",
     "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model",
     "generate:textures": "node scripts/generate-emblem-textures.mjs",
+    "generate:paper": "node scripts/generate-paper-grain.mjs",
     "pack:emblem": "node scripts/pack-emblem-assets.mjs"
   },
   "dependencies": {

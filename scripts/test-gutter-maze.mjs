@@ -36,8 +36,11 @@ async function checkGeometry(page, visible) {
       scrollHeight: document.documentElement.scrollHeight,
       shell: rect(document.querySelector(".page-shell")),
       vertices: [...document.querySelectorAll(".gutter-maze-walls")].flatMap(svg => {
-        const points = [...svg.querySelector("path").getAttribute("d").matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
-        return points.filter((_, index) => index % 5 === 0 || index % 5 === 4).map(point => {
+        const walls = svg.querySelector("path").getAttribute("d").match(/M[^M]+/g);
+        return walls.flatMap(wall => {
+          const points = [...wall.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+          return [points[0], points.at(-1)];
+        }).map(point => {
           const screen = new DOMPoint(Number(point[1]), Number(point[2])).matrixTransform(svg.getScreenCTM());
           return { x: screen.x, y: screen.y };
         });
@@ -207,8 +210,8 @@ try {
     const progress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
     await page.clock.runFor(450);
     const nextProgress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
-    assert.ok(nextProgress.every((expanded, index) => expanded - progress[index] === 3),
-      "Batching the illustration must preserve three A* decisions per 450ms.");
+    assert.ok(nextProgress.every((expanded, index) => expanded - progress[index] === 18),
+      "Larger search batches must make eighteen A* decisions per 450ms while retaining the calm reveal cadence.");
     await page.clock.runFor(2550);
     const retained = await exploredCells(page);
     assert.ok(Object.values(retained).every(cells => cells.length > 4),
@@ -321,7 +324,7 @@ try {
       let matched = false;
       for (let step = 1; step <= course.expanded; step++) {
         search.step();
-        if (step < course.expanded - 6) continue;
+        if (step < course.expanded - 36) continue;
         if (search.current === course.squares[0]) matched = true;
       }
       assert.ok(matched, "The highlighted square must match a real A* selection from the current batch.");
@@ -380,8 +383,8 @@ try {
     assert.equal(await root.getAttribute("data-state"), "searching");
     assert.equal(await root.getAttribute("data-round"), round, "Closing a gallery must preserve the search.");
     const resumedProgress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
-    assert.ok(resumedProgress.every((expanded, index) => expanded - pausedProgress[index] <= 1),
-      "Resuming may make the next decision, but must not skip the search while paused.");
+    assert.ok(resumedProgress.every((expanded, index) => expanded - pausedProgress[index] <= 6),
+      "Resuming may make the next batch, but must not skip the search while paused.");
 
     await page.evaluate(() => {
       Object.defineProperty(document, "hidden", { configurable: true, value: true });

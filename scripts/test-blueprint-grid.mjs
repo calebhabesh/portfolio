@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createServer } from "node:net";
 import { chromium } from "playwright-core";
+import sharp from "sharp";
 
 const port = await new Promise((resolve) => {
   const listener = createServer();
@@ -15,6 +16,23 @@ const server = process.env.PORTFOLIO_TEST_URL ? undefined : spawn(process.execPa
   cwd: new URL("../", import.meta.url), stdio: "ignore",
 });
 let browser;
+
+async function checkGridVisibility(page, minimumContrast = 16) {
+  const unit = await page.evaluate(() => parseFloat(document.documentElement.style.getPropertyValue("--grid-unit")));
+  // Sample the exposed outer gutter, away from maze walls and content.
+  // Compare actual rendered pixels with the same page's grid switched off.
+  const clip = { x: Math.round(unit * 0.4), y: 1, width: 3, height: 998 };
+  const visible = await sharp(await page.screenshot({ clip })).removeAlpha().raw().toBuffer();
+  let hidden;
+  try {
+    await page.evaluate(() => document.documentElement.style.setProperty("--grid-line", "transparent"));
+    hidden = await sharp(await page.screenshot({ clip })).removeAlpha().raw().toBuffer();
+  } finally {
+    await page.evaluate(() => document.documentElement.style.removeProperty("--grid-line"));
+  }
+  const contrast = Math.max(...visible.map((value, index) => Math.abs(value - hidden[index])));
+  assert.ok(contrast >= minimumContrast, `The background grid must remain visible in both themes and at browser zoom (pixel contrast: ${contrast}/255).`);
+}
 
 async function checkGrid(page) {
   await page.evaluate(() => document.fonts.ready);
@@ -121,6 +139,21 @@ try {
     await page.route(/\/emblem-scene(?:-[^/]+)?\.js(?:\?.*)?$/, route => route.abort());
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.locator('#projects-root[data-interactive="true"]').waitFor();
+    await checkGridVisibility(page);
+    for (const zoom of [0.8, 0.9, 1.1, 1.25]) {
+      // Fractional scaling previously rounded both half-pixel gradient
+      // stops away, even though background-image still reported a grid.
+      await page.evaluate(zoom => { document.body.style.zoom = zoom; }, zoom);
+      await checkGridVisibility(page, 12);
+    }
+    await page.evaluate(() => {
+      document.body.style.removeProperty("zoom");
+      return new Promise(resolve => {
+        let remaining = 5;
+        const frame = () => --remaining ? requestAnimationFrame(frame) : resolve();
+        requestAnimationFrame(frame);
+      });
+    });
     for (const width of [2048, 1440, 1024, 991, 768, 390, 320]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.mouse.move(0, 0);

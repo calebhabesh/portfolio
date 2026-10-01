@@ -15,7 +15,6 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false }) => {
   const reduceMotion = useReducedMotion();
-  const primaryLink = project.links[0] || null;
   const previewImage = project.images?.[0];
   const imageCount = project.images?.length || 0;
 
@@ -50,14 +49,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                   transition={projectLayoutTransition}
                   className="project-box-title"
                 >
-                  {primaryLink ? (
-                    <a
-                      href={primaryLink.url}
-                      target={primaryLink.external ? "_blank" : undefined}
-                      rel={primaryLink.external ? "noreferrer" : undefined}
+                  {onExpand ? (
+                    <button
+                      type="button"
+                      onClick={() => onExpand(project)}
+                      aria-haspopup="dialog"
                     >
                       {project.title}
-                    </a>
+                    </button>
                   ) : (
                     project.title
                   )}

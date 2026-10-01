@@ -2,12 +2,14 @@ import React from "react";
 import { type ProjectItem } from "../data/projects";
 
 export function ProjectLinkButton({ link }: { link: ProjectItem["links"][number] }) {
+  const label = link.type === "github" ? "View Source" : "View Production";
   return (
     <a
       href={link.url}
       target={link.external ? "_blank" : undefined}
       rel={link.external ? "noreferrer" : undefined}
-      className="project-dialog-link inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-colors text-sm no-underline"
+      className="project-dialog-link inline-flex items-center gap-2 rounded-lg font-medium no-underline"
+      aria-label={`${label}: ${link.ariaLabel}`}
     >
       <svg
         viewBox="0 0 24 24" width="16" height="16" fill="none"
@@ -24,7 +26,7 @@ export function ProjectLinkButton({ link }: { link: ProjectItem["links"][number]
           </>
         )}
       </svg>
-      <span>{link.type === "github" ? "View source on GitHub" : link.label}</span>
+      <span>{label}</span>
     </a>
   );
 }
