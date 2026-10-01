@@ -6,7 +6,7 @@ triplanar material; this Blender pass adds shallow irregularity to the silhouett
 from pathlib import Path
 import bpy
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent / 'models' / 'emblem'
 bpy.ops.wm.open_mainfile(filepath=str(ROOT / 'lion_emblem.blend'))
 bpy.ops.object.select_all(action='DESELECT')
 meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']

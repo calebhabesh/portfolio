@@ -9,8 +9,8 @@ import { collisionFieldFormat } from "../src/collision-field.js";
 
 const MODEL_HEIGHT = 1.94;
 const MODEL_CENTER_Y = 0;
-const modelUrl = new URL("../lion_emblem.optimized.glb", import.meta.url);
-const outputUrl = new URL("../emblem-collision-field.bin", import.meta.url);
+const modelUrl = new URL("../models/emblem/lion_emblem.optimized.glb", import.meta.url);
+const outputUrl = new URL("../models/emblem/emblem-collision-field.bin", import.meta.url);
 
 function createCollisionGeometry(model) {
   model.updateWorldMatrix(true, true);

@@ -2,6 +2,9 @@ import bpy
 import math
 from mathutils import Vector
 import os
+from pathlib import Path
+
+MODEL_DIR = Path(__file__).resolve().parent.parent / "models" / "emblem"
 
 def hex_to_linear(hex_str):
     """Converts sRGB hex string into linear RGB for Blender PBR nodes."""
@@ -41,8 +44,8 @@ def setup_rim_profile(curve, depth=0.0032, floor_height=0.68):
 
 def create_lion_emblem(
     svg_path="/home/ethioking/dev/assets/Portfolio/blender-base-logo.svg",
-    output_glb="/home/ethioking/dev/portfolio/lion_emblem.glb",
-    output_blend="/home/ethioking/dev/portfolio/lion_emblem.blend",
+    output_glb=str(MODEL_DIR / "lion_emblem.glb"),
+    output_blend=str(MODEL_DIR / "lion_emblem.blend"),
     base_extrude=0.020,
     face_extrude=0.026,
     face_z_offset=0.008
@@ -360,6 +363,7 @@ def create_lion_emblem(
     lo3.rotation_euler = (math.radians(-60), math.radians(20), math.radians(140))
 
     # Save Blend file
+    Path(output_blend).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=output_blend)
     print(f"Saved Blender project to: {output_blend}")
 

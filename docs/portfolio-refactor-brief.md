@@ -29,7 +29,7 @@ Agreed decisions from the second design round:
 - `body` is fixed to `100dvh` with `overflow: hidden`; `#main-content` is the scroll container; cards stretch through `grid-auto-rows: 1fr`. Richer copy will compound the awkward scrolling and equal-height whitespace.
 - CourtLoad's current fantasy-week-planner summary is a legacy feature. Its active product is NBA player comparison and analytics. RiftTrace is retired by the locked blueprint and is replaced by File Sync.
 - The existing dark text tokens have nominal contrast, but apparent readability suffers from very small type, subdued colors, thin weights, and the patterned backdrop. Change the type scale and colors together. Do not solve this with browser `zoom` or a single global `transform: scale()`.
-- Existing local edits to `TODO.md` and `src/styles.css` predate this brief. Preserve them when implementing.
+- Existing local edits to `docs/TODO.md` and `src/styles.css` predate this brief. Preserve them when implementing.
 
 ## Layout and visual specification
 
@@ -204,7 +204,7 @@ Interaction behavior to implement in the copied components:
 1. Preserve the current working-tree edits. Create a small implementation branch/worktree if that helps isolate the change.
 2. Extract an ordered project content module with the approved five entries. Correct meta description if it still implies obsolete work. Add only verified public links; make all other card titles plain text rather than faux links.
 3. Refactor page flow and typography before adding effects. Validate desktop width, wrapping, 320px mobile, light/dark contrast, and normal page scrolling with static cards first.
-4. Configure shadcn registry prerequisites in this Vite app. Install both requested items, inspect generated code, and remove the unused Comet demo. Record the sources and required notices in `THIRD_PARTY_NOTICES.md`.
+4. Configure shadcn registry prerequisites in this Vite app. Install both requested items, inspect generated code, and remove the unused Comet demo. Record the sources and required notices in `docs/THIRD_PARTY_NOTICES.md`.
 5. Build the project React island and static/no-JS output path. Add subtle Comet surfaces and stable Target Cursor wrappers. Preserve real links, Notes controls, and clear focus states.
 6. Add selected real project media if approved and safe to publish. Resize/compress copies in `public/`; keep source originals in their project repositories. Use meaningful alt text, lazy load below-the-fold media, fixed aspect ratio, and responsive dimensions. Do not use a generic stock invitation image.
 7. Update `scripts/smoke.mjs` assertions for the five names/order, public links, Notes toggles, theme, horizontal overflow, and JavaScript errors. Add focused checks for reduced motion/touch and keyboard focus because those are the risks introduced by the new components. Update README text describing the site.

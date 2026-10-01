@@ -14,7 +14,7 @@ globalThis.document = {
     return canvas;
   },
 };
-const model = await readFile(new URL("../lion_emblem.optimized.glb", import.meta.url));
+const model = await readFile(new URL("../models/emblem/lion_emblem.optimized.glb", import.meta.url));
 const jsonLength = model.readUInt32LE(12);
 const gltf = JSON.parse(model.subarray(20, 20 + jsonLength).toString());
 const colors = new Map();

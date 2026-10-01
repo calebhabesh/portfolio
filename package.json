@@ -10,7 +10,7 @@
     "prebuild": "npm run generate:projects && npm run generate:collision && npm run pack:emblem && npm run generate:textures",
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
-    "optimize:model": "gltf-transform optimize lion_emblem.vintage.glb lion_emblem.optimized.glb --compress meshopt && npm run generate:collision && npm run pack:emblem",
+    "optimize:model": "gltf-transform optimize models/emblem/lion_emblem.vintage.glb models/emblem/lion_emblem.optimized.glb --compress meshopt && npm run generate:collision && npm run pack:emblem",
     "test:smoke": "node scripts/smoke.mjs",
     "test:cards": "node scripts/test-card-interaction.mjs",
     "test:startup": "node scripts/test-startup-performance.mjs",
