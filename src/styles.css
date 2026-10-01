@@ -15,17 +15,21 @@
   --green: #1d6141;
   --gold: #b38b1f;
   --tag-bg: rgba(22, 31, 27, 0.05);
+  --gallery-bg: #171b1c;
+  --tech-tag-bg: #e7e9e8;
+  --tech-tag-ink: #303735;
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.07);
   --grid-line: rgba(35, 61, 58, 0.055);
   --maze-wall: rgba(35, 61, 58, 0.23);
+  --maze-spotlight: rgba(78, 129, 204, 0.115);
   --maze-wall-width: 1.35px;
-  --maze-boundary-width: 2.1px;
-  --maze-explored: #576d78;
+  --maze-explored: #a45b3e;
+  --maze-explored-opacity: 0.08;
   --maze-win-wall: rgba(29, 97, 65, 0.78);
   --maze-lose-wall: rgba(158, 68, 65, 0.74);
-  --maze-frontier: #826319;
-  --maze-frontier-opacity: 0.035;
+  --maze-frontier: #b58b00;
+  --maze-frontier-opacity: 0.1;
   --maze-path-fill: #238656;
   --maze-active-cell-opacity: 0.14;
   --maze-path-opacity: 0.38;
@@ -60,7 +64,7 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #111613;
+  --paper: #121b16;
   --paper-raised: #18201b;
   --ink: #f1eee5;
   --ink-soft: #d3dace;
@@ -71,15 +75,19 @@
   --green: #a8dfb7;
   --gold: #d7b852;
   --tag-bg: rgba(241, 238, 229, 0.08);
+  --tech-tag-bg: #343a3c;
+  --tech-tag-ink: #f4f5f3;
   --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
   --grid-line: rgba(224, 239, 232, 0.055);
   --maze-wall: rgba(224, 239, 232, 0.21);
-  --maze-explored: #a4bbc6;
+  --maze-spotlight: rgba(149, 195, 255, 0.17);
+  --maze-explored: #e8b089;
+  --maze-explored-opacity: 0.1;
   --maze-win-wall: rgba(168, 223, 183, 0.75);
   --maze-lose-wall: rgba(218, 138, 133, 0.72);
-  --maze-frontier: #d7b852;
-  --maze-frontier-opacity: 0.04;
+  --maze-frontier: #f5d34f;
+  --maze-frontier-opacity: 0.12;
   --maze-path-fill: #79dc99;
   --maze-active-cell-opacity: 0.16;
   --maze-path-opacity: 0.4;
@@ -177,8 +185,8 @@ body {
 }
 
 #gutter-mazes-root {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  inset: 0 0 auto;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
@@ -187,6 +195,22 @@ body {
 .gutter-maze-course {
   position: absolute;
   top: 0;
+}
+
+.gutter-maze-course::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: calc(var(--maze-left) - 12px);
+  width: calc(var(--maze-width) + 24px);
+  height: min(200px, calc(var(--grid-unit) * 3.75), 28vh);
+  background: radial-gradient(ellipse 85% 100% at 50% 0%,
+    var(--maze-spotlight),
+    color-mix(in srgb, var(--maze-spotlight) 55%, transparent) 40%,
+    transparent 100%);
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  filter: blur(12px);
+  pointer-events: none;
 }
 
 .gutter-maze-walls,
@@ -212,10 +236,6 @@ body {
   opacity: 0.4;
 }
 
-.gutter-maze-boundary {
-  stroke-width: var(--maze-boundary-width);
-}
-
 .gutter-maze-solution {
   fill: var(--maze-path-fill);
   stroke: none;
@@ -224,23 +244,18 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   .gutter-maze-course[data-outcome="win"] .gutter-maze-walls {
-    animation: maze-win-pulse 1100ms ease-in-out both;
+    animation: maze-win-pulse 3600ms ease-in-out both;
   }
 
   .gutter-maze-course[data-outcome="win"] .gutter-maze-solution {
-    animation: maze-path-pulse 1100ms ease-in-out both;
+    animation: maze-path-pulse 3600ms ease-in-out both;
   }
 
   .gutter-maze-course[data-outcome="lose"] .gutter-maze-walls {
-    animation: maze-lose-pulse 1100ms ease-in-out both;
-  }
-
-  .gutter-maze-course[data-outcome] .gutter-maze-boundary {
-    animation: maze-boundary-pulse 1100ms ease-in-out both;
+    animation: maze-lose-pulse 3600ms ease-in-out both;
   }
 
   #gutter-mazes-root[data-state="paused"] .gutter-maze-walls,
-  #gutter-mazes-root[data-state="paused"] .gutter-maze-boundary,
   #gutter-mazes-root[data-state="paused"] .gutter-maze-solution {
     animation-play-state: paused;
   }
@@ -248,22 +263,17 @@ body {
 
 @keyframes maze-win-pulse {
   0%, 100% { stroke: var(--maze-wall); stroke-width: var(--maze-wall-width); }
-  35%, 65% { stroke: var(--maze-win-wall); stroke-width: 2.6px; }
+  10%, 90% { stroke: var(--maze-win-wall); stroke-width: 2.6px; }
 }
 
 @keyframes maze-lose-pulse {
   0%, 100% { stroke: var(--maze-wall); stroke-width: var(--maze-wall-width); }
-  35%, 65% { stroke: var(--maze-lose-wall); stroke-width: 2.6px; }
-}
-
-@keyframes maze-boundary-pulse {
-  0%, 100% { stroke-width: var(--maze-boundary-width); }
-  35%, 65% { stroke-width: 3.2px; }
+  10%, 90% { stroke: var(--maze-lose-wall); stroke-width: 2.6px; }
 }
 
 @keyframes maze-path-pulse {
   0%, 100% { opacity: 0.08; }
-  35%, 65% { opacity: var(--maze-path-opacity); }
+  10%, 90% { opacity: var(--maze-path-opacity); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -496,7 +506,7 @@ canvas:focus-visible {
 }
 
 .headshot-frame {
-  --cross-size: 11px;
+  --cross-size: min(15px, var(--grid-unit));
   position: relative;
   flex-shrink: 0;
   width: var(--hero-avatar-size);
@@ -783,7 +793,7 @@ canvas:focus-visible {
 
 .project-card-animate[data-card-reveal="pending"].is-visible .project-comet-card {
   will-change: transform, opacity;
-  animation: project-fly-in 650ms var(--ease-out) calc(var(--reveal-delay, 0ms) + 900ms) both;
+  animation: project-fly-in 500ms var(--ease-out) calc(var(--reveal-delay, 0ms) + 500ms) both;
 }
 
 /* Keep the entrance layer and coordinate system stable so text is not
@@ -837,69 +847,70 @@ canvas:focus-visible {
   width: 100%;
 }
 
-/* Muted stock colours give each project an identity and follow its card into
+/* Coloured paper gives each project an identity and follows its card into
    the dialog. Keep the surrounding blueprint guides in the page's ink. */
 [data-project-tone="sage"] {
-  --surface-top: #e4ece0;
-  --surface-bottom: #dbe5d5;
-  --project-accent: #346044;
+  --surface-top: #d7f0d1;
+  --surface-bottom: #c2e3b8;
+  --project-accent: #275333;
 }
 
 [data-project-tone="slate"] {
-  --surface-top: #e6ebee;
-  --surface-bottom: #dce4e9;
-  --project-accent: #405f73;
+  --surface-top: #cfe8f9;
+  --surface-bottom: #b9dcee;
+  --project-accent: #24516f;
 }
 
 [data-project-tone="clay"] {
-  --surface-top: #f0e5dc;
-  --surface-bottom: #e9dace;
-  --project-accent: #80543e;
+  --surface-top: #f6d5cc;
+  --surface-bottom: #efbcb0;
+  --project-accent: #7e322b;
 }
 
 [data-project-tone="ochre"] {
-  --surface-top: #f1ecd6;
-  --surface-bottom: #e9e1be;
-  --project-accent: #76622f;
+  --surface-top: #f8ebb4;
+  --surface-bottom: #f0dc89;
+  --project-accent: #705417;
 }
 
 [data-project-tone="lilac"] {
-  --surface-top: #ede6f0;
-  --surface-bottom: #e3d9ea;
-  --project-accent: #695279;
+  --surface-top: #e9d2f7;
+  --surface-bottom: #debaef;
+  --project-accent: #674080;
 }
 
 :root[data-theme="dark"] [data-project-tone="sage"] {
-  --surface-top: #28352c;
-  --surface-bottom: #202c25;
-  --project-accent: #b0cfad;
+  --surface-top: #244e32;
+  --surface-bottom: #183b24;
+  --project-accent: #b3e0b0;
 }
 
 :root[data-theme="dark"] [data-project-tone="slate"] {
-  --surface-top: #29343c;
-  --surface-bottom: #222c33;
-  --project-accent: #adc6d7;
+  --surface-top: #214456;
+  --surface-bottom: #163641;
+  --project-accent: #acd9f4;
 }
 
 :root[data-theme="dark"] [data-project-tone="clay"] {
-  --surface-top: #393029;
-  --surface-bottom: #302721;
-  --project-accent: #dfb89e;
+  --surface-top: #50282c;
+  --surface-bottom: #401d22;
+  --project-accent: #f0b2a5;
 }
 
 :root[data-theme="dark"] [data-project-tone="ochre"] {
-  --surface-top: #3d3825;
-  --surface-bottom: #322d20;
-  --project-accent: #d9c78d;
+  --surface-top: #57491a;
+  --surface-bottom: #443811;
+  --project-accent: #ead077;
 }
 
 :root[data-theme="dark"] [data-project-tone="lilac"] {
-  --surface-top: #34303e;
-  --surface-bottom: #2a2634;
-  --project-accent: #c9b9dc;
+  --surface-top: #472b5c;
+  --surface-bottom: #392047;
+  --project-accent: #d8b5ee;
 }
 
 [data-project-tone] {
+  --muted: var(--ink-soft);
   --green: var(--project-accent);
   --surface-glow: color-mix(in srgb, var(--project-accent) 6%, transparent);
   --project-hover-bg: color-mix(in srgb, var(--project-accent) 24%, transparent);
@@ -908,7 +919,7 @@ canvas:focus-visible {
 }
 
 .project-frame {
-  --cross-size: 22px;
+  --cross-size: min(36px, var(--grid-unit));
   position: relative;
   isolation: isolate;
   padding: var(--project-frame-inset);
@@ -967,8 +978,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
   stroke-dashoffset: 0;
 }
 
-/* Draw each cross vertically then horizontally, going clockwise (0–640ms).
-   Trace the outline (660–900ms), then slide in the card (900ms+).
+/* Draw each cross vertically then horizontally, going clockwise (0–320ms).
+   Trace the outline (340–500ms), then slide in the card (500–1000ms).
    The guides stay in the grid's coordinate system while only the card slides. */
 @media (prefers-reduced-motion: no-preference) {
   .project-card-animate[data-card-reveal="pending"] .project-frame-corner path,
@@ -979,16 +990,16 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 
   .project-card-animate[data-card-reveal="pending"].is-visible .project-frame-corner path {
-    animation: project-cross-draw 80ms linear calc(var(--reveal-delay, 0ms) + var(--corner-delay) + var(--stroke-delay, 0ms)) both;
+    animation: project-cross-draw 40ms linear calc(var(--reveal-delay, 0ms) + var(--corner-delay) + var(--stroke-delay, 0ms)) both;
   }
 
   .project-card-animate[data-card-reveal="pending"].is-visible .project-frame-outline rect {
-    animation: project-outline-draw 240ms linear calc(var(--reveal-delay, 0ms) + 660ms) both;
+    animation: project-outline-draw 160ms linear calc(var(--reveal-delay, 0ms) + 340ms) both;
   }
 }
 
 .project-cross-stroke--horizontal {
-  --stroke-delay: 80ms;
+  --stroke-delay: 40ms;
 }
 
 @keyframes project-cross-draw {
@@ -1010,7 +1021,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   position: absolute;
   width: var(--cross-size, 13px);
   height: var(--cross-size, 13px);
-  color: var(--ink);
+  color: color-mix(in srgb, var(--ink-soft) 85%, transparent);
   transform: translate(-50%, -50%);
 }
 
@@ -1029,21 +1040,21 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-frame-corner--top-right {
-  --corner-delay: 160ms;
+  --corner-delay: 80ms;
   --cross-mark: url("./assets/blueprint-cross-b.svg");
   top: 0;
   left: 100%;
 }
 
 .project-frame-corner--bottom-left {
-  --corner-delay: 480ms;
+  --corner-delay: 240ms;
   --cross-mark: url("./assets/blueprint-cross-c.svg");
   top: 100%;
   left: 0;
 }
 
 .project-frame-corner--bottom-right {
-  --corner-delay: 320ms;
+  --corner-delay: 160ms;
   --cross-mark: url("./assets/blueprint-cross-d.svg");
   top: 100%;
   left: 100%;
@@ -1116,8 +1127,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
 .project-box-type,
 .project-box-summary,
-.project-box-tags,
-.project-notes .notes-body {
+.project-box-tags {
   cursor: text;
 }
 
@@ -1270,14 +1280,51 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-gallery-stage {
+  position: relative;
   display: grid;
   min-height: 220px;
   place-items: center;
   padding: 12px;
   overflow: hidden;
   border-radius: 12px;
-  background: var(--evidence-bg);
+  background: var(--gallery-bg);
   box-shadow: inset 0 1px 0 var(--surface-edge);
+}
+
+.project-gallery-nav {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(10, 14, 16, 0.88);
+  color: #f4f5f3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.project-gallery-prev {
+  left: 12px;
+}
+
+.project-gallery-next {
+  right: 12px;
+}
+
+.project-gallery-nav:is(:hover, :active) {
+  background: #343a3c;
+}
+
+.project-gallery-nav:focus-visible {
+  outline: 2px solid #f4f5f3;
+  outline-offset: 3px;
 }
 
 .project-gallery-stage img {
@@ -1325,7 +1372,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   overflow: hidden;
   border: 0;
   border-radius: 7px;
-  background: var(--evidence-bg);
+  background: var(--gallery-bg);
   box-shadow: inset 0 0 0 1px var(--line);
   cursor: pointer;
 }
@@ -1350,19 +1397,19 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-box-inner {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 24px 24px 14px;
+  gap: 8px;
+  padding: 24px 24px 8px;
 }
 
 .project-box-inner.has-preview {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 160px;
+  grid-template-columns: minmax(0, 1fr) 148px;
   column-gap: 20px;
   align-items: start;
 }
 
 .has-preview > .project-box-header,
-.has-preview > .project-notes {
+.has-preview > .project-details-button {
   grid-column: 1 / -1;
 }
 
@@ -1380,7 +1427,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   align-self: center;
   display: flex;
   flex-direction: column;
-  width: 160px;
+  width: 148px;
   min-width: 0;
   margin-block: 6px;
   overflow: visible;
@@ -1432,7 +1479,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-card-preview img {
   display: block;
   width: 100%;
-  height: 118px;
+  height: 106px;
   object-fit: contain;
   background: var(--paper);
 }
@@ -1473,7 +1520,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 
   .has-preview > .project-box-tags {
-    align-self: center;
+    align-self: start;
   }
 
   .project-card-preview {
@@ -1512,13 +1559,22 @@ body:has(.project-dialog-overlay) .project-hover-background {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
+  max-width: 100%;
+}
+
+.project-sketch {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  color: var(--project-accent);
+  pointer-events: none;
 }
 
 .project-box-title {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.625rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.25;
@@ -1556,8 +1612,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-icon-link svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .project-icon-link:hover {
@@ -1582,8 +1638,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-expand-button svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 
 .project-expand-button:hover {
@@ -1595,110 +1651,110 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-box-type {
   margin: 0;
   color: var(--green);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .project-box-summary {
   margin: 0;
   max-width: 76ch;
   color: var(--ink-soft);
-  font-size: 1rem;
-  line-height: 1.55;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
 }
 
 .project-box-tags {
   display: flex;
-  margin: 2px 0 0;
+  margin: 0;
   padding: 0;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px 8px;
   list-style: none;
 }
 
 .project-box-tags li {
-  padding: 3px 9px;
+  padding: 5px 11px;
   border-radius: 6px;
-  background: var(--tag-bg);
-  color: var(--muted);
-  font-size: 0.8125rem;
-  font-weight: 500;
+  background: var(--tech-tag-bg);
+  color: var(--tech-tag-ink);
+  font-size: 0.875rem;
+  font-weight: 550;
 }
 
-.project-notes {
-  margin-top: 0;
-  interpolate-size: allow-keywords;
-}
-
-.project-notes::details-content {
-  block-size: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: block-size 220ms ease, opacity 180ms ease, content-visibility 220ms allow-discrete;
-}
-
-.project-notes[open]::details-content {
-  block-size: auto;
-  opacity: 1;
-}
-
-.project-notes summary {
+.project-details-button {
+  position: relative;
   display: flex;
+  width: fit-content;
   min-height: 44px;
   align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-  cursor: pointer;
-  font-size: 0.96875rem;
-  font-weight: 600;
-  list-style: none;
-  user-select: none;
-  margin-inline: -12px;
+  align-self: flex-end;
+  justify-self: end;
+  gap: 8px;
+  margin-top: var(--project-footer-space, 0px);
+  margin-right: -12px;
   padding: 4px 12px;
+  border: 0;
   border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: background-color 160ms ease, color 160ms ease;
 }
 
-.project-notes summary:is(:hover, :focus-visible) {
+.project-details-button:is(:hover, :focus-visible, :active) {
   background-color: var(--tag-bg);
-  color: var(--ink);
+  color: var(--project-accent);
 }
 
-.project-notes summary::-webkit-details-marker {
-  display: none;
+.project-details-button:focus-visible {
+  outline: 2px solid var(--project-accent);
+  outline-offset: 2px;
 }
 
-.plus-icon {
-  width: 22px;
-  height: 22px;
+.project-details-button svg {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
-  transition: transform 180ms ease;
 }
 
-.project-notes[open] .plus-icon {
-  transform: rotate(45deg);
+@media (min-width: 641px) {
+  .has-preview > .project-details-button {
+    position: absolute;
+    right: 0;
+    bottom: calc(8px - var(--project-footer-space, 0px));
+    margin-top: 0;
+  }
+
+  .project-card-preview {
+    align-self: start;
+    margin-block: 0;
+  }
 }
 
-.notes-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 8px 0 6px;
-  color: var(--ink-soft);
-  font-size: 0.96875rem;
-  line-height: 1.6;
-}
+@media (max-width: 640px) {
+  .project-box .project-box-title {
+    font-size: 1.5rem;
+  }
 
-.notes-body p {
-  margin: 0;
-  max-width: 76ch;
-}
+  .project-box-summary {
+    font-size: 1.0625rem;
+  }
 
-.notes-body strong {
-  color: var(--ink);
-  font-weight: 600;
+  .project-box .project-sketch {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
 }
 
 .site-footer {
@@ -1717,19 +1773,19 @@ body:has(.project-dialog-overlay) .project-hover-background {
   left: 50%;
   transform: translateX(-50%);
   bottom: calc(20px + env(safe-area-inset-bottom, 0px));
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--line-strong);
+  border: 1.5px solid color-mix(in srgb, var(--green) 55%, var(--paper-raised));
   border-radius: 50%;
-  background: var(--paper-raised);
-  color: var(--muted);
-  box-shadow: var(--card-shadow);
+  background: color-mix(in srgb, var(--green) 6%, var(--paper-raised));
+  color: var(--green);
+  box-shadow: var(--card-shadow), 0 0 0 3px color-mix(in srgb, var(--green) 7%, transparent);
   cursor: pointer;
-  opacity: 0.9;
+  opacity: 1;
   transition: opacity 250ms ease, transform 200ms ease, color 160ms ease, border-color 160ms ease, background-color 160ms ease;
 }
 
@@ -1737,6 +1793,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
   opacity: 1;
   color: var(--green);
   border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 12%, var(--paper-raised));
+}
+
+.projects-scroll-arrow:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 4px;
 }
 
 .projects-scroll-arrow.is-hidden {
@@ -1752,6 +1814,26 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
 
 .projects-scroll-arrow svg {
   display: block;
+  width: 22px;
+  height: 22px;
+  stroke-width: 2.25;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .projects-scroll-arrow:not(.is-hidden) {
+    animation: projects-scroll-nudge 2200ms ease-in-out infinite;
+  }
+
+  .projects-scroll-arrow:is(:hover, :focus-visible),
+  body:has(.project-dialog-overlay) .projects-scroll-arrow {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes projects-scroll-nudge {
+  0%, 55%, 100% { transform: translateX(-50%) translateY(0); }
+  25% { transform: translateX(-50%) translateY(4px); }
+  40% { transform: translateX(-50%) translateY(-1px); }
 }
 
 .footer-email,
@@ -1816,7 +1898,7 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .project-box-inner {
-    padding: 20px 20px 14px;
+    padding: 20px 20px 8px;
   }
 }
 
@@ -1849,7 +1931,7 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .project-box-inner {
-    padding: 16px 16px 12px;
+    padding: 16px 16px 8px;
   }
 }
 
@@ -1868,10 +1950,6 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     animation: none !important;
     will-change: auto !important;
     pointer-events: auto !important;
-  }
-
-  .project-notes::details-content {
-    transition: none;
   }
 
   #emblem-canvas,

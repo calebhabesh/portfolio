@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M6.8 15.6L11.5 15.9L16 16L19.3 16.6L24.8 16.4M14.9 1.7L15.4 8.8L15.2 13.4L16 16L15.6 21.9L16.5 30.4" stroke-width="1.7"/>
-  <path d="M8.5 14.3L13.3 14.7L18 15.1L23.1 15.5M13.5 3.8L13.8 9.2L14.3 13.9L14 19.8L14.9 27.6" stroke-width="1.2" opacity=".8"/>
-  <path d="M7.5 17.2L12.2 17.5L17.3 17.1L22.8 18M16.4 2.9L16.8 8.1L16.4 12.6L17.2 17.8L17 23.6L17.8 28.9" stroke-width="1.1" opacity=".85"/>
-  <path d="M10.4 18.1L15.7 18.5L20.9 18.2M12.8 6.4L13.1 12.5L13 16.9M18.4 17.1L18.7 23.8L18.3 27.3" stroke-width=".55" opacity=".45"/>
+  <path d="M6.8 15.6L11.5 15.9L16 16L19.3 16.6L24.8 16.4M14.9 1.7L15.4 8.8L15.2 13.4L16 16L15.6 21.9L16.5 30.4" stroke-width="2.1583"/>
+  <path d="M8.5 14.3L13.3 14.7L18 15.1L23.1 15.5M13.5 3.8L13.8 9.2L14.3 13.9L14 19.8L14.9 27.6" stroke-width="1.5235" opacity=".8"/>
+  <path d="M7.5 17.2L12.2 17.5L17.3 17.1L22.8 18M16.4 2.9L16.8 8.1L16.4 12.6L17.2 17.8L17 23.6L17.8 28.9" stroke-width="1.3966" opacity=".85"/>
+  <path d="M10.4 18.1L15.7 18.5L20.9 18.2M12.8 6.4L13.1 12.5L13 16.9M18.4 17.1L18.7 23.8L18.3 27.3" stroke-width="0.6983" opacity=".45"/>
 </svg>

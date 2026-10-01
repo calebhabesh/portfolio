@@ -121,10 +121,10 @@ try {
     }, time);
     const start = await sample(0);
     for (let corner = 0; corner < 4; corner++) {
-      const vertical = await sample(corner * 160 + 40);
+      const vertical = await sample(corner * 80 + 20);
       assert.ok(vertical.crossProgress[corner].vertical.length && vertical.crossProgress[corner].vertical.every(progress => progress > 0 && progress < 1), 'Each cross should draw its vertical stroke first.');
       assert.ok(vertical.crossProgress[corner].horizontal.length && vertical.crossProgress[corner].horizontal.every(progress => progress === 1), 'The horizontal stroke must wait for the vertical stroke.');
-      const horizontal = await sample(corner * 160 + 120);
+      const horizontal = await sample(corner * 80 + 60);
       assert.ok(horizontal.crossProgress[corner].vertical.every(progress => progress === 0), 'Vertical strokes must finish before horizontal strokes.');
       assert.ok(horizontal.crossProgress[corner].horizontal.every(progress => progress > 0 && progress < 1), 'The horizontal stroke should draw second.');
       for (const [index, strokes] of horizontal.crossProgress.entries()) {
@@ -134,16 +134,16 @@ try {
       assert.equal(horizontal.outlineProgress, 1, 'The outline must wait for all four crosses.');
       assert.equal(horizontal.opacity, 0, 'The card must wait for the frame.');
     }
-    const outline = await sample(780);
+    const outline = await sample(420);
     assert.ok(outline.crossProgress.every(strokes => [...strokes.vertical, ...strokes.horizontal].every(progress => progress === 0)), 'Crosses must finish before the outline.');
     assert.ok(outline.outlineProgress > 0 && outline.outlineProgress < 1, 'The outline should trace between the finished crosses.');
     assert.equal(outline.opacity, 0, 'The card must remain hidden until the outline finishes.');
-    const slide = await sample(1060);
+    const slide = await sample(625);
     assert.equal(slide.outlineProgress, 0);
     assert.ok(slide.opacity > 0 && slide.opacity < 1 && slide.x < 0, 'The card should retain its left entrance after the frame finishes.');
     assert.deepEqual(slide.frame, start.frame, 'The frame must not slide with the card.');
     assert.deepEqual(slide.corners, start.corners, 'Crosses must stay fixed on their vertices throughout the reveal.');
-    const end = await sample(1550);
+    const end = await sample(1000);
     assert.equal(end.opacity, 1);
     assert.equal(end.x, 0);
     // Focusing a control skips the reveal, including its delayed slide.
@@ -179,6 +179,14 @@ try {
     const card = page.locator('.project-card-animate').first();
     await card.locator('img').evaluateAll(images => Promise.all(images.map(image => image.decode())));
     await card.scrollIntoViewIfNeeded();
+    // The fixed scroll cue can overlap a mobile card. Hold its independent
+    // gesture still while comparing the card's entrance and settled pixels.
+    await page.locator('[data-projects-scroll-arrow]').evaluate(button => {
+      for (const animation of button.getAnimations()) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+    });
     const before = await card.screenshot();
     await card.evaluate(element => { element.dataset.cardReveal = "settled"; });
     const after = await card.screenshot();
@@ -323,9 +331,11 @@ try {
     const button = page.locator('[data-project="doorlink"] .project-expand-button');
     await card.scrollIntoViewIfNeeded();
     const frame = page.locator('.project-frame').first();
+    // Hover may scroll the control into view while its entrance settles.
+    // Sample the resting viewport coordinates after that setup completes.
+    await button.hover();
     const frameBounds = await frame.boundingBox();
     assert.ok(frameBounds, "The project card has no fixed frame.");
-    await button.hover();
     const bounds = await card.boundingBox();
     assert.ok(bounds, "The project card has no rendered bounds.");
     await page.mouse.move(bounds.x + 50, bounds.y + 100);
@@ -499,6 +509,22 @@ try {
     const thumbnails = dialog.locator('.project-gallery-thumbnail');
     await thumbnails.first().waitFor();
     assert.equal(await thumbnails.count(), imagePaths.length);
+    const previousImage = dialog.getByRole("button", { name: "Previous image", exact: true });
+    const nextImage = dialog.getByRole("button", { name: "Next image", exact: true });
+    assert.equal(await previousImage.isVisible(), true);
+    assert.equal(await nextImage.isVisible(), true);
+    await previousImage.click();
+    assert.equal(await image.getAttribute("src"), imagePaths.at(-1), "Previous must wrap to the final photo.");
+    assert.equal(await thumbnails.last().getAttribute("aria-pressed"), "true");
+    assert.equal(await dialog.locator(".project-gallery-heading span").innerText(), `${imagePaths.length} / ${imagePaths.length}`);
+    await nextImage.click();
+    assert.equal(await image.getAttribute("src"), imagePaths[0], "Next must wrap to the first photo.");
+    assert.equal(await dialog.getByRole("link", { name: "View full image" }).getAttribute("href"), imagePaths[0]);
+    await nextImage.focus();
+    await nextImage.press("ArrowRight");
+    assert.equal(await image.getAttribute("src"), imagePaths[1], "The right arrow key must advance the gallery.");
+    await nextImage.press("ArrowLeft");
+    assert.equal(await image.getAttribute("src"), imagePaths[0], "The left arrow key must reverse the gallery.");
     for (const [index, imagePath] of imagePaths.entries()) {
       await thumbnails.nth(index).click();
       assert.equal(await image.getAttribute("src"), imagePath);
@@ -516,7 +542,12 @@ try {
       assert.equal(await preview.evaluate(element => getComputedStyle(element.closest('.project-comet-card')).opacity), '0',
         "Gallery changes must not reveal the original card behind the dialog.");
     }
-    assert.doesNotMatch(await dialog.locator(".project-dialog-link").first().innerText(), /↗/);
+    const projectLinks = dialog.locator(".project-dialog-link");
+    const expectedLinkCount = ["file-sync", "courtload"].includes(projectId) ? 0 : projectId === "linewatch" ? 2 : 1;
+    assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
+    for (const link of await projectLinks.all()) {
+      assert.doesNotMatch(await link.innerText(), /↗/);
+    }
     await dialog.getByRole("button", { name: "Close dialog" }).click();
     await dialog.waitFor({ state: "detached" });
     assert.ok(await preview.evaluate((element) => element === document.activeElement), "Closing the gallery should return focus to its preview.");

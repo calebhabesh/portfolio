@@ -3,9 +3,9 @@ import { motion, useReducedMotion } from "motion/react";
 import { projectLayoutId, projectLayoutTransition } from "../lib/project-motion";
 import { type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
-import { ProjectLinkButton } from "./ProjectLinkButton";
 import { HoverEffectItem } from "./ui/card-hover-effect";
 import { ProjectFrameGuides } from "./ProjectFrameGuides";
+import { ProjectSketch } from "./ProjectSketch";
 
 interface ProjectCardProps {
   project: ProjectItem;
@@ -22,7 +22,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
   const handleCardClick = (e: React.MouseEvent) => {
     if (!onExpand) return;
     const target = e.target as HTMLElement;
-    if (target.closest("a, button, summary, details, .project-box-type, .project-box-summary, .project-box-tags")) {
+    if (target.closest("a, button, .project-box-type, .project-box-summary, .project-box-tags")) {
       return;
     }
     onExpand(project);
@@ -40,9 +40,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
         data-project={project.id}
         onClick={handleCardClick}
       >
-        <motion.div layout className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
+        <div className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
             <div className="project-box-header">
               <div className="project-box-title-group">
+                <ProjectSketch projectId={project.id} />
                 <motion.h3
                   layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "title")}
                   layout="position"
@@ -113,6 +114,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                     onClick={() => onExpand(project)}
                     aria-label={`Expand details for ${project.title}`}
                     title="Expand details"
+                    aria-haspopup="dialog"
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -186,29 +188,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               </a>
             )}
 
-            <details className="project-notes">
-              <summary>
-                <span>Notes</span>
-                <svg className="plus-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                  <path d="M12 5v14M5 12h14" />
+            {onExpand && (
+              <button
+                type="button"
+                className="project-details-button"
+                onClick={() => onExpand(project)}
+                aria-label={`View Project Details for ${project.title}`}
+                aria-haspopup="dialog"
+              >
+                <span>View Project Details</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14m-6-6 6 6-6 6" />
                 </svg>
-              </summary>
-              <div className="notes-body">
-                {project.evidence.map((point) => (
-                  <p key={point.heading}>
-                    <strong>{point.heading}:</strong> {point.detail}
-                  </p>
-                ))}
-                {project.links.length > 0 && (
-                  <div className="pt-2 flex flex-wrap gap-3">
-                    {project.links.map((link) => (
-                      <ProjectLinkButton key={link.url} link={link} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </details>
-        </motion.div>
+              </button>
+            )}
+        </div>
       </motion.article>
       </CometCard>
     </HoverEffectItem>

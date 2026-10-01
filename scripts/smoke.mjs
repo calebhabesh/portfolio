@@ -191,9 +191,9 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.ok(await page.locator('article[data-project="doorlink"] a[href="https://github.com/calebhabesh/doorlink"]').count() >= 1, "Doorlink GitHub link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://linewatchto.ca"]').count() >= 1, "LineWatchTO live link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
-  assert.ok(await page.locator('article[data-project="file-sync"] a[href="https://github.com/calebhabesh/file-sync"]').count() >= 1, "File Sync GitHub link missing.");
-  assert.ok(await page.locator('article[data-project="courtload"] a[href="https://github.com/calebhabesh/courtload"]').count() >= 1, "CourtLoad GitHub link missing.");
-  assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
+  assert.equal(await page.locator('article[data-project="file-sync"] .project-icon-link').count(), 0, "File Sync should not link to its unpublished repository.");
+  assert.equal(await page.locator('article[data-project="courtload"] .project-icon-link').count(), 0, "CourtLoad should not link to its unpublished repository.");
+  assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/nm03-capstone-project"]').count() >= 1, "Medical Imaging GitHub link missing.");
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
 
   const idleOrientationBefore = parseQuaternion(
@@ -398,15 +398,14 @@ async function checkPage(browser, viewport, screenshotName) {
   await page.waitForTimeout(550);
   await emblemCanvas.evaluate((canvas) => canvas.blur());
 
-  const doorlinkNotes = page.locator('[data-project="doorlink"] details');
-  await doorlinkNotes.locator("summary").click();
-  assert.equal(await doorlinkNotes.getAttribute("open"), "");
-  await page.waitForFunction(() =>
-    document.querySelector('[data-project="doorlink"] .notes-body')?.innerText.includes("Custom hardware"),
-  );
-  assert.match(await doorlinkNotes.locator(".notes-body").innerText(), /Custom hardware/);
-  await doorlinkNotes.locator("summary").click();
-  assert.equal(await doorlinkNotes.getAttribute("open"), null);
+  const doorlinkDetails = page.locator('[data-project="doorlink"] .project-details-button');
+  await doorlinkDetails.click();
+  const notesDialog = page.getByRole("dialog");
+  await notesDialog.waitFor();
+  assert.match(await notesDialog.innerText(), /Project Notes/i);
+  assert.match(await notesDialog.innerText(), /Custom Hardware/);
+  await page.keyboard.press("Escape");
+  await notesDialog.waitFor({ state: "hidden" });
 
   const doorlinkTitleLink = page.locator('article[data-project="doorlink"] h3 a');
   await doorlinkTitleLink.focus();
@@ -487,9 +486,11 @@ async function checkReducedMotion(browser) {
   await page.goto(baseUrl, { waitUntil: "networkidle" });
 
   assert.equal(await page.locator("article[data-project]").count(), 5);
-  const notes = page.locator('[data-project="doorlink"] details');
-  await notes.locator("summary").click();
-  assert.equal(await notes.getAttribute("open"), "");
+  await page.locator('[data-project="doorlink"] .project-details-button').click();
+  await page.getByRole("dialog").waitFor();
+  assert.match(await page.getByRole("dialog").innerText(), /Custom Hardware/);
+  await page.keyboard.press("Escape");
+  await page.getByRole("dialog").waitFor({ state: "hidden" });
 
   const cursorVisible = await page.evaluate(() => {
     const cursor = document.querySelector(".target-cursor-wrapper");

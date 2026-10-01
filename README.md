@@ -109,7 +109,7 @@ immutable cache lifetime on hosts that support the headers file (including Cloud
 ## Content still needed before launch
 
 - Add the final résumé PDF and its navigation link when the document is ready.
-- Make the LineWatchTO, File Sync, and CourtLoad GitHub repositories public; their card links currently return 404 for public visitors.
+- Publish the File Sync and CourtLoad repositories, then add their GitHub links to the project cards. Doorlink, LineWatchTO, and the capstone already link to public repositories.
 - Add a social preview image before sharing the site broadly.
 
 Deployment and DNS are intentionally left for a later pass. The production build is static and

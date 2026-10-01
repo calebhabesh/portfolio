@@ -5,6 +5,7 @@ import { projects, type ProjectItem } from "../data/projects";
 import { ProjectCard } from "./ProjectCard";
 import { ProjectLinkButton } from "./ProjectLinkButton";
 import { ProjectGallery } from "./ProjectGallery";
+import { ProjectSketch } from "./ProjectSketch";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 import CardHoverEffectDemo from "./card-hover-effect-demo";
@@ -125,12 +126,13 @@ export const ProjectsList: React.FC = () => {
               data-project-tone={active.tone}
               aria-modal="true"
               aria-labelledby={`dialog-title-${active.id}`}
-              className="project-dialog w-full max-w-[620px] flex flex-col rounded-2xl overflow-hidden"
+              className="project-dialog w-full max-w-[900px] flex flex-col rounded-2xl overflow-hidden"
             >
               <motion.div layout layoutScroll ref={scrollRef} className="project-dialog-scroll p-6 sm:p-8 flex flex-col gap-4 overflow-y-auto">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2.5 flex-wrap">
+                    <div className="project-box-title-group">
+                      <ProjectSketch projectId={active.id} />
                       <motion.h3
                         layoutId={reduceMotion ? undefined : projectLayoutId(active.id, "title")}
                         layout="position"
@@ -178,9 +180,9 @@ export const ProjectsList: React.FC = () => {
 
                 <div className="pt-4 flex flex-col gap-3">
                   <h4 className="text-xs uppercase tracking-wider font-semibold text-[var(--muted)] m-0">
-                    Architecture &amp; Validation Evidence
+                    Project Notes
                   </h4>
-                  <div className="flex flex-col gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     {active.evidence.map((point) => (
                       <div
                         key={point.heading}

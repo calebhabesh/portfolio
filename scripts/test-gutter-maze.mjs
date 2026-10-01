@@ -32,6 +32,8 @@ async function checkGeometry(page, visible) {
     return {
       unit: parseFloat(document.documentElement.style.getPropertyValue("--grid-unit")),
       width: document.documentElement.clientWidth, height: innerHeight,
+      scroll: scrollY, pageHeight: Math.max(innerHeight, Math.ceil(document.body.getBoundingClientRect().height)),
+      scrollHeight: document.documentElement.scrollHeight,
       shell: rect(document.querySelector(".page-shell")),
       vertices: [...document.querySelectorAll(".gutter-maze-walls")].flatMap(svg => {
         const points = [...svg.querySelector("path").getAttribute("d").matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
@@ -51,13 +53,13 @@ async function checkGeometry(page, visible) {
   if (!visible) return;
   for (const point of geometry.vertices) {
     near(point.x, Math.round(point.x / geometry.unit) * geometry.unit, "Maze vertices must meet background columns");
-    near(point.y, Math.round(point.y / geometry.unit) * geometry.unit,
-      "Maze vertices must stay on fixed viewport rows while the page scrolls");
+    near(point.y + geometry.scroll, Math.round((point.y + geometry.scroll) / geometry.unit) * geometry.unit,
+      "Maze vertices must stay on document grid rows while the page scrolls");
   }
   for (const drawing of geometry.drawings) {
-    near(drawing.top, 0, "Maze walls and search fills must stay fixed at the viewport top");
-    assert.ok(drawing.top <= 0.15 && drawing.bottom >= geometry.height - 0.15,
-      "Wall and fill layers must cover the full viewport while the page scrolls.");
+    near(drawing.top + geometry.scroll, 0, "Maze walls and search fills must start at the document top");
+    assert.ok(drawing.bottom + geometry.scroll >= geometry.pageHeight - 0.15,
+      "Wall and fill layers must reach the bottom of the scrollable page.");
   }
   const [left, right] = geometry.courses;
   near(left.left, geometry.unit, "Left course needs one full cell at the screen edge");
@@ -65,10 +67,12 @@ async function checkGeometry(page, visible) {
   near(right.left - geometry.shell.right, geometry.unit, "Right course needs one full cell after content");
   near(geometry.width - right.right, geometry.unit, "Right course needs one full cell at the screen edge");
   for (const course of geometry.courses) {
-    near(course.top, 0, "Course starts at viewport y=0");
-    near(course.height, geometry.height, "Course reaches the viewport bottom");
+    near(course.top + geometry.scroll, 0, "Course starts at document y=0");
+    near(course.height, geometry.pageHeight, "Course reaches the page bottom");
     near(course.left, Math.round(course.left / geometry.unit) * geometry.unit, "Walls share the global grid columns");
   }
+  assert.ok(Math.abs(geometry.scrollHeight - geometry.pageHeight) <= 1,
+    "The maze must not add extra scrollable height beyond the content.");
 }
 
 try {
@@ -131,7 +135,8 @@ try {
           const side = this.canvas.parentElement.dataset.side;
           window.mazeProbe.last[side] = [];
           const root = this.canvas.closest("#gutter-mazes-root");
-          const frame = { at: performance.now(), round: root.dataset.round, state: root.dataset.state, side, highlights: [], frontiers: [] };
+          const unit = this.canvas.parentElement.querySelector("svg").viewBox.baseVal.width / Number(this.canvas.parentElement.dataset.columns);
+          const frame = { at: performance.now(), round: root.dataset.round, state: root.dataset.state, side, unit, highlights: [], frontiers: [] };
           window.mazeProbe.frames.push(frame);
           window.mazeProbe.currentFrames[side] = frame;
           window.mazeProbe.activeColor ??= getComputedStyle(document.documentElement).getPropertyValue("--maze-path-fill").trim();
@@ -147,7 +152,7 @@ try {
           });
           const side = this.canvas.parentElement.dataset.side;
           window.mazeProbe.fills.push({
-            side, x, y, opacity: this.globalAlpha, color: this.fillStyle,
+            side, x, y, unit: window.mazeProbe.currentFrames[side].unit, opacity: this.globalAlpha, color: this.fillStyle,
           });
           if (this.fillStyle === window.mazeProbe.activeColor) {
             window.mazeProbe.currentFrames[side].highlights.push({ x, y, opacity: this.globalAlpha });
@@ -185,7 +190,8 @@ try {
     assert.equal(await paintCount(page), 0, "Reduced motion must never start the search.");
     const walls = await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
     assert.notEqual(walls[0], walls[1], "Both mazes must have different walls.");
-    for (const top of [1, 17, 51, 52, 53, 327, 0]) {
+    const bottom = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    for (const top of [1, 17, 51, 52, 53, 327, bottom, 0]) {
       await page.evaluate(top => window.scrollTo({ top, behavior: "instant" }), top);
       await page.waitForTimeout(100);
       await checkGeometry(page, true);
@@ -195,13 +201,15 @@ try {
     await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
     await page.emulateMedia({ reducedMotion: "no-preference" });
     await page.waitForFunction(() => document.querySelector("#gutter-mazes-root").dataset.state !== "static");
-    await page.clock.runFor(1800);
+    await page.clock.runFor(2000);
     assert.equal(await root.getAttribute("data-state"), "searching");
     assert.ok(await paintCount(page) > 0, "Both searches must paint visible explored cells.");
     const progress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
-    assert.ok(progress.every(expanded => expanded >= 7 && expanded <= 8),
-      "Batching the illustration must preserve the original 150ms A* decision pace.");
-    await page.clock.runFor(3000);
+    await page.clock.runFor(450);
+    const nextProgress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
+    assert.ok(nextProgress.every((expanded, index) => expanded - progress[index] === 3),
+      "Batching the illustration must preserve three A* decisions per 450ms.");
+    await page.clock.runFor(2550);
     const retained = await exploredCells(page);
     assert.ok(Object.values(retained).every(cells => cells.length > 4),
       "A* must retain its explored cells and frontier, instead of painting only a short solution trail.");
@@ -210,9 +218,10 @@ try {
       const style = getComputedStyle(document.documentElement);
       return { activeOpacity: parseFloat(style.getPropertyValue("--maze-active-cell-opacity")),
         frontierOpacity: parseFloat(style.getPropertyValue("--maze-frontier-opacity")),
+        exploredOpacity: parseFloat(style.getPropertyValue("--maze-explored-opacity")),
         frontierColor: style.getPropertyValue("--maze-frontier").trim(), exploredColor: style.getPropertyValue("--maze-explored").trim() };
     });
-    const { activeOpacity, frontierOpacity } = searchStyle;
+    const { activeOpacity, frontierOpacity, exploredOpacity } = searchStyle;
     const searchFrames = await page.evaluate(round => window.mazeProbe.frames.filter(frame => frame.round === round && frame.state === "searching"), round);
     assert.ok(searchFrames.every(frame => frame.highlights.length <= 1),
       "The outgoing square must finish fading before the incoming square appears.");
@@ -338,7 +347,28 @@ try {
       "Scrolling must preserve wall geometry and the active search.");
     assert.equal(await root.getAttribute("data-round"), round);
 
-    await page.locator(".project-expand-button").first().click();
+    const beforeResize = await page.locator(".gutter-maze-course").evaluateAll(courses =>
+      courses.map(course => ({ seed: course.dataset.seed, expanded: Number(course.dataset.expanded) })));
+    // Keep the document's row count unchanged; larger width changes can
+    // rewrap project copy and require a different full-page maze.
+    for (const width of [2049, 2050, 2048]) {
+      await page.setViewportSize({ width, height: 1167 });
+      // Deliver the resize before advancing the paused browser clock; native
+      // viewport events can otherwise wait for a real compositor frame.
+      await page.evaluate(() => window.dispatchEvent(new Event("resize")));
+      assert.notEqual(await root.getAttribute("data-state"), "paused", "The resize handler must keep the animation loop running.");
+      await page.clock.runFor(80);
+      assert.equal(await root.getAttribute("data-state"), "searching", "Zoom/resize must never pause or fade out a running maze.");
+      assert.equal(await root.getAttribute("data-round"), round, "Resizing within the same grid dimensions must preserve the current race.");
+      await checkGeometry(page, true);
+    }
+    const afterResize = await page.locator(".gutter-maze-course").evaluateAll(courses =>
+      courses.map(course => ({ seed: course.dataset.seed, expanded: Number(course.dataset.expanded) })));
+    assert.deepEqual(afterResize.map(course => course.seed), beforeResize.map(course => course.seed));
+    assert.ok(afterResize.every((course, index) => course.expanded > beforeResize[index].expanded),
+      "A* must keep advancing throughout repeated viewport resizes.");
+
+    await page.locator(".project-details-button").first().click();
     await page.getByRole("dialog").waitFor();
     assert.equal(await root.getAttribute("data-state"), "paused");
     const pausedProgress = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => Number(course.dataset.expanded)));
@@ -417,6 +447,17 @@ try {
         assert.equal(course.pathAnimation, "none", "Only the loser's maze walls flash red.");
       }
     }
+    await page.clock.runFor(2200);
+    assert.equal(await root.getAttribute("data-state"), "celebrating", "Keep the result on screen for the longer hold.");
+    assert.equal(await root.getAttribute("data-round"), round);
+    const heldPath = await page.locator('.gutter-maze-course[data-outcome="win"] .gutter-maze-solution').evaluate(path => ({
+      opacity: Number(getComputedStyle(path).opacity),
+      target: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--maze-path-opacity")),
+    }));
+    assert.ok(Math.abs(heldPath.opacity - heldPath.target) < 0.001,
+      "The winning path must remain fully highlighted more than two seconds after the finish.");
+    assert.deepEqual(await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => course.dataset.expanded)), frozenProgress,
+      "The searches must stay frozen throughout the longer result hold.");
     // Pause during the flash as well as during search.
     await page.evaluate(() => {
       Object.defineProperty(document, "hidden", { configurable: true, value: true });
@@ -427,10 +468,10 @@ try {
     await page.clock.runFor(1000);
     assert.equal(await root.getAttribute("data-round"), round);
     await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event("visibilitychange")); });
-    await page.clock.runFor(1600);
+    await page.clock.runFor(2000);
     assert.ok(Number(await root.getAttribute("data-round")) > Number(round), "The result flash must lead to a fresh pair.");
     const reset = await page.evaluate(round => window.mazeProbe.rounds.find(event => Number(event.round) === Number(round) + 1), round);
-    assert.ok(reset.at - result.at >= 2500 && reset.at - result.at < 2670,
+    assert.ok(reset.at - result.at >= 5250 && reset.at - result.at < 5420,
       "Start the next round after the paused interval, pulse, and exit fade, with no extra quiet hold.");
     assert.notDeepEqual(await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), walls);
     // Native media-query events follow the browser's rendering cycle,
@@ -460,19 +501,47 @@ try {
       const style = getComputedStyle(document.documentElement);
       return { color: style.getPropertyValue("--maze-path-fill").trim(), opacity: parseFloat(style.getPropertyValue("--maze-active-cell-opacity")) };
     });
-    assert.ok(activeStyle.opacity > frontierOpacity, "The navigating square must stand out from explored cells and frontier branches.");
+    assert.ok(activeStyle.opacity > Math.max(frontierOpacity, exploredOpacity),
+      "The navigating square must stand out from explored cells and frontier branches.");
+    assert.ok(fills.some(fill => fill.color === searchStyle.exploredColor && Math.abs(fill.opacity - exploredOpacity) < 0.001),
+      "Explored cells must reach their stronger theme-specific opacity.");
     assert.ok(fills.some(fill => fill.color === activeStyle.color && Math.abs(fill.opacity - activeStyle.opacity) < 0.001),
       "Both themes must render an apparent navigating square during search.");
-    assert.ok(fills.every(fill => fill.opacity <= (fill.color === activeStyle.color ? activeStyle.opacity : frontierOpacity)),
+    assert.ok(fills.every(fill => fill.opacity <= (fill.color === activeStyle.color ? activeStyle.opacity
+      : fill.color === searchStyle.exploredColor ? exploredOpacity : frontierOpacity)),
       "Only the navigating square should receive stronger emphasis.");
     for (const fill of fills) {
-      near(fill.x - 1, Math.round((fill.x - 1) / unit) * unit, "Green fills must stay on lattice columns");
-      near(fill.y - 1, Math.round((fill.y - 1) / unit) * unit, "Green fills must stay on lattice rows");
+      near(fill.x - 1, Math.round((fill.x - 1) / fill.unit) * fill.unit, "Green fills must stay on lattice columns");
+      near(fill.y - 1, Math.round((fill.y - 1) / fill.unit) * fill.unit, "Green fills must stay on lattice rows");
     }
     assert.deepEqual(errors, [], "The maze must not introduce browser or hydration errors.");
+    const compactHeight = await root.evaluate(element => element.getBoundingClientRect().height);
+    const currentRound = await root.getAttribute("data-round");
+    const currentWalls = await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
+    await page.locator(".project-details-button").first().click();
+    await page.getByRole("dialog").waitFor();
+    assert.match(await page.getByRole("dialog").innerText(), /Custom Hardware/);
+    await page.clock.runFor(100);
+    await page.waitForTimeout(100);
+    near(await root.evaluate(element => element.getBoundingClientRect().height), compactHeight,
+      "Project Notes in the dialog must preserve the maze height");
+    await page.keyboard.press("Escape");
+    // Check the restored document geometry directly: dialog exit animations
+    // need rendering frames that do not reliably finish under the paused clock.
+    await page.clock.runFor(100);
+    assert.equal(await page.evaluate(() => document.documentElement.style.overflow), "",
+      "Closing details must unlock the background page.");
+    await page.waitForTimeout(100);
+    await page.clock.runFor(100);
+    await checkGeometry(page, true);
+    near(await root.evaluate(element => element.getBoundingClientRect().height), compactHeight,
+      "Closing details must preserve the maze height");
+    assert.equal(await root.getAttribute("data-round"), currentRound, "Project Notes must never restart the maze.");
+    assert.deepEqual(await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), currentWalls,
+      "Opening and closing details must keep every maze wall fixed.");
     await page.close();
   }
-  console.log("Gutter mazes passed: subtle green and yellow squares with longer sequential fades and quiet 900ms batches, fast A*, fixed gutters during scrolling, original round timing, gallery/tab pauses, and reduced motion in both themes.");
+  console.log("Gutter mazes passed: document-aligned walls and tiles through the page bottom, stable Notes dialogs, colored search fades, A* races, gallery/tab pauses, and reduced motion in both themes.");
 } finally {
   await browser?.close();
   server.kill("SIGTERM");

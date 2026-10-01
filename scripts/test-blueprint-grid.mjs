@@ -19,7 +19,7 @@ let browser;
 async function checkGrid(page) {
   await page.evaluate(() => document.fonts.ready);
   // Let ResizeObserver settle the new unit, natural text heights, and rows
-  // after a responsive breakpoint or native Details toggle.
+  // after a responsive breakpoint or project dialog closes.
   await page.evaluate(() => new Promise(resolve => {
     let remaining = 5;
     const frame = () => --remaining ? requestAnimationFrame(frame) : resolve();
@@ -51,6 +51,8 @@ async function checkGrid(page) {
       name: rect(document.querySelector(".hero-name")),
       frames: [...document.querySelectorAll(".project-frame")].map(frame => ({
         ...rect(frame), inset: parseFloat(getComputedStyle(frame).paddingTop), surface: rect(frame.querySelector(".project-box")),
+        footer: rect(frame.querySelector(".project-details-button")),
+        bottomPadding: parseFloat(getComputedStyle(frame.querySelector(".project-box-inner")).paddingBottom),
         corners: [...frame.querySelectorAll(".project-frame-corner")].map(corner => {
           const bounds = rect(corner);
           return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
@@ -91,6 +93,8 @@ async function checkGrid(page) {
     near(frame.y + frame.inset, frame.surface.y, "Card must have an even vertical inset");
     near(frame.width - 2 * frame.inset, frame.surface.width, "Card width must fill the inset area");
     near(frame.height - 2 * frame.inset, frame.surface.height, "Card height must fill the inset area");
+    near(frame.surface.y + frame.surface.height - frame.footer.y - frame.footer.height,
+      frame.bottomPadding, "Details button must keep a consistent bottom inset instead of a spare grid row");
   }
   near(geometry.photo.width, Math.round(geometry.photo.width / unit) * unit, "Portrait must span whole grid columns");
   near(geometry.photo.height, geometry.photo.width, "Portrait must remain square");
@@ -114,7 +118,7 @@ try {
   for (const theme of ["light", "dark"]) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, colorScheme: theme, reducedMotion: "reduce" });
     // Isolate layout from the independent WebGL scene.
-    await page.route("**/emblem-scene-*.js", route => route.abort());
+    await page.route(/\/emblem-scene(?:-[^/]+)?\.js(?:\?.*)?$/, route => route.abort());
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.locator('#projects-root[data-interactive="true"]').waitFor();
     for (const width of [2048, 1440, 1024, 991, 768, 390, 320]) {
@@ -125,20 +129,29 @@ try {
       await checkGrid(page);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
       await checkGrid(page);
-      const notes = page.locator(".project-notes").first();
-      const before = await page.locator(".project-frame").first().boundingBox();
-      await notes.locator("summary").click();
-      await page.mouse.move(0, 0);
-      await checkGrid(page);
-      assert.ok((await page.locator(".project-frame").first().boundingBox()).height > before.height,
-        "The frame must grow to whole rows when Notes opens.");
-      await notes.locator("summary").click();
+      const details = page.locator(".project-details-button").first();
+      assert.ok((await details.boundingBox()).height >= 44, "Details must have a usable touch target.");
+      const before = await page.locator(".project-frame").evaluateAll(frames => frames.map(frame => frame.offsetHeight));
+      const pageHeight = await page.evaluate(() => document.body.getBoundingClientRect().height);
+      await details.click();
+      const dialog = page.getByRole("dialog");
+      await dialog.waitFor();
+      assert.match(await dialog.innerText(), /Project Notes/i);
+      assert.match(await dialog.innerText(), /Custom Hardware/);
+      assert.equal(await page.evaluate(() => document.body.getBoundingClientRect().height), pageHeight,
+        "Opening details must preserve the document height.");
+      assert.deepEqual(await page.locator(".project-frame").evaluateAll(frames => frames.map(frame => frame.offsetHeight)), before,
+        "Opening details must preserve every card's height.");
+      await page.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden" });
+      assert.equal(await details.evaluate(button => button === document.activeElement), true,
+        "Closing details must return keyboard focus to its button.");
       await page.mouse.move(0, 0);
       await checkGrid(page);
     }
     await page.close();
   }
-  console.log("Zero-origin blueprint coordinates passed in both themes at seven widths, including resize and Notes expansion.");
+  console.log("Zero-origin blueprint coordinates passed in both themes at seven widths, including resize, details discovery, and stable page height.");
 } finally {
   await browser?.close();
   server?.kill("SIGTERM");

@@ -36,31 +36,31 @@ export interface ProjectItem {
 export const projects: ProjectItem[] = [
   {
     id: "doorlink",
-    tone: "sage",
+    tone: "slate",
     title: "Doorlink",
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
     summary:
-      "A self-hosted smart doorbell built on a hand-assembled ESP32-S3 PCB and Raspberry Pi 4B gateway. A button press wakes the device, captures a visitor image, sends a notification, and returns to deep sleep; the dashboard also supports stored, turn-based voice replies.",
+      "A self-hosted smart doorbell with a hand-assembled ESP32-S3 circuit board and a Raspberry Pi 4 Model B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
     evidence: [
       {
-        heading: "Custom hardware",
+        heading: "Custom Hardware",
         detail:
-          "The Rev C board combines an OV5640 camera, microphone, speaker, battery power path, and routed KiCad design. The ESP32-S3 uses 8 MB PSRAM for camera and audio buffers.",
+          "The Rev C board was designed and routed in KiCad. It connects an OV5640 camera, microphone, speaker, and battery power circuitry to an ESP32-S3 with 8 MB of PSRAM for camera and audio buffers.",
       },
       {
-        heading: "Device-to-dashboard flow",
+        heading: "Device-to-Dashboard Flow",
         detail:
-          "ESP-IDF firmware sends events to a Spring Boot gateway with PostgreSQL, MinIO media storage, MQTT, and a Next.js interface.",
+          "ESP-IDF firmware sends doorbell events to a Spring Boot gateway. PostgreSQL stores event records, MinIO stores images and audio, Mosquitto handles MQTT device commands, and Next.js provides the dashboard.",
       },
       {
-        heading: "Validation boundary",
+        heading: "Validation Status",
         detail:
-          "The battery-powered capture/upload/sleep path and audio paths have run on hardware. Final hardened-firmware retest and closed-enclosure current measurements remain.",
+          "Image capture, upload, deep sleep, and audio features have been tested on the battery-powered prototype. The latest firmware still needs a final test on the device, and current draw has yet to be measured with the enclosure closed.",
       },
     ],
     tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad"],
-    additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
+    additionalTags: ["React", "Raspberry Pi 4 Model B", "MinIO", "Mosquitto"],
     images: [
       {
         src: "/projects/doorlink-enclosure.jpg",
@@ -110,49 +110,64 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "linewatch",
-    tone: "slate",
+    tone: "clay",
     title: "LineWatchTO",
     category: "Transit intelligence · full stack",
     status: "Live",
     summary:
-      "A map-first reliability dashboard for TTC and GO/UP riders. It brings service alerts, planned closures, station arrivals, and saved-commute impact checks into one view, while labeling stale, scheduled, unavailable, and demo data honestly.",
+      "A transit dashboard for TTC, GO Transit, and UP Express riders. It brings service alerts, planned closures, station arrivals, and disruption checks for saved commutes into one map view. It clearly labels outdated data, scheduled arrivals, unavailable information, and demo data.",
     evidence: [
       {
-        heading: "Two networks",
+        heading: "Two Networks",
         detail:
-          "Custom TTC and GO/UP map views connect incidents and station details to the lines and stops riders care about.",
+          "Custom maps for TTC and GO Transit / UP Express show service disruptions and station details for each network's lines and stops.",
       },
       {
-        heading: "Personal impact",
+        heading: "Personal Impact",
         detail:
-          "Saved commutes and stations surface relevant disruptions, with optional notifications and offline PWA snapshots.",
+          "Saved commutes and stations help riders find disruptions that affect them. Optional notifications flag relevant alerts, and the progressive web app (PWA) saves dashboard snapshots for offline viewing.",
       },
       {
-        heading: "Freshness rules",
+        heading: "Freshness Rules",
         detail:
-          "Java/Spring ingestion, PostGIS, and Redis support source-linked alerts; stale upstream data is not shown as current.",
+          "A Java and Spring Boot backend ingests transit feeds, with PostGIS for geographic data and Redis for caching. Alerts link to their sources, and outdated source data is labeled rather than shown as current.",
+      },
+      {
+        heading: "Delivery Pipeline",
+        detail:
+          "GitHub Actions runs frontend and backend checks and publishes ARM64 Docker images to GitHub Container Registry (GHCR). Manually triggered releases include database backups and smoke tests against the public site.",
+      },
+      {
+        heading: "Production Hosting",
+        detail:
+          "The production service runs on an Ampere virtual machine in Oracle Cloud Infrastructure (OCI), with 4 OCPUs and 24 GB of RAM. It uses Ubuntu 24.04, Docker Compose, and Caddy for HTTPS.",
+      },
+      {
+        heading: "AWS Infrastructure Lab",
+        detail:
+          "A separate Terraform lab defines an ARM64 Amazon EC2 deployment. It uses AWS IAM and Systems Manager for access, Amazon S3 for artifacts, and AWS Lambda with Amazon EventBridge to stop the instance on a schedule. Production is hosted on OCI.",
       },
     ],
-    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "MapLibre", "GTFS / GTFS-RT"],
-    additionalTags: ["React", "PWA", "Web Push", "Docker Compose", "Caddy"],
+    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "GTFS · GTFS Realtime", "Docker Compose", "GitHub Actions", "AWS (lab)"],
+    additionalTags: ["React", "MapLibre GL JS", "PWA", "Web Push", "Terraform", "Oracle Cloud Infrastructure", "Ubuntu", "Caddy"],
     images: [
       {
         src: "/projects/linewatch-onboarding-map.png",
         alt: "LineWatchTO TTC map showing a suspension, delay, reduced speed zone, and station impact",
-        caption: "TTC map and service impact patterns",
+        caption: "TTC map and service disruptions",
         width: 1320,
         height: 764,
       },
       {
         src: "/projects/linewatch-onboarding-impact.png",
-        alt: "LineWatchTO selected reduced speed zone details beside its highlighted map segment",
-        caption: "Selected service impact and map segment",
+        alt: "LineWatchTO showing details for a selected reduced speed zone beside the highlighted map segment",
+        caption: "Selected disruption and affected map segment",
         width: 2880,
         height: 1620,
       },
       {
         src: "/projects/linewatch-onboarding-personal.png",
-        alt: "LineWatchTO My Commutes panel showing a saved route with current impact and planning-time details",
+        alt: "LineWatchTO My Commutes panel showing a saved route with current disruptions and details for a planned departure",
         caption: "My Commutes: saved route and service impact",
         width: 1120,
         height: 1082,
@@ -184,30 +199,30 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "file-sync",
-    tone: "clay",
+    tone: "ochre",
     title: "File Sync",
     category: "Distributed systems · local-first files",
     status: "Pilot tested",
     summary:
-      "A Go peer-to-peer file sync daemon for trusted Linux devices. It keeps causal version history, transfers content-addressed chunks over authenticated peer connections, and exposes concurrent edits for deliberate resolution through a local interface instead of silently replacing a file.",
+      "A peer-to-peer file synchronization daemon written in Go for trusted Linux devices. It tracks how file versions relate to each other and transfers content-addressed chunks over authenticated connections. When edits conflict, it preserves each version so users can review and resolve the conflict in a local interface.",
     evidence: [
       {
-        heading: "Causal history",
+        heading: "Causal History",
         detail:
-          "Immutable version heads and vector clocks preserve offline edits; the local UI lets users inspect history and conflicts.",
+          "Immutable version records and vector clocks track edits made while devices are offline. The local interface lets users inspect file history and resolve conflicts.",
       },
       {
         heading: "Recovery",
         detail:
-          "SQLite metadata, atomic chunk staging, and fault-injection tests exercise crash durability.",
+          "SQLite stores metadata, and atomic staging protects file chunks during writes. Fault-injection tests check that stored data survives crashes.",
       },
       {
-        heading: "Real workflow",
+        heading: "Real Workflow",
         detail:
-          "A workstation, Raspberry Pi 4B, and cloud relay were used in a three-host pilot; the repository also has a local multi-process demo.",
+          "A pilot tested synchronization across a workstation, a Raspberry Pi 4 Model B, and a cloud relay. A local demo also runs multiple peer processes on one machine.",
       },
     ],
-    tags: ["Go", "TypeScript · React", "SQLite", "mTLS", "Linux"],
+    tags: ["Go", "TypeScript · React", "SQLite", "Mutual TLS (mTLS)", "Linux"],
     images: [
       {
         src: "/projects/filesync-history.png",
@@ -218,7 +233,7 @@ export const projects: ProjectItem[] = [
       },
       {
         src: "/projects/filesync-folders.png",
-        alt: "File Sync operator console showing registered folders and durable work queue",
+        alt: "File Sync operator console showing registered folders and a persistent work queue",
         caption: "Registered folders and work queue",
         width: 1280,
         height: 800,
@@ -226,48 +241,40 @@ export const projects: ProjectItem[] = [
       {
         src: "/projects/filesync-conflicts.png",
         alt: "File Sync console showing two preserved versions of a conflicting file",
-        caption: "Concurrent edit conflict view",
+        caption: "Conflicting file versions",
         width: 1280,
         height: 800,
       },
     ],
-    links: [
-      {
-        label: "File Sync GitHub",
-        url: "https://github.com/calebhabesh/file-sync",
-        type: "github",
-        ariaLabel: "File Sync GitHub repository (opens in new tab)",
-        external: true,
-      },
-    ],
+    links: [],
   },
   {
     id: "courtload",
-    tone: "ochre",
+    tone: "sage",
     title: "CourtLoad",
     category: "NBA analytics · data engineering",
     status: "Complete",
     summary:
-      "An NBA player comparison and analytics dashboard built from three historical regular seasons. It lets users compare player form, usage, and matchup context with source-traceable data and uncertainty informed by time-safe evaluation.",
+      "An NBA player comparison and analytics dashboard using data from three historical regular seasons. Users can compare recent performance, usage, and matchup context, trace statistics to their sources, and view prediction intervals evaluated on later games that were excluded from training.",
     evidence: [
       {
-        heading: "Reproducible data",
+        heading: "Reproducible Data",
         detail:
-          "Python ingestion, PostgreSQL, and tested dbt models turn pinned schedules and box scores into dated player and opponent views.",
+          "A Python ingestion pipeline, PostgreSQL, and tested dbt models turn fixed versions of schedules and box scores into player and opponent statistics for a selected date.",
       },
       {
-        heading: "Useful comparison",
+        heading: "Player Comparison",
         detail:
-          "A Next.js dashboard and FastAPI service show side-by-side trends, game logs, and matchup context.",
+          "A Next.js dashboard backed by FastAPI shows player trends side by side, along with game logs and matchup context.",
       },
       {
-        heading: "Honest modeling",
+        heading: "Model Evaluation",
         detail:
-          "Out-of-time evaluation kept the EWMA baseline after a gradient-boosted challenger failed promotion gates; the evaluation is shown to users.",
+          "Evaluation on later games retained the exponentially weighted moving average (EWMA) baseline because a gradient-boosted model failed the acceptance criteria. Users can view the evaluation results in the dashboard.",
       },
     ],
     tags: ["Python · FastAPI", "TypeScript · Next.js", "SQL · dbt", "PostgreSQL"],
-    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker Compose", "scikit-learn · Evaluation"],
+    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker Compose", "scikit-learn"],
     images: [
       {
         src: "/projects/courtload-comparison.png",
@@ -279,20 +286,12 @@ export const projects: ProjectItem[] = [
       {
         src: "/projects/courtload-evaluation.png",
         alt: "CourtLoad evaluation page comparing historical model error and coverage",
-        caption: "Out-of-time model evaluation",
+        caption: "Model evaluation on later games",
         width: 1440,
         height: 2817,
       },
     ],
-    links: [
-      {
-        label: "CourtLoad GitHub",
-        url: "https://github.com/calebhabesh/courtload",
-        type: "github",
-        ariaLabel: "CourtLoad GitHub repository (opens in new tab)",
-        external: true,
-      },
-    ],
+    links: [],
   },
   {
     id: "medical-imaging",
@@ -301,22 +300,22 @@ export const projects: ProjectItem[] = [
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:
-      "A C++ medical-imaging pipeline for processing DICOM brain scans with FAST and OpenMP. The team batched image work across CPU threads and compared sequential and parallel execution through performance analysis.",
+      "A team capstone project that processes DICOM brain scans in C++ using the FAST medical imaging framework and OpenMP. The team distributed image batches across CPU threads and benchmarked sequential and parallel execution.",
     evidence: [
       {
         heading: "Pipeline",
         detail:
-          "DICOM ingest, preprocessing, segmentation, morphological operations, and export were integrated with FAST.",
+          "The pipeline uses FAST to import DICOM scans, preprocess images, segment regions, apply morphological operations, and export the results.",
       },
       {
-        heading: "Parallel design",
+        heading: "Parallel Design",
         detail:
-          "OpenMP distributes scan batches across CPU threads.",
+          "OpenMP distributes images within each batch across CPU threads so multiple images can be processed concurrently.",
       },
       {
         heading: "Evaluation",
         detail:
-          "Benchmark tooling compares execution modes; present a numerical speedup only if the result and personal contribution can be cited.",
+          "Benchmarks compare sequential and parallel execution, while profiling tools help analyze performance.",
       },
     ],
     tags: ["C++17", "OpenMP", "FAST", "DICOM"],
@@ -340,7 +339,7 @@ export const projects: ProjectItem[] = [
     links: [
       {
         label: "Capstone GitHub",
-        url: "https://github.com/calebhabesh/NM03-Capstone-Project",
+        url: "https://github.com/calebhabesh/nm03-capstone-project",
         type: "github",
         ariaLabel: "Medical Image Processing capstone repository (opens in new tab)",
         external: true,

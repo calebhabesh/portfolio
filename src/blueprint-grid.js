@@ -58,13 +58,47 @@ export function initBlueprintGrid() {
     const naturalTop = portrait.getBoundingClientRect().top + window.scrollY - entranceY - oldOffset;
     setLength(hero.style, "--hero-grid-offset", Math.max(0, Math.ceil(naturalTop / unit - 0.001) * unit - naturalTop));
     const projectsTop = projects.getBoundingClientRect().top + window.scrollY;
-    const contentHeights = contents.map(content => parseFloat(getComputedStyle(content).height));
+    // Snap the compact card to whole rows. Desktop details buttons use the
+    // spare space beside the badges; mobile buttons keep their own row.
+    // Expanded content never changes these document coordinates.
+    const measurements = contents.map(content => {
+      const contentStyle = getComputedStyle(content);
+      const details = content.querySelector(".project-details-button");
+      const inFlow = !details || getComputedStyle(details).position !== "absolute";
+      const footerSpace = inFlow ? parseFloat(contentStyle.getPropertyValue("--project-footer-space")) || 0 : 0;
+      const contentHeight = parseFloat(contentStyle.height) - footerSpace;
+      const preview = content.querySelector(".project-card-preview");
+      // Short summaries still need room for the photo and the details button
+      // below it, even though the button does not occupy a desktop grid row.
+      let minimumHeight = !inFlow && preview
+        ? Math.max(contentHeight, preview.offsetTop + preview.offsetHeight + details.offsetHeight
+          + 8 + parseFloat(contentStyle.paddingBottom))
+        : contentHeight;
+      if (!inFlow) {
+        const buttonLeft = details.getBoundingClientRect().left;
+        for (const badge of content.querySelectorAll(".project-box-tags li")) {
+          if (badge.getBoundingClientRect().right > buttonLeft) {
+            minimumHeight = Math.max(minimumHeight, badge.offsetTop + badge.offsetHeight
+              + details.offsetHeight + 8 + parseFloat(contentStyle.paddingBottom));
+          }
+        }
+      }
+      return { contentHeight, minimumHeight };
+    });
     const firstRow = Math.ceil(projectsTop / unit - 0.001);
 
     setLength(projects.style, "--projects-grid-offset", Math.max(0, firstRow * unit - projectsTop));
     heightRules.forEach((rule, index) => {
-      const rows = Math.ceil((contentHeights[index] + 2 * inset) / unit - 0.001);
+      const { contentHeight, minimumHeight } = measurements[index];
+      const rows = Math.ceil((minimumHeight + 2 * inset) / unit - 0.001);
       setLength(rule.style, "--project-grid-height", rows * unit);
+      const footerSpace = Math.max(0, rows * unit - 2 * inset - contentHeight);
+      const previousSpace = parseFloat(rule.style.getPropertyValue("--project-footer-space"));
+      // Layout rounds to fractional CSS pixels. Ignore subpixel noise so
+      // ResizeObserver cannot repeatedly nudge the footer by a rounding error.
+      if (!Number.isFinite(previousSpace) || Math.abs(footerSpace - previousSpace) > 0.02) {
+        setLength(rule.style, "--project-footer-space", footerSpace);
+      }
     });
   };
 

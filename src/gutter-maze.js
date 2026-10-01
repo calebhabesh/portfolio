@@ -7,9 +7,9 @@ const REVEAL_FADE_MS = 560;
 const ACTIVE_UPDATE_MS = 900;
 const ACTIVE_FADE_OUT_MS = 240;
 const ACTIVE_FADE_IN_MS = 320;
-const ENTRY_MS = 600;
-const EXIT_MS = 450;
-const PULSE_MS = 1100;
+const ENTRY_MS = 800;
+const EXIT_MS = 700;
+const PULSE_MS = 3600;
 const FRAME_MS = 1000 / 60;
 const ease = value => {
   const t = Math.max(0, Math.min(1, value));
@@ -18,8 +18,8 @@ const ease = value => {
 
 function sketchWalls(maze, unit) {
   const random = seededRandom(maze.seed ^ 0x5A17);
-  const strokes = [[], [], []];
-  const line = (x1, y1, x2, y2, boundary = false) => {
+  const strokes = [[], []];
+  const line = (x1, y1, x2, y2) => {
     for (let layer = 0; layer < 2; layer++) {
       const offset = layer ? (random() - 0.5) * 1.4 : 0;
       const horizontal = y1 === y2;
@@ -31,7 +31,7 @@ function sketchWalls(maze, unit) {
         const y = y1 + (y2 - y1) * t + (horizontal ? wobble + offset : 0);
         points.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
       }
-      strokes[boundary && layer === 0 ? 2 : layer].push(points.join(""));
+      strokes[layer].push(points.join(""));
     }
   };
   for (let row = 0; row < maze.rows; row++) {
@@ -41,31 +41,53 @@ function sketchWalls(maze, unit) {
       // Draw shared walls once; vertices stay on the lattice even though
       // each stroke has the same slight irregularity as the card crosses.
       if (walls & 1) line(x, y, x + unit, y);
-      if (walls & 8) line(x, y, x, y + unit, column === 0);
-      if (column === maze.columns - 1 && walls & 2) line(x + unit, y, x + unit, y + unit, true);
+      // The page grid supplies the outer edges; sketch only interior walls.
+      if (column > 0 && walls & 8) line(x, y, x, y + unit);
       if (row === maze.rows - 1 && walls & 4) line(x, y + unit, x + unit, y + unit);
     }
   }
   return strokes.map(paths => paths.join(""));
 }
 
-function createCourse(maze, side, left, geometry) {
-  const { unit, height, drawingHeight } = geometry;
+function solutionCells(maze, path, unit) {
+  return path.map(cell => {
+    const x = (cell % maze.columns) * unit + 1;
+    const y = Math.floor(cell / maze.columns) * unit + 1;
+    return `M${x} ${y}h${unit - 2}v${unit - 2}h${2 - unit}Z`;
+  }).join("");
+}
+
+function sizeCourse(course, left, geometry) {
+  const { unit, height, drawingHeight, ratio } = geometry;
+  const { element, maze, search, solution, context } = course;
   const width = maze.columns * unit;
+  const svg = element.querySelector("svg");
+  const canvas = element.querySelector("canvas");
+  Object.assign(element.style, { left: `${left}px`, width: `${width}px`, height: `${height}px` });
+  element.style.setProperty("--maze-left", `${left}px`);
+  element.style.setProperty("--maze-width", `${width}px`);
+  svg.setAttribute("viewBox", `0 0 ${width} ${drawingHeight}`);
+  svg.style.height = `${drawingHeight}px`;
+  sketchWalls(maze, unit).forEach((stroke, index) => svg.children[index].setAttribute("d", stroke));
+  if (element.dataset.outcome === "win") solution.setAttribute("d", solutionCells(maze, search.path, unit));
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(drawingHeight * ratio);
+  canvas.style.height = `${drawingHeight}px`;
+  context?.setTransform(canvas.width / width, 0, 0, canvas.height / drawingHeight, 0, 0);
+  course.width = width;
+  course.height = drawingHeight;
+}
+
+function createCourse(maze, side, left, geometry) {
   const element = document.createElement("div");
   element.className = "gutter-maze-course";
   Object.assign(element.dataset, { side, seed: String(maze.seed), columns: String(maze.columns), rows: String(maze.rows), start: String(maze.start), goal: String(maze.goal) });
-  Object.assign(element.style, { left: `${left}px`, width: `${width}px`, height: `${height}px` });
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.classList.add("gutter-maze-walls");
-  svg.setAttribute("viewBox", `0 0 ${width} ${drawingHeight}`);
   svg.setAttribute("preserveAspectRatio", "none");
-  svg.style.height = `${drawingHeight}px`;
-  for (const [index, stroke] of sketchWalls(maze, unit).entries()) {
+  for (let index = 0; index < 2; index++) {
     const path = document.createElementNS(SVG_NS, "path");
-    path.setAttribute("d", stroke);
     if (index === 1) path.classList.add("gutter-maze-wall-echo");
-    if (index === 2) path.classList.add("gutter-maze-boundary");
     svg.append(path);
   }
   const solution = document.createElementNS(SVG_NS, "path");
@@ -73,16 +95,13 @@ function createCourse(maze, side, left, geometry) {
   svg.append(solution);
   const canvas = document.createElement("canvas");
   canvas.className = "gutter-maze-search";
-  const ratio = Math.min(devicePixelRatio || 1, 2);
-  canvas.width = Math.round(width * ratio);
-  canvas.height = Math.round(drawingHeight * ratio);
-  canvas.style.height = `${drawingHeight}px`;
   const context = canvas.getContext("2d");
-  context?.setTransform(canvas.width / width, 0, 0, canvas.height / drawingHeight, 0, 0);
   element.append(svg, canvas);
-  return { element, maze, search: createMazeSearch(maze), context, solution, width, height: drawingHeight,
+  const course = { element, maze, search: createMazeSearch(maze), context, solution,
     displayedStates: new Uint8Array(maze.walls.length), previousStates: new Uint8Array(maze.walls.length),
     activeCell: -1, previousActiveCell: -1 };
+  sizeCourse(course, left, geometry);
+  return course;
 }
 
 export function initGutterMazes() {
@@ -94,11 +113,11 @@ export function initGutterMazes() {
   container.setAttribute("aria-hidden", "true");
   document.body.append(container);
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
-  let geometry, courses = [], frame, resizeTimer;
+  let geometry, courses = [], frame, measureFrame;
   let elapsed = 0, previousTime, paintedAt = -Infinity, revealedAt = ENTRY_MS, round = 0, resolvedAt;
   let activeUpdatedAt = ENTRY_MS;
-  let colors, activeCellOpacity, frontierOpacity, searchPaintPending = true;
-  let disposed = false, resizing = false;
+  let colors, activeCellOpacity, frontierOpacity, exploredOpacity, searchPaintPending = true;
+  let disposed = false;
   const seed = new Uint32Array(1);
   crypto.getRandomValues(seed);
   const random = seededRandom(seed[0]);
@@ -114,6 +133,7 @@ export function initGutterMazes() {
       [name, style.getPropertyValue(`--${name}`).trim()]));
     activeCellOpacity = parseFloat(style.getPropertyValue("--maze-active-cell-opacity"));
     frontierOpacity = parseFloat(style.getPropertyValue("--maze-frontier-opacity"));
+    exploredOpacity = parseFloat(style.getPropertyValue("--maze-explored-opacity"));
     searchPaintPending = true;
   };
   const newRound = () => {
@@ -180,11 +200,7 @@ export function initGutterMazes() {
         const { unit } = geometry;
         // Fill the winning cells, preserving the same one-pixel grid inset
         // as the search squares. Only the genuine optimal path is revealed.
-        solution.setAttribute("d", search.path.map(cell => {
-          const x = (cell % maze.columns) * unit + 1;
-          const y = Math.floor(cell / maze.columns) * unit + 1;
-          return `M${x} ${y}h${unit - 2}v${unit - 2}h${2 - unit}Z`;
-        }).join(""));
+        solution.setAttribute("d", solutionCells(maze, search.path, unit));
         element.dataset.pathLength = String(search.path.length);
       }
       // Simultaneous finishes give both courses the green flash.
@@ -212,7 +228,7 @@ export function initGutterMazes() {
       const dim = resolvedAt === undefined ? 1 : 1 - 0.55 * ease((elapsed - resolvedAt) / REVEAL_FADE_MS);
       const highlight = activeHighlight(course);
       const fillState = (cell, state, opacity) => {
-        if (state === CELL_STATE.explored) fill(cell, colors["maze-explored"], 0.018 * dim * opacity);
+        if (state === CELL_STATE.explored) fill(cell, colors["maze-explored"], exploredOpacity * dim * opacity);
         else if (state === CELL_STATE.frontier) fill(cell, colors["maze-frontier"], frontierOpacity * dim * opacity);
       };
       for (let cell = 0; cell < maze.walls.length; cell++) {
@@ -265,13 +281,14 @@ export function initGutterMazes() {
     frame = requestAnimationFrame(tick);
   };
   const syncMotion = () => {
-    stop();
-    if (!courses.length) { container.dataset.state = "hidden"; return; }
-    if (resizing || document.hidden || root.style.overflow === "hidden") {
+    if (!courses.length) { stop(); container.dataset.state = "hidden"; return; }
+    if (document.hidden || root.style.overflow === "hidden") {
+      stop();
       container.dataset.state = "paused";
       return;
     }
     if (reducedMotion.matches) {
+      stop();
       container.dataset.state = "static";
       container.style.opacity = "1";
       paintSearches();
@@ -280,19 +297,24 @@ export function initGutterMazes() {
     container.dataset.state = phase();
     paintedAt = -Infinity;
     searchPaintPending = true;
-    frame = requestAnimationFrame(tick);
+    frame ??= requestAnimationFrame(tick);
   };
   const measure = () => {
+    measureFrame = undefined;
     if (disposed) return;
     if (root.style.overflow === "hidden") { syncMotion(); return; }
     const unit = parseFloat(root.style.getPropertyValue("--grid-unit"));
     if (!(unit > 0)) return;
-    const width = root.clientWidth, height = innerHeight;
+    // Measure in-flow content so the maze cannot inflate its own height or
+    // prevent the page from shrinking after Notes collapse.
+    const width = root.clientWidth;
+    const height = Math.max(innerHeight, Math.ceil(document.body.getBoundingClientRect().height));
+    container.style.height = `${height}px`;
     const bounds = shell.getBoundingClientRect();
     const gutterColumns = Math.round(Math.min(bounds.left, width - bounds.right) / unit);
     const columns = gutterColumns - 2;
     // A full cell separates each course from the screen edge and content.
-    if (width <= 768 || columns < 3 || height < unit * 3) {
+    if (width <= 768 || columns < 3 || innerHeight < unit * 3) {
       stop();
       courses = [];
       geometry = undefined;
@@ -300,34 +322,43 @@ export function initGutterMazes() {
       container.dataset.state = "hidden";
       return;
     }
-    const rows = Math.ceil(height / unit) + 1;
-    const next = { unit, width, height, columns, rows, drawingHeight: rows * unit,
+    const rows = Math.ceil(height / unit);
+    const next = { unit, width, height, columns, rows, ratio: Math.min(devicePixelRatio || 1, 2), drawingHeight: rows * unit,
       left: unit, right: width - (columns + 1) * unit };
     if (!geometry || Object.keys(next).some(key => Math.abs(next[key] - geometry[key]) > 0.05)) {
-      stop();
+      const sameMazeSize = geometry && columns === geometry.columns && rows === geometry.rows;
+      const alreadyVisible = courses.length > 0;
       geometry = next;
-      newRound();
-      container.style.opacity = reducedMotion.matches ? "1" : "0";
+      if (sameMazeSize) {
+        // Browser zoom changes CSS pixels and canvas density. Resize the
+        // drawing in place, preserving the searches and their animation clock.
+        courses.forEach((course, index) => sizeCourse(course, index ? geometry.right : geometry.left, geometry));
+      } else {
+        newRound();
+        // A different cell count needs new mazes, but resizing a visible
+        // illustration must not restart its entrance fade on every event.
+        if (alreadyVisible) elapsed = ENTRY_MS;
+        container.style.opacity = alreadyVisible || reducedMotion.matches ? "1" : "0";
+      }
     }
     updateColors();
     syncMotion();
   };
   const onResize = () => {
-    resizing = true;
-    stop();
-    container.dataset.state = courses.length ? "paused" : "hidden";
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { resizing = false; measure(); }, 160);
+    cancelAnimationFrame(measureFrame);
+    measureFrame = undefined;
+    measure();
   };
   const onRootChange = () => {
     updateColors();
-    if (!resizing) measure();
-    else syncMotion();
+    if (root.style.overflow === "hidden") syncMotion();
+    else onResize();
   };
   const observer = new MutationObserver(onRootChange);
   observer.observe(root, { attributes: true, attributeFilter: ["style", "data-theme"] });
-  const shellObserver = new ResizeObserver(() => { if (!resizing) measure(); });
+  const shellObserver = new ResizeObserver(onResize);
   shellObserver.observe(shell);
+  shellObserver.observe(document.body);
   window.addEventListener("resize", onResize, { passive: true });
   document.addEventListener("visibilitychange", syncMotion);
   reducedMotion.addEventListener("change", syncMotion);
@@ -336,7 +367,7 @@ export function initGutterMazes() {
   return () => {
     disposed = true;
     stop();
-    clearTimeout(resizeTimer);
+    cancelAnimationFrame(measureFrame);
     observer.disconnect();
     shellObserver.disconnect();
     window.removeEventListener("resize", onResize);
