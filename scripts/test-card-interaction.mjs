@@ -496,7 +496,7 @@ try {
     ["linewatch", ["/projects/linewatch-onboarding-map.png", "/projects/linewatch-onboarding-impact.png", "/projects/linewatch-onboarding-personal.png", "/projects/linewatch-onboarding-stations.png"]],
     ["file-sync", ["/projects/filesync-history.png", "/projects/filesync-folders.png", "/projects/filesync-conflicts.png"]],
     ["courtload", ["/projects/courtload-comparison.png", "/projects/courtload-evaluation.png"]],
-    ["medical-imaging", ["/projects/medical-segmentation.png", "/projects/medical-pipelines.png"]],
+    ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
   ]) {
     const preview = galleryPage.locator(`[data-project="${projectId}"] .project-card-preview`);
     assert.equal(await preview.locator('img').getAttribute('src'), imagePaths[0]);
@@ -543,8 +543,14 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = ["file-sync", "courtload"].includes(projectId) ? 0 : projectId === "linewatch" ? 2 : 1;
+    const expectedLinkCount = ["file-sync", "courtload"].includes(projectId) ? 0 : ["linewatch", "medical-imaging"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
+    if (projectId === "medical-imaging") {
+      const demo = dialog.getByRole("link", { name: /^Watch Demo:/ });
+      assert.equal(await demo.getAttribute("href"), "https://github.com/calebhabesh/NM03-Capstone-Project#demo");
+      assert.equal(await demo.getAttribute("target"), "_blank");
+      assert.equal(await demo.innerText(), "Watch Demo", "The native recording should be labeled as a demo.");
+    }
     for (const link of await projectLinks.all()) {
       assert.doesNotMatch(await link.innerText(), /↗/);
     }

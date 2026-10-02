@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A working C++ capstone demo, OpenMP producer-and-worker design, and verified image-processing benchmarks by Caleb Habesh.">
+  <title>Medical Image Processing · Caleb Habesh</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://calebhabesh.com/projects/medical-imaging.html">
+  <style>
+    :root { color-scheme: light; --paper:#f7f6f2; --ink:#161f1b; --muted:#38423d; --green:#1d6141; --line:#d5dbd6; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1040px,calc(100% - 48px)); margin:0 auto; padding:36px 0 64px; }
+    a { color:var(--green); text-underline-offset:4px; }
+    a:focus-visible, summary:focus-visible, .table-wrap:focus-visible { outline:3px solid var(--green); outline-offset:5px; }
+    .back { display:inline-block; padding:6px 0; margin-bottom:36px; }
+    .eyebrow { color:var(--green); font-size:13px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { max-width:20ch; margin:10px 0 18px; font-size:clamp(34px,6vw,54px); line-height:1.1; letter-spacing:-.04em; text-wrap:balance; }
+    h2 { margin:0 0 16px; font-size:25px; line-height:1.25; letter-spacing:-.025em; }
+    h3 { margin:0 0 10px; font-size:17px; }
+    p { max-width:76ch; margin:0 0 18px; color:var(--muted); }
+    .intro { max-width:65ch; font-size:19px; }
+    .links { display:flex; flex-wrap:wrap; gap:12px; margin:24px 0 32px; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:9px 17px; border:1px solid var(--line); border-radius:8px; text-decoration:none; font-weight:600; }
+    .button.primary { background:var(--green); color:white; border-color:var(--green); }
+    .button:hover { border-color:var(--green); }
+    section { margin-top:40px; padding-top:30px; border-top:1px solid var(--line); }
+    figure { margin:0; }
+    video { display:block; width:100%; height:auto;  background:#111820; border-radius:10px; }
+    figcaption { margin:14px 0; color:var(--muted); font-size:14px; max-width:90ch; }
+    details { margin-top:18px; }
+    summary { cursor:pointer; color:var(--green); font-weight:600; padding:7px 0; }
+    ol { padding-left:24px; max-width:80ch; }
+    li { margin:8px 0; }
+    .design { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0; }
+    .design article { border:1px solid var(--line); border-radius:10px; padding:22px; background:#fff; }
+    .design p { margin-bottom:0; font-size:15px; }
+    .small { font-size:14px; }
+    .chart { display:block; width:100%; height:auto; }
+    .table-wrap { overflow-x:auto; }
+    table { border-collapse:collapse; width:100%; min-width:600px; font-size:15px; }
+    th,td { text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); }
+    thead th { color:var(--muted); font-weight:600; }
+    code { font-size:.94em; }
+    @media(max-width:600px) { main { width:calc(100% - 32px); padding-top:22px; } .back { margin-bottom:24px; } .design { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <a class="back" href="/#projects">← Caleb Habesh · Projects</a>
+  <header>
+    <div class="eyebrow">C++17 · OpenMP · FAST · Four-person capstone</div>
+    <h1>Medical Image Processing</h1>
+    <p class="intro">A native image-processing pipeline that explores where CPU concurrency helps a GPU-backed workflow. Built as a team capstone in 2024–2025, then refreshed and measured in October 2026.</p>
+    <div class="links">
+      <a class="button primary" href="#demo">Watch the comparison</a>
+      <a class="button" href="#pipeline-demo">See the scan stages</a>
+      <a class="button" href="https://github.com/calebhabesh/NM03-Capstone-Project" target="_blank" rel="noreferrer">View source <span class="small">&nbsp;↗</span></a>
+      <a class="button" href="https://github.com/calebhabesh/NM03-Capstone-Project#demo">Videos in the README</a>
+      <a class="button" href="#measurements">See the measurements</a>
+    </div>
+  </header>
+  <section id="demo" aria-labelledby="demo-title">
+    <h2 id="demo-title">Sequential workflow vs. parallel export</h2>
+    <p>Watch the actual terminal commands execute on the original laptop. Each session shows the full 460-slice processing-and-export run, its elapsed time, exit status, and exported-file count.</p>
+    <figure>
+      <video controls playsinline preload="none" width="2004" height="1136" poster="/projects/medical-imaging/throughput-comparison.png" aria-label="Side-by-side terminal screen recordings showing the complete native one-thread and eight-thread commands executing on the original laptop">
+        <source src="/projects/medical-imaging/throughput-comparison.mp4" type="video/mp4">
+        <track kind="captions" src="/projects/medical-imaging/throughput-comparison.vtt" srclang="en" label="English" default>
+        <a href="/projects/medical-imaging/throughput-comparison.mp4">Download the comparison video</a>.
+      </video>
+      <figcaption>Actual terminal screens captured over SSH from the original laptop, shown at normal speed with no cuts through execution. The sessions ran separately; the shorter session holds its final frame. The visible <code>/usr/bin/time</code> results are 29.32 and 9.61 seconds. Both finish with <code>Completed 460/460</code>, exit status zero, and 1,380 files. All outputs match by SHA-256. The five-repetition benchmark remains 28.92 → 9.18 seconds (3.15× throughput).</figcaption>
+    </figure>
+    <p class="small">Individual screen recordings: <a href="/projects/medical-imaging/terminal-1.mp4">one thread</a> · <a href="/projects/medical-imaging/terminal-8.mp4">eight threads</a>. Terminal transcripts: <a href="/projects/medical-imaging/terminal-1.txt">one thread</a> · <a href="/projects/medical-imaging/terminal-8.txt">eight threads</a>. <a href="/projects/medical-imaging/terminal-comparison.json">Capture hashes and output verification</a>.</p>
+    <details>
+      <summary>Read the comparison transcript</summary>
+      <ol>
+        <li><strong>0–4 seconds.</strong> Actual terminal screen recordings. Both sessions verify 460 input slices and type the native command.</li>
+        <li><strong>4–16 seconds.</strong> The same processing and lossless-export command runs with one or eight threads. Sessions execute separately on the laptop.</li>
+        <li><strong>16–36 seconds.</strong> Eight threads finish in 9.61 seconds, with exit status zero and 1,380 files. Its final recorded frame holds while the one-thread run continues.</li>
+        <li><strong>36–40.1 seconds.</strong> One thread finishes in 29.32 seconds. Both complete all 460 slices. These capture times are separate from the repeated benchmark’s 3.15-times throughput result.</li>
+      </ol>
+    </details>
+  </section>
+  <section id="pipeline-demo" aria-labelledby="pipeline-demo-title">
+    <h2 id="pipeline-demo-title">The original brain scan, through each stage</h2>
+    <p>The real T1 post-contrast MRI slice used in the original capstone demonstration. Keep the original image in view while inspecting what each filter produces.</p>
+    <figure>
+      <video controls playsinline preload="none" width="1120" height="940" poster="/projects/medical-imaging/stage-viewer.png" aria-label="Thirty-two-second native C++ walkthrough showing the original capstone brain MRI beside each FAST processing stage">
+        <source src="/projects/medical-imaging/stage-walkthrough.mp4" type="video/mp4">
+        <track kind="captions" src="/projects/medical-imaging/stage-walkthrough.vtt" srclang="en" label="English" default>
+        <a href="/projects/medical-imaging/stage-walkthrough.mp4">Download the pipeline video</a>.
+      </video>
+      <figcaption>Recorded from the C++/Qt viewer using the original capstone DICOM slice from <a href="https://www.cancerimagingarchive.net/collection/brain-tumor-progression/">TCIA Brain-Tumor-Progression</a>, also present in the 460-slice benchmark subset. The outputs come from the actual shared FAST pipeline. Each intensity preview uses its own display range; four seconds per stage is walkthrough timing. <a href="/projects/medical-imaging/stage-provenance.json">Input provenance</a>.</figcaption>
+    </figure>
+    <details>
+      <summary>Read the pipeline transcript</summary>
+      <ol>
+        <li><strong>0–4 seconds · Input.</strong> Import the original capstone T1 post-contrast brain MRI from DICOM.</li>
+        <li><strong>4–8 seconds · Normalization.</strong> Map the fixed input intensity range into 0.5–2.5.</li>
+        <li><strong>8–12 seconds · Clipping.</strong> Bound intensities after normalization.</li>
+        <li><strong>12–16 seconds · Median filtering.</strong> Suppress isolated intensity variation with a seven-pixel window.</li>
+        <li><strong>16–20 seconds · Sharpening.</strong> Enhance local contrast with the shared pipeline parameters.</li>
+        <li><strong>20–24 seconds · Region growing.</strong> Dimension-based seeds and fixed intensity bounds form an experimental mask.</li>
+        <li><strong>24–28 seconds · Erosion.</strong> A separate branch shrinks the region-growing mask.</li>
+        <li><strong>28–32 seconds · Dilation.</strong> Expand the un-eroded region-growing mask to produce the batch output.</li>
+      </ol>
+    </details>
+    <p class="small">FAST supplies the filters and segmentation operations. Erosion and dilation are independent branches; tumor-segmentation accuracy has not been evaluated against annotated masks.</p>
+    <p class="small">Scan source: Schmainda, K. M., &amp; Prah, M. (2018), <em>Data from Brain-Tumor-Progression</em>, TCIA. <a href="https://doi.org/10.7937/K9/TCIA.2018.15quzvnb">Dataset citation</a>.</p>
+  </section>
+  <section aria-labelledby="design-title">
+    <h2 id="design-title">One GPU producer, concurrent export workers</h2>
+    <p>FAST provides the image algorithms and OpenCL acceleration. The application owns input discovery, pipeline integration, OpenMP scheduling, output export, and verification.</p>
+    <div class="design">
+      <article><h3>Producer · thread 0</h3><p>Import DICOM → preprocess → region grow → dilate → read the completed pixels back to host memory. Retain compiled kernels between slices.</p></article>
+      <article><h3>OpenMP export tasks</h3><p>Convert completed host images into grayscale previews and write lossless masks and PNGs while the producer processes the next slice. Wait at each batch boundary to bound memory.</p></article>
+    </div>
+    <p>Each slice has its own result slot. A failed input or export fails the run, and every benchmark output must match the sequential reference.</p>
+  </section>
+  <section id="measurements" aria-labelledby="measurements-title">
+    <h2 id="measurements-title">Repeated measurements</h2>
+    <p><strong>3.15× throughput with eight OpenMP threads.</strong> Median whole-program time fell from 28.92 to 9.18 seconds for the same 460-slice processing-and-lossless-export workload, a 68.2% reduction in elapsed time.</p>
+<figure><a href="/projects/medical-imaging/export-benchmark.svg" aria-label="Open the export benchmark chart at full size"><img class="chart" src="/projects/medical-imaging/export-benchmark.svg" width="1000" height="530" loading="lazy" alt="Benchmark medians: sequential 29.32 seconds; OpenMP one thread 28.92, two threads 15.96, four threads 10.03, eight threads 9.18. All measured runs and ranges are plotted."></a><figcaption>Five randomized measured repetitions per configuration; one recorded warmup each is excluded. Each dot is a measured run. Whiskers show the full observed range.</figcaption></figure><div class="table-wrap" tabindex="0" role="region" aria-label="Processing and lossless export benchmark table"><table>
+<caption style="text-align:left;margin-bottom:12px">Processing, mask readback, and lossless PGM/PNG export · 460 slices</caption>
+<thead><tr><th scope="col">Configuration</th><th scope="col">Median</th><th scope="col">Range</th><th scope="col">Throughput vs. one worker</th></tr></thead><tbody><tr><th scope='row'>Sequential</th><td>29.32 s</td><td>28.87–29.47 s</td><td>0.99×</td></tr>
+<tr><th scope='row'>OpenMP · 1 thread</th><td>28.92 s</td><td>28.77–29.18 s</td><td>1.00×</td></tr>
+<tr><th scope='row'>OpenMP · 2 threads</th><td>15.96 s</td><td>15.09–16.06 s</td><td>1.81×</td></tr>
+<tr><th scope='row'>OpenMP · 4 threads</th><td>10.03 s</td><td>9.61–10.13 s</td><td>2.88×</td></tr>
+<tr><th scope='row'>OpenMP · 8 threads</th><td>9.18 s</td><td>8.98–9.33 s</td><td>3.15×</td></tr>
+</tbody></table></div>
+<p class="small" style="margin-top:18px">Ryzen 7 5800U · GeForce MX450 · FAST 4.10.0 · GCC 13.3 Release build · AC power · batches of 64 · <code>OMP_WAIT_POLICY=PASSIVE</code>. The baseline is the one-worker OpenMP runner; the separate sequential executable is shown alongside it. Timing includes startup, input discovery, synchronized readback, exports, report writing, and shutdown.</p>
+<p>All 30 runs, including warmups, completed every slice. Each run's 460 PGM masks and 920 PNG previews matched the sequential reference byte for byte by SHA-256.</p>
+<h3 style="margin-top:30px">Control: processing without exports</h3>
+<p>With preview and mask-file exports disabled, one-worker and eight-thread medians were 8.68 and 8.63 seconds. That difference falls within the observed ranges and timing resolution. Additional threads did not establish a useful gain in GPU processing alone.</p>
+<p>The 3.15× result therefore applies to the complete processing-and-export workflow: CPU conversion and lossless export tasks run concurrently and overlap the single GPU producer. It does not measure faster FAST segmentation kernels.</p>
+<figure><a href="/projects/medical-imaging/processing-benchmark.svg" aria-label="Open the processing-only benchmark chart at full size"><img class="chart" src="/projects/medical-imaging/processing-benchmark.svg" width="1000" height="530" loading="lazy" alt="Processing-only medians stay near 8.6 seconds for sequential and every OpenMP thread count, showing no meaningful gain."></a></figure>
+<p class="small"><a href="/projects/medical-imaging/processing-runs.json">Every control-run measurement (JSON)</a> · <a href="/projects/medical-imaging/processing-summary.json">Control summary (JSON)</a>. All 30 control runs completed every slice and matched the sequential mask fingerprints.</p>
+<p><a href="/projects/medical-imaging/export-runs.json">Download every export-run measurement (JSON)</a> · <a href="/projects/medical-imaging/export-summary.json">Download the summary (JSON)</a> · <a href="https://github.com/calebhabesh/NM03-Capstone-Project/blob/main/docs/benchmark-results.md">Methodology and source evidence</a></p>
+  </section>
+  <section aria-labelledby="credits-title">
+    <h2 id="credits-title">Team and project history</h2>
+    <p>The original capstone report lists Caleb Habesh, Rayyan Bilal, Brandon Wong, and Taranvir Khakh. The 2026 refresh adds a shared pipeline, safer scheduling, output checks, and the evidence presented here. These measurements belong to the refresh.</p>
+    <p class="small">Framework: <a href="https://github.com/smistad/FAST/tree/v4.10.0">FAST 4.10.0, by Erik Smistad and contributors</a>. Benchmark dataset: <a href="https://www.cancerimagingarchive.net/collection/brain-tumor-progression/">TCIA Brain-Tumor-Progression</a>, Schmainda &amp; Prah (2018), <a href="https://doi.org/10.7937/K9/TCIA.2018.15quzvnb">collection DOI</a>. The walkthrough shows one original capstone slice and its processed outputs. The full DICOM corpus, metadata, and batch exports remain outside the public repository.</p>
+  </section>
+</main>
+</body>
+</html>

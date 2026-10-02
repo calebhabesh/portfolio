@@ -6,7 +6,7 @@ export interface ProjectEvidence {
 export interface ProjectLink {
   label: string;
   url: string;
-  type: "live" | "github";
+  type: "live" | "github" | "demo";
   ariaLabel: string;
   external?: boolean;
 }
@@ -300,7 +300,7 @@ export const projects: ProjectItem[] = [
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:
-      "A C++/OpenMP pipeline for DICOM brain scans, built with FAST and benchmarked against sequential execution.",
+      "A four-person C++ capstone exploring parallel image processing with FAST and OpenMP. A 2026 refresh adds a working stage demo and verified benchmarks.",
     evidence: [
       {
         heading: "Pipeline",
@@ -310,36 +310,43 @@ export const projects: ProjectItem[] = [
       {
         heading: "Parallel Design",
         detail:
-          "OpenMP distributes images within each batch across CPU threads so multiple images can be processed concurrently.",
+          "One producer owns the FAST GPU pipeline while OpenMP workers convert and export completed images. Bounded batches limit the images held in memory.",
       },
       {
-        heading: "Evaluation",
+        heading: "2026 Verification",
         detail:
-          "Benchmarks compare sequential and parallel execution, while profiling tools help analyze performance.",
+          "Eight OpenMP threads achieved 3.15× throughput for processing and lossless export of 460 slices across five measured repetitions. Every mask and PNG matched the sequential reference byte for byte.",
       },
     ],
     tags: ["C++17", "OpenMP", "FAST", "DICOM"],
     additionalTags: ["CMake"],
     images: [
       {
-        src: "/projects/medical-segmentation.png",
-        alt: "Medical imaging application showing an MRI slice through successive processing and segmentation stages",
-        caption: "MRI processing and segmentation stages",
-        width: 881,
-        height: 210,
+        src: "/projects/medical-imaging/stage-viewer.png",
+        alt: "Native C++ viewer comparing the original capstone brain MRI with its sharpened output",
+        caption: "Original capstone MRI · native filter walkthrough",
+        width: 1120,
+        height: 940,
       },
       {
-        src: "/projects/medical-pipelines.png",
-        alt: "Initial and revised medical image processing pipeline flowcharts",
-        caption: "Initial and revised processing pipelines",
-        width: 919,
-        height: 566,
+        src: "/projects/medical-imaging/export-benchmark.svg",
+        alt: "Repeated benchmark results for processing and lossless export: median runtime falls from 28.92 seconds with one OpenMP thread to 9.18 seconds with eight",
+        caption: "2026 benchmark · processing and lossless export",
+        width: 1000,
+        height: 530,
       },
     ],
     links: [
       {
+        label: "Watch Capstone Demo",
+        url: "https://github.com/calebhabesh/NM03-Capstone-Project#demo",
+        type: "demo",
+        ariaLabel: "Watch the Medical Image Processing videos in the GitHub README (opens in new tab)",
+        external: true,
+      },
+      {
         label: "Capstone GitHub",
-        url: "https://github.com/calebhabesh/nm03-capstone-project",
+        url: "https://github.com/calebhabesh/NM03-Capstone-Project",
         type: "github",
         ariaLabel: "Medical Image Processing capstone repository (opens in new tab)",
         external: true,
