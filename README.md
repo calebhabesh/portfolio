@@ -1,6 +1,6 @@
 # Caleb Habesh portfolio
 
-My personal portfolio, with selected engineering projects, image galleries, and an
+My personal portfolio, with searchable project technologies, image galleries, and an
 interactive 3D lion emblem. The site supports light and dark themes, keyboard
 navigation, and reduced motion.
 

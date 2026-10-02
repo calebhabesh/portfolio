@@ -158,9 +158,9 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.equal(rifttraceCount, 0, "RiftTrace should be absent from the active site.");
 
   assert.match(
-    await page.locator(".hero-intro").innerText(),
-    /(Building|I build) across full-stack web, data infrastructure, and connected hardware/,
-    "Hero intro wording did not match reverted text."
+    (await page.locator(".hero-intro").allInnerTexts()).join(" "),
+    /full-stack tools, connected devices, and reliable data systems/,
+    "Hero intro should describe the work shown in the projects."
   );
 
   // Compact previews reserve their layout before lazy image decoding finishes.
@@ -193,7 +193,7 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
   assert.equal(await page.locator('article[data-project="file-sync"] .project-icon-link').count(), 0, "File Sync should not link to its unpublished repository.");
   assert.equal(await page.locator('article[data-project="courtload"] .project-icon-link').count(), 0, "CourtLoad should not link to its unpublished repository.");
-  assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/nm03-capstone-project"]').count() >= 1, "Medical Imaging GitHub link missing.");
+  assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
 
   const idleOrientationBefore = parseQuaternion(

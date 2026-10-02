@@ -13,6 +13,8 @@ export function initGridPointerTrail(canvas) {
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const finePointer = matchMedia("(any-pointer: fine)");
   const cardFrames = [...document.querySelectorAll(".project-frame")];
+  const searchField = document.querySelector(".project-search-field");
+  const headerControls = [...document.querySelectorAll(".header-grid-link, .theme-toggle")];
   const cells = new Map();
   let occupiedCells = [];
   let frame;
@@ -32,9 +34,9 @@ export function initGridPointerTrail(canvas) {
   };
 
   const reserveContent = () => {
-    // Reserve document cells occupied by the cards and portrait. Account
-    // for browser rounding at exact edges instead of reserving a spare row.
-    occupiedCells = [...cardFrames, document.querySelector(".headshot-frame")].filter(Boolean).map(element => {
+    // Reserve document cells occupied by cards, portrait, search, and header
+    // controls. Account for rounding at edges without reserving a spare row.
+    occupiedCells = [...cardFrames, document.querySelector(".headshot-frame"), searchField, ...headerControls].filter(Boolean).map(element => {
       const rect = element.getBoundingClientRect();
       return {
         firstColumn: Math.floor((rect.left - originX) / unit + 0.001),
@@ -110,11 +112,11 @@ export function initGridPointerTrail(canvas) {
     else previousPoint = undefined;
   };
 
-  const isCard = event => event.target instanceof Element
-    && Boolean(event.target.closest(".project-frame, .headshot-frame"));
-  const onPointerOver = event => { if (isCard(event)) clear(); };
+  const isReservedContent = event => event.target instanceof Element
+    && Boolean(event.target.closest(".project-frame, .headshot-frame, .project-search-field, .header-grid-link, .theme-toggle"));
+  const onPointerOver = event => { if (isReservedContent(event)) clear(); };
   const onPointerMove = event => {
-    if (isCard(event)) {
+    if (isReservedContent(event)) {
       clear();
       lastPointerPosition = { x: event.clientX, y: event.clientY };
       return;
@@ -132,6 +134,7 @@ export function initGridPointerTrail(canvas) {
   observer.observe(root, { attributes: true, attributeFilter: ["style", "data-theme"] });
   const frameObserver = new ResizeObserver(measure);
   cardFrames.forEach(element => frameObserver.observe(element));
+  if (searchField) frameObserver.observe(searchField);
   window.addEventListener("pointermove", onPointerMove, { passive: true });
   window.addEventListener("pointerover", onPointerOver, { passive: true });
   window.addEventListener("resize", measure, { passive: true });

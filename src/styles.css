@@ -18,6 +18,13 @@
   --gallery-bg: #171b1c;
   --tech-tag-bg: #e7e9e8;
   --tech-tag-ink: #303735;
+  --technology-match-outline: #f4dfa0;
+  --technology-match-ink: #735506;
+  --technology-prose-match-ink: #634500;
+  --search-glass: rgba(255, 255, 255, 0.22);
+  --glass-rim: rgba(255, 255, 255, 0.36);
+  --glass-edge-shadow: rgba(22, 31, 27, 0.09);
+  --glass-elevation: 0 1px 6px rgba(22, 31, 27, 0.05);
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.07);
   --grid-line: rgba(35, 61, 58, 0.1);
@@ -81,6 +88,13 @@
   --tag-bg: rgba(241, 238, 229, 0.08);
   --tech-tag-bg: #343a3c;
   --tech-tag-ink: #f4f5f3;
+  --technology-match-outline: #d0b360;
+  --technology-match-ink: #d0b360;
+  --technology-prose-match-ink: #efd48a;
+  --search-glass: rgba(255, 255, 255, 0.045);
+  --glass-rim: rgba(255, 255, 255, 0.1);
+  --glass-edge-shadow: rgba(0, 0, 0, 0.17);
+  --glass-elevation: 0 1px 8px rgba(0, 0, 0, 0.12);
   --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
   --grid-line: rgba(224, 239, 232, 0.1);
@@ -305,7 +319,7 @@ body {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 0;
   overflow-x: clip;
 }
 
@@ -377,14 +391,15 @@ canvas:focus-visible {
 
 .site-header {
   display: flex;
-  min-height: 56px;
-  padding-block: 20px 6px;
+  min-height: var(--grid-unit);
+  padding-block: 0;
   align-items: center;
   justify-content: space-between;
 }
 
 .brand {
   display: flex;
+  min-height: var(--grid-unit);
   align-items: center;
   gap: 10px;
   text-decoration: none;
@@ -433,40 +448,62 @@ canvas:focus-visible {
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 0;
 }
 
-.header-nav-link {
-  color: var(--muted);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  text-decoration: none;
-  transition: color 150ms ease;
-}
-
-.header-nav-link:hover {
-  color: var(--ink);
-  text-decoration: none;
-}
-
+.header-grid-link,
 .theme-toggle {
+  /* Row-zero controls meet the viewport edge; keep that seam unlit. */
+  --glass-top-rim: transparent;
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: var(--grid-unit);
+  height: var(--grid-unit);
+  flex-shrink: 0;
   padding: 0;
   place-items: center;
-  justify-items: center;
   border: 0;
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 0;
   color: var(--muted);
   cursor: pointer;
+  text-decoration: none;
   transition: color 150ms ease, background-color 150ms ease;
 }
 
-.theme-toggle:hover {
-  color: var(--ink);
-  background-color: var(--tag-bg);
+.header-grid-link:is(:hover, :focus-visible),
+.theme-toggle:is(:hover, :focus-visible) {
+  color: var(--green);
+  text-decoration: none;
+}
+
+.header-grid-link::after,
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--green) 24%, transparent),
+    color-mix(in srgb, var(--green) 12%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 40%, transparent);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.header-grid-link:is(:hover, :focus-visible)::after,
+.theme-toggle:is(:hover, :focus-visible)::after {
+  opacity: 1;
+}
+
+.header-grid-link:focus-visible,
+.theme-toggle:focus-visible {
+  outline-offset: -3px;
+}
+
+.header-grid-icon {
+  width: 20px;
+  height: 20px;
+  transition: translate 180ms var(--ease-out), scale 180ms var(--ease-out);
 }
 
 .theme-icon {
@@ -478,7 +515,15 @@ canvas:focus-visible {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.8;
-  transition: opacity 160ms ease, transform 240ms var(--ease-out);
+  transition: opacity 160ms ease, transform 240ms var(--ease-out), translate 180ms var(--ease-out), scale 180ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .header-grid-link:is(:hover, :focus-visible) .header-grid-icon,
+  .theme-toggle:is(:hover, :focus-visible) .theme-icon {
+    translate: 0 -2px;
+    scale: 1.08;
+  }
 }
 
 .theme-icon-moon {
@@ -499,10 +544,10 @@ canvas:focus-visible {
 .hero {
   display: grid;
   min-height: auto;
-  padding-block: 12px 0;
+  padding-block: 12px var(--hero-projects-space, calc(var(--grid-unit) / 2));
   margin-top: var(--hero-grid-offset, 0px);
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 380px);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) calc(var(--grid-unit) * 8);
+  gap: var(--grid-unit);
   align-items: center;
 }
 
@@ -608,45 +653,6 @@ canvas:focus-visible {
   line-height: 1.62;
 }
 
-.hero-socials {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin: 22px 0 0;
-  flex-wrap: wrap;
-}
-
-.hero-social-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  color: var(--muted);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  text-decoration: none;
-  transform: translateY(0);
-  transition: color 180ms var(--ease-out), transform 180ms var(--ease-out);
-}
-
-.hero-social-link:is(:hover, a:focus-visible) {
-  color: var(--green);
-  transform: translateY(-2px);
-  text-decoration: none;
-}
-
-.hero-social-link:focus-visible {
-  outline: 2px solid var(--green);
-  outline-offset: 5px;
-  border-radius: 2px;
-}
-
-.hero-social-icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
 .emblem-figure {
   min-width: 0;
   margin: 0;
@@ -656,9 +662,11 @@ canvas:focus-visible {
   --emblem-reveal-duration: 650ms;
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 312px;
   max-width: 360px;
   margin-inline: auto;
+  align-self: center;
+  transform: translateY(-18px);
   isolation: isolate;
 }
 
@@ -739,7 +747,7 @@ canvas:focus-visible {
 .section-title {
   margin: 0;
   color: var(--muted);
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -747,7 +755,8 @@ canvas:focus-visible {
 
 @media (prefers-reduced-motion: no-preference) {
   .site-header {
-    --enter-y: 8px;
+    /* A stationary header gives reload scroll restoration a stable anchor. */
+    --enter-y: 0px;
     animation: content-rise-in 400ms var(--ease-out) 40ms both;
   }
 
@@ -788,12 +797,215 @@ canvas:focus-visible {
 }
 
 .projects-list {
+  overflow: visible;
+}
+
+.project-section-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(var(--grid-unit) * 8);
+  align-items: center;
+  gap: var(--grid-unit);
+  min-height: var(--grid-unit);
+  margin-bottom: var(--grid-unit);
+}
+
+.project-search {
+  min-width: 0;
+  margin: 0;
+}
+
+.header-grid-link,
+.theme-toggle,
+.project-search-field {
+  position: relative;
+  isolation: isolate;
+  border-radius: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 65%), var(--search-glass);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    inset 1px 0 0 var(--glass-rim),
+    inset -1px 0 0 var(--glass-edge-shadow),
+    inset 0 1px 0 var(--glass-top-rim, var(--glass-rim)),
+    inset 0 -1px 0 var(--glass-edge-shadow),
+    inset 0 0 6px color-mix(in srgb, var(--glass-rim) 30%, transparent),
+    var(--glass-elevation);
+}
+
+.project-search-field {
+  display: flex;
+  width: 100%;
+  height: var(--grid-unit);
+  align-items: center;
+  gap: 10px;
+  padding-left: 14px;
+  border: 0;
+  border-radius: 0;
+  color: var(--muted);
+}
+
+.project-search-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 50%, transparent);
+  opacity: 0;
+  transition: opacity 220ms ease-in-out;
+  pointer-events: none;
+}
+
+.project-search-field:focus-within::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-search-field::after {
+    transition: none;
+  }
+}
+
+.project-search-field > svg {
+  flex-shrink: 0;
+}
+
+.project-search-field input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 12px 8px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.project-search-field input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.project-search-field input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.project-search-clear {
+  display: flex;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.project-search-clear[hidden] {
+  display: none;
+}
+
+.project-search-clear:hover {
+  background: var(--tag-bg);
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .project-section-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .project-section-header .section-title {
+    display: flex;
+    min-height: var(--grid-unit);
+    align-items: center;
+  }
+}
+
+.project-search-results {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--project-grid-gap, var(--grid-unit));
   padding-top: var(--projects-grid-offset, 0px);
   /* Tilted cards and their shadows can extend into the page gutters. */
   overflow: visible;
+}
+
+.project-search-empty {
+  position: absolute;
+  inset: var(--project-frame-inset);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.project-search-empty p {
+  margin: 0;
+}
+
+.project-search-empty-message {
+  max-width: 42ch;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.project-search-empty .project-search-empty-title {
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.project-search-empty a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--green);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 65%, transparent);
+  text-underline-offset: 4px;
+}
+
+.project-search-empty a svg {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.project-search-empty a:hover,
+.project-search-empty a:focus-visible {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+  text-underline-offset: 6px;
+}
+
+.project-search-empty a:hover svg,
+.project-search-empty a:focus-visible svg {
+  transform: translate(2px, -2px);
+}
+
+.project-search-empty a:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-search-empty a {
+    transition: color 180ms ease, text-decoration-color 180ms ease, text-underline-offset 180ms ease;
+  }
+
+  .project-search-empty a svg {
+    transition: transform 180ms ease;
+  }
 }
 
 .project-card-animate {
@@ -855,6 +1067,9 @@ canvas:focus-visible {
 }
 
 @media (scripting: none) {
+  .project-search {
+    display: none;
+  }
   .project-card-animate .project-comet-card {
     opacity: 1 !important;
     transform: none !important;
@@ -951,6 +1166,24 @@ canvas:focus-visible {
   position: relative;
   isolation: isolate;
   padding: var(--project-frame-inset);
+  height: var(--project-grid-height, auto);
+}
+
+.project-slot-content {
+  position: absolute;
+  inset: var(--project-frame-inset);
+}
+
+.project-card-animate[data-search-match="false"] .project-slot-content {
+  pointer-events: none;
+}
+
+.project-card-animate[data-search-match="false"] .project-hover-background {
+  visibility: hidden;
+}
+
+.project-card-animate[data-search-match="false"]:not(:first-child) .project-frame-guides {
+  opacity: 0.12;
 }
 
 .project-hover-background {
@@ -971,6 +1204,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   z-index: 2;
   inset: 0;
   pointer-events: none;
+  opacity: 1;
 }
 
 .project-frame-outline {
@@ -1010,6 +1244,10 @@ body:has(.project-dialog-overlay) .project-hover-background {
    Trace the outline (340–500ms), then slide in the card (500–1000ms).
    The guides stay in the grid's coordinate system while only the card slides. */
 @media (prefers-reduced-motion: no-preference) {
+  .project-frame-guides {
+    transition: opacity 240ms ease;
+  }
+
   .project-card-animate[data-card-reveal="pending"] .project-frame-corner path,
   .project-card-animate[data-card-reveal="pending"] .project-frame-outline rect {
     stroke-dasharray: 1;
@@ -1806,6 +2044,21 @@ body:has(.project-dialog-overlay) .project-hover-background {
   font-weight: 550;
 }
 
+.project-box-tags li[data-search-highlight="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--technology-match-outline) 70%, var(--tech-tag-ink));
+}
+
+.project-search-match {
+  background: transparent;
+  color: var(--technology-match-ink);
+  font-weight: 700;
+}
+
+.project-dialog-summary .project-search-match,
+.project-evidence .project-search-match {
+  color: var(--technology-prose-match-ink);
+}
+
 .project-details-button {
   position: relative;
   display: flex;
@@ -2001,12 +2254,8 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     --grid-columns: 12;
   }
 
-  .site-header {
-    min-height: 48px;
-  }
-
   .hero {
-    padding-block: 16px 0;
+    padding-block: 16px var(--hero-projects-space, calc(var(--grid-unit) / 2));
     grid-template-columns: 1fr;
     gap: 0;
   }
@@ -2016,8 +2265,13 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .emblem-stage {
+    position: relative;
+    width: 100%;
     height: 230px;
+    min-height: 0;
     max-width: 300px;
+    margin-inline: auto;
+    transform: none;
   }
 
   .project-box-inner {
@@ -2029,6 +2283,23 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   :root {
     --page-gutter: 12px;
     --grid-columns: 6;
+  }
+
+  .site-header {
+    flex-wrap: wrap;
+  }
+
+  .site-header .brand {
+    flex-basis: 100%;
+  }
+
+  .header-nav {
+    margin-left: auto;
+  }
+
+  .header-grid-link,
+  .theme-toggle {
+    --glass-top-rim: var(--glass-rim);
   }
 
   .calling-card-avatar {
@@ -2073,6 +2344,11 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     animation: none !important;
     will-change: auto !important;
     pointer-events: auto !important;
+  }
+
+  .project-frame[data-expanded="true"] .project-comet-card {
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
   #emblem-canvas,

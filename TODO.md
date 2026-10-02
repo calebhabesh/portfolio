@@ -1,5 +1,8 @@
 # Project Checklist
 ## Immediate Tasks
+- [ ] Make spacing under photo and location line uniform
+- [ ] Add ai technologies to projects
+- [ ] Add technologies/skills proficiencies as a aceternity sliding banner display
 - [ ] Use project title then described tech term afterwards
 - [ ] Add demos for all projects that are not live. Integrate them into the calebhabesh.com website
 - [ ] Make sure to add public repos for file-sync and courtload

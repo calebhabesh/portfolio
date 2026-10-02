@@ -198,8 +198,8 @@ try {
   }
 
   // Initial cards still fly in when the emblem module is slow.
-  // These scenarios require two initially visible cards after row snapping.
-  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  // Keep two cards visible below the search controls and snapped grid rows.
+  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
   await loadingPage.addInitScript(() => {
     window.initialCardAnimations = 0;
     window.contentEntrances = [];
@@ -270,7 +270,7 @@ try {
 
   // Delayed React still hydrates the same static cards; below-fold cards reveal on scroll.
   for (const islandDelay of [900, 2000]) {
-    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
     await reloadPage.addInitScript(() => {
       window.cardEntranceStarts = [];
       window.animatedCards = new Map();
@@ -370,6 +370,11 @@ try {
       "The subtle Comet glare did not appear on hover.",
     );
     // Hit-test beyond the resting surface edges to catch clipping during tilt.
+    // Clicking summary text can leave a tall mobile card's midpoint below
+    // the viewport. Bring the probe into view before testing its surface.
+    if (width <= 640) {
+      await card.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+    }
     const restingBounds = await page.locator('.project-comet-card').first().boundingBox();
     assert.ok(restingBounds, "The Comet wrapper has no rendered bounds.");
     for (const side of ["left", "right"]) {

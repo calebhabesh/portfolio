@@ -422,7 +422,7 @@ export async function initEmblemScene(stage, assets) {
     camera.aspect = width / height;
     camera.fov = width < 520 ? 30 : 27;
     camera.position.z = width < 520 ? 4.8 : 4.4;
-    camera.zoom = window.matchMedia("(min-width: 769px)").matches ? 1.06 : 1;
+    camera.zoom = window.matchMedia("(min-width: 769px)").matches ? 1.08 : 1;
     camera.updateProjectionMatrix();
   }
 

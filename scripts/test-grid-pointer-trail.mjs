@@ -79,7 +79,7 @@ try {
       await settle(page);
       await page.mouse.move(point.x, point.y);
       await settle(page);
-      assert.equal(await hasColor(page), true, "Pointer movement must color the crossed grid cells.");
+      assert.equal(await hasColor(page), true, `Pointer movement must color open grid cells (${theme}, ${width}px).`);
       const fills = await page.evaluate(() => window.trailPaints);
       assert.ok(fills.length > 0);
       const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 0.75, `${actual} does not meet grid coordinate ${expected}`);
@@ -118,6 +118,55 @@ try {
       || fill.x >= sweep.x + sweep.width - 0.75
       || fill.y + fill.height <= sweep.y + 0.75 || fill.y >= sweep.y + sweep.height - 0.75),
       "Fast pointer sweeps must skip the grid cells occupied by a card.");
+
+    const searchBounds = await page.locator('.project-search-field').boundingBox();
+    await page.evaluate(() => { window.trailPaints = []; });
+    await page.mouse.move(searchBounds.x - sweepUnit * 1.5, searchBounds.y + searchBounds.height / 2);
+    await settle(page);
+    await page.mouse.move(searchBounds.x + searchBounds.width + sweepUnit * 1.5, searchBounds.y + searchBounds.height / 2);
+    await settle(page);
+    const searchFills = await page.evaluate(() => window.trailPaints);
+    assert.ok(searchFills.length > 0, "Search sweeps should still paint open grid cells.");
+    assert.ok(searchFills.every(fill => fill.x + fill.width <= searchBounds.x + 0.75
+      || fill.x >= searchBounds.x + searchBounds.width - 0.75
+      || fill.y + fill.height <= searchBounds.y + 0.75
+      || fill.y >= searchBounds.y + searchBounds.height - 0.75),
+      "Fast pointer sweeps must skip cells beneath the glass search field.");
+    await page.getByRole('searchbox').hover();
+    await settle(page);
+    assert.equal(await hasColor(page), false, "Entering search must clear the trail.");
+    await page.locator('.project-search-field > svg').hover();
+    await settle(page);
+    assert.equal(await hasColor(page), false, "Search icons must also suppress the trail.");
+
+    for (const width of [1440, 390]) {
+      await page.setViewportSize({ width, height: 950 });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await settle(page);
+      const headerBounds = await page.locator('.header-nav').boundingBox();
+      const headerUnit = await page.evaluate(() => parseFloat(document.documentElement.style.getPropertyValue('--grid-unit')));
+      await page.evaluate(() => { window.trailPaints = []; });
+      await page.mouse.move(headerBounds.x - headerUnit * 1.5, headerBounds.y + headerBounds.height / 2);
+      await settle(page);
+      await page.mouse.move(Math.min(width - 1, headerBounds.x + headerBounds.width + headerUnit / 2), headerBounds.y + headerBounds.height / 2);
+      await settle(page);
+      const headerFills = await page.evaluate(() => window.trailPaints);
+      assert.ok(headerFills.length > 0, "Header sweeps must still paint surrounding open cells.");
+      assert.ok(headerFills.every(fill => fill.x + fill.width <= headerBounds.x + 0.75
+        || fill.x >= headerBounds.x + headerBounds.width - 0.75
+        || fill.y + fill.height <= headerBounds.y + 0.75 || fill.y >= headerBounds.y + headerBounds.height - 0.75),
+        "Fast sweeps must skip every cell occupied by a header control.");
+      for (const control of await page.locator('.header-nav > a, .header-nav > button').all()) {
+        await control.hover();
+        await settle(page);
+        assert.equal(await hasColor(page), false, "Entering a header control must clear the trail.");
+        await control.locator('svg').last().hover({ force: true });
+        await settle(page);
+        assert.equal(await hasColor(page), false, "Header icons must also suppress the trail.");
+      }
+    }
+    await page.setViewportSize({ width: 1440, height: 950 });
+    await settle(page);
 
     await page.mouse.move(5, 20);
     await settle(page);

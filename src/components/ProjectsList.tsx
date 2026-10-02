@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { projectLayoutId, projectLayoutTransition } from "../lib/project-motion";
 import { projects, type ProjectItem } from "../data/projects";
@@ -9,16 +9,50 @@ import { ProjectSketch } from "./ProjectSketch";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 import CardHoverEffectDemo from "./card-hover-effect-demo";
+import { TechnologyBadges } from "./TechnologyBadges";
+import { matchTechnologyTags, matchTechnologyText, technologySearchTerms } from "../lib/technology-search";
+import { SearchMatchText } from "./SearchMatchText";
+import { useProjectFilterMotion } from "../hooks/use-project-filter-motion";
+import { ProjectFrameGuides } from "./ProjectFrameGuides";
+import { HoverEffectItem } from "./ui/card-hover-effect";
 
 export const ProjectsList: React.FC = () => {
   const reduceMotion = useReducedMotion();
+  const [interactive, setInteractive] = useState(false);
   useEffect(() => {
     const container = document.getElementById("projects-root");
     container?.setAttribute("data-interactive", "true");
+    setInteractive(true);
     return () => container?.removeAttribute("data-interactive");
   }, []);
 
   const [active, setActive] = useState<ProjectItem | null>(null);
+  const [query, setQuery] = useState("");
+  const terms = useMemo(() => technologySearchTerms(query), [query]);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const technologyMatches = useMemo(() => {
+    return new Map(projects.map(project => [project.id,
+      matchTechnologyTags([...project.tags, ...(project.additionalTags || [])], terms),
+    ]));
+  }, [terms]);
+  const matchingIds = useMemo(() => new Set(projects
+    .filter(project => technologyMatches.get(project.id) !== null)
+    .map(project => project.id)), [technologyMatches]);
+  const matchingProjects = projects.filter(project => matchingIds.has(project.id));
+  const highlightText = (text: string) => <SearchMatchText text={text} ranges={active
+    ? matchTechnologyText(text, [...active.tags, ...(active.additionalTags || [])], terms)
+    : []} />;
+  const prepareFilterMotion = useProjectFilterMotion(listRef);
+  const changeQuery = (value: string) => {
+    if (value === query) return;
+    prepareFilterMotion();
+    setQuery(value);
+  };
+  const clearSearch = () => {
+    changeQuery("");
+    searchRef.current?.focus({ preventScroll: true });
+  };
   const modalRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hasMoreBelow, setHasMoreBelow] = useState(false);
@@ -165,15 +199,11 @@ export const ProjectsList: React.FC = () => {
 
               <motion.div layout layoutScroll ref={scrollRef} className="project-dialog-scroll px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4 overflow-y-auto">
 
-                <p className="text-[var(--ink-soft)] text-base leading-relaxed m-0">
-                  {active.summary}
+                <p className="project-dialog-summary text-[var(--ink-soft)] text-base leading-relaxed m-0">
+                  {highlightText(active.summary)}
                 </p>
 
-                <ul className="project-box-tags m-0 p-0" aria-label="Technologies">
-                  {[...active.tags, ...(active.additionalTags || [])].map((tag) => (
-                    <li key={tag}>{tag}</li>
-                  ))}
-                </ul>
+                <TechnologyBadges tags={[...active.tags, ...(active.additionalTags || [])]} matches={technologyMatches.get(active.id)} />
 
                 {!!active.images?.length && (
                   <ProjectGallery
@@ -195,10 +225,10 @@ export const ProjectsList: React.FC = () => {
                         className="project-evidence p-3.5 rounded-lg"
                       >
                         <strong className="text-[var(--ink)] block mb-1 text-sm font-semibold">
-                          {point.heading}
+                          {highlightText(point.heading)}
                         </strong>
                         <p className="text-[var(--ink-soft)] text-sm m-0 leading-relaxed">
-                          {point.detail}
+                          {highlightText(point.detail)}
                         </p>
                       </div>
                     ))}
@@ -215,21 +245,115 @@ export const ProjectsList: React.FC = () => {
         ) : null}
       </AnimatePresence>
 
-      <CardHoverEffectDemo disabled={Boolean(active)}>
-      {projects.map((project, index) => (
-        <div
-          key={project.id}
-          className="project-card-animate"
-          data-card-index={index}
-          data-direction={index % 2 === 0 ? "left" : "right"}
-          // The entrance controller owns class/style/reveal attributes before
-          // and after hydration. React owns the unchanged card contents.
-          suppressHydrationWarning
-        >
-          <ProjectCard project={project} onExpand={openProject} expanded={active?.id === project.id} />
-        </div>
-      ))}
-      </CardHoverEffectDemo>
+      <div className="section-header project-section-header">
+        <h2 id="work-title" className="section-title">Selected Projects</h2>
+        <form className="project-search" role="search" aria-label="Search project technologies" onSubmit={event => event.preventDefault()}>
+          <div className="project-search-field">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 4 4" />
+            </svg>
+            <input
+              ref={searchRef}
+              id="project-technology-search"
+              type="search"
+              value={query}
+              onChange={event => changeQuery(event.target.value)}
+              onKeyDown={event => {
+                if (event.key === "Escape" && query) {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  clearSearch();
+                }
+              }}
+              placeholder="Search projects or technologies..."
+              aria-label="Search technologies"
+              aria-controls="project-search-results"
+              disabled={!interactive}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <button type="button" className="project-search-clear" onClick={clearSearch} aria-label="Clear technology search" hidden={!query}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                <path d="m6 6 12 12M6 18 18 6" />
+              </svg>
+            </button>
+          </div>
+          <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {query.trim() ? `${matchingIds.size} of ${projects.length} projects` : `${projects.length} projects`}
+          </span>
+        </form>
+      </div>
+
+      <div ref={listRef} id="project-search-results" className="project-search-results" data-filtering={Boolean(query.trim())}>
+        <CardHoverEffectDemo disabled={Boolean(active)}>
+          {projects.map((frameProject, index) => {
+            const project = matchingProjects[index];
+            return (
+              <div
+                key={frameProject.id}
+                className="project-card-animate"
+                data-card-index={index}
+                data-direction={index % 2 === 0 ? "left" : "right"}
+                data-search-match={Boolean(project)}
+                data-result-id={project?.id}
+                // The entrance controller mutates these stable frame shells.
+                suppressHydrationWarning
+              >
+                <HoverEffectItem
+                  itemId={project?.id || frameProject.id}
+                  className="project-frame"
+                  data-project-tone={project?.tone}
+                  data-expanded={Boolean(project && active?.id === project.id) || undefined}
+                >
+                  <ProjectFrameGuides projectId={frameProject.id} />
+                  <AnimatePresence initial={false} mode="wait">
+                    {project ? (
+                      <motion.div
+                        key={project.id}
+                        className="project-slot-content"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: reduceMotion ? 0 : 0.16 }}
+                        inert={active?.id === project.id || undefined}
+                        aria-hidden={active?.id === project.id || undefined}
+                        onAnimationComplete={() => window.dispatchEvent(new Event("portfolio:project-filter"))}
+                      >
+                        <ProjectCard
+                          project={project}
+                          onExpand={openProject}
+                          expanded={active?.id === project.id}
+                          technologyMatches={technologyMatches.get(project.id)}
+                        />
+                      </motion.div>
+                    ) : index === 0 && (
+                      <motion.div
+                        key="empty"
+                        className="project-search-empty"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: reduceMotion ? 0 : 0.16 }}
+                      >
+                        <div className="project-search-empty-message">
+                          <p className="project-search-empty-title">No matching projects.</p>
+                          <p>Try another technology, or <a href="https://github.com/calebhabesh" target="_blank" rel="noreferrer">
+                            browse my GitHub
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                              <path d="M7 17 17 7M7 7h10v10" />
+                            </svg>
+                          </a></p>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </HoverEffectItem>
+              </div>
+            );
+          })}
+        </CardHoverEffectDemo>
+      </div>
     </LayoutGroup>
   );
 };

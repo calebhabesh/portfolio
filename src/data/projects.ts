@@ -59,7 +59,7 @@ export const projects: ProjectItem[] = [
           "Image capture, upload, deep sleep, and audio features have been tested on the battery-powered prototype. The latest firmware still needs a final test on the device, and current draw has yet to be measured with the enclosure closed.",
       },
     ],
-    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad"],
+    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad", "Soldering"],
     additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
     images: [
       {
@@ -148,7 +148,7 @@ export const projects: ProjectItem[] = [
           "A separate Terraform lab defines an ARM64 Amazon EC2 deployment. It uses AWS IAM and Systems Manager for access, Amazon S3 for artifacts, and AWS Lambda with Amazon EventBridge to stop the instance on a schedule. Production is hosted on OCI.",
       },
     ],
-    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "GTFS · GTFS Realtime", "Docker Compose", "GitHub Actions", "AWS (Lab)"],
+    tags: ["TypeScript · Next.js", "Java · Spring Boot", "PostgreSQL · PostGIS", "Redis", "GTFS · GTFS Realtime", "Docker", "Grafana", "GitHub Actions", "AWS (Lab)"],
     additionalTags: ["React", "MapLibre GL JS", "PWA", "Web Push", "Terraform", "Oracle Cloud Infrastructure", "Ubuntu", "Caddy"],
     images: [
       {
@@ -274,7 +274,7 @@ export const projects: ProjectItem[] = [
       },
     ],
     tags: ["Python · FastAPI", "TypeScript · Next.js", "SQL · dbt", "PostgreSQL"],
-    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker Compose", "scikit-learn"],
+    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "scikit-learn"],
     images: [
       {
         src: "/projects/courtload-comparison.png",

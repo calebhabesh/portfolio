@@ -56,6 +56,11 @@ async function checkGrid(page) {
       logo: rect(document.querySelector(".calling-card-avatar")),
       toggle: rect(document.querySelector(".theme-toggle")),
       themeIcon: rect(document.querySelector(".theme-icon")),
+      headerControls: [...document.querySelectorAll(".header-nav > a, .header-nav > button")].map(control => ({
+        ...rect(control), icon: rect(control.querySelector("svg")), label: control.getAttribute("aria-label"),
+        text: control.textContent.trim(), background: getComputedStyle(control).backgroundColor,
+      })),
+      sectionHeader: rect(document.querySelector(".project-section-header")),
       columns: Number(body.getPropertyValue("--grid-columns")),
       row: parseFloat(body.backgroundSize.split(",")[2].trim().split(" ").at(-1)),
       origin: parseFloat(body.backgroundPosition.split(",")[2].trim().split(" ").at(-1)),
@@ -92,12 +97,31 @@ async function checkGrid(page) {
   near(geometry.header.x + geometry.header.width, edge, "Header must share the project frames' right edge");
   near(geometry.brand.x, geometry.shell.x, "Brand must start on the left guide");
   near(geometry.logo.x, geometry.shell.x, "Logo must start on the left guide");
+  near(geometry.brand.y + geometry.brand.height / 2, unit / 2, "Brand must be centered in grid row zero");
+  assert.equal(geometry.headerControls.length, 4, "Header must contain three contact links and the theme toggle");
+  const controlRow = page.viewportSize().width <= 480 ? unit : 0;
+  for (const control of geometry.headerControls) {
+    near(control.width, unit, "Header control must fill one grid column");
+    near(control.height, unit, "Header control must fill one grid row");
+    near(control.y, controlRow, "Header controls must occupy row zero, or row one on small screens");
+    near(control.x, geometry.columnOrigin + Math.round((control.x - geometry.columnOrigin) / unit) * unit,
+      "Header control must start on a grid column");
+    near(control.icon.x + control.icon.width / 2, control.x + unit / 2, "Control icon must be horizontally centered");
+    near(control.icon.y + control.icon.height / 2, control.y + unit / 2, "Control icon must be vertically centered");
+    assert.ok(control.label, "Icon-only controls must have accessible names");
+    assert.equal(control.text, "", "Header cells must remain icon-only");
+    assert.notEqual(control.background, "rgba(0, 0, 0, 0)", "Header cells must have a subtle resting shade");
+  }
+  near(geometry.sectionHeader.y, Math.round(geometry.sectionHeader.y / unit) * unit,
+    "Selected Projects must start on a grid row after the social row is removed");
   near(geometry.themeIcon.x + geometry.themeIcon.width / 2, geometry.toggle.x + geometry.toggle.width / 2,
     "Theme icon must be centered in its hover target");
   near(geometry.themeIcon.y + geometry.themeIcon.height / 2, geometry.toggle.y + geometry.toggle.height / 2,
     "Theme icon must be vertically centered in its hover target");
   near(geometry.toggle.x + geometry.toggle.width, edge, "Theme button must stay within the right guide");
-  assert.ok(geometry.brand.x + geometry.brand.width <= geometry.toggle.x, "Header controls must not overlap");
+  assert.ok(geometry.brand.y + geometry.brand.height <= geometry.headerControls[0].y + 0.75 ||
+    geometry.brand.x + geometry.brand.width <= geometry.headerControls[0].x,
+    "Brand and header controls must not overlap");
   assert.ok(geometry.toggle.width >= 44 && geometry.toggle.height >= 44, "Theme toggle must keep its accessible touch target");
   for (const frame of geometry.frames) {
     for (const corner of frame.corners) {

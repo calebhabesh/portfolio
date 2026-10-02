@@ -236,7 +236,7 @@ const projectsSection = document.querySelector("#work") || document.querySelecto
 if (projectsScrollArrow && projectsSection) {
   const getCards = () => [
     ...projectsSection.querySelectorAll(".project-target, .project-box"),
-  ];
+  ].filter(card => card.closest(entranceSelector)?.dataset.searchMatch !== "false");
 
   const updateProjectsScrollCue = () => {
     const cards = getCards();
@@ -271,6 +271,7 @@ if (projectsScrollArrow && projectsSection) {
 
   window.addEventListener("scroll", updateProjectsScrollCue, { passive: true });
   window.addEventListener("resize", updateProjectsScrollCue, { passive: true });
+  window.addEventListener("portfolio:project-filter", updateProjectsScrollCue);
   const projectsObserver = new ResizeObserver(updateProjectsScrollCue);
   projectsObserver.observe(projectsSection);
   updateProjectsScrollCue();
@@ -298,7 +299,7 @@ const revealObserver = new IntersectionObserver((entries) => {
   const intersecting = new Set(entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target));
   projectEntranceReady.then(() => {
     const visibleCards = revealTargets.filter((card) => {
-      if (!intersecting.has(card) || !card.isConnected || card.classList.contains("is-visible")) return false;
+      if (!intersecting.has(card) || !card.isConnected || card.hidden || card.dataset.searchMatch === "false" || card.classList.contains("is-visible")) return false;
       const bounds = card.getBoundingClientRect();
       return bounds.top < window.innerHeight - 30 && bounds.bottom > 0;
     });

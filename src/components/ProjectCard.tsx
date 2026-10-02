@@ -1,22 +1,29 @@
 import React from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useIsPresent, useReducedMotion } from "motion/react";
 import { projectLayoutId, projectLayoutTransition } from "../lib/project-motion";
 import { type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
-import { HoverEffectItem } from "./ui/card-hover-effect";
-import { ProjectFrameGuides } from "./ProjectFrameGuides";
 import { ProjectSketch } from "./ProjectSketch";
+import { TechnologyBadges } from "./TechnologyBadges";
+import type { TechnologyMatches } from "../lib/technology-search";
 
 interface ProjectCardProps {
   project: ProjectItem;
   onExpand?: (project: ProjectItem) => void;
   expanded?: boolean;
+  technologyMatches?: TechnologyMatches | null;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, technologyMatches }) => {
   const reduceMotion = useReducedMotion();
+  const present = useIsPresent();
+  const sharedLayout = !reduceMotion && present;
   const previewImage = project.images?.[0];
   const imageCount = project.images?.length || 0;
+  const visibleTags = [...new Set([
+    ...project.tags,
+    ...(project.additionalTags || []).filter(tag => technologyMatches?.has(tag)),
+  ])];
 
   const handleCardClick = (e: React.MouseEvent) => {
     if (!onExpand) return;
@@ -28,15 +35,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
   };
 
   return (
-    <HoverEffectItem itemId={project.id} className="project-frame" data-project-tone={project.tone} data-expanded={expanded || undefined} inert={expanded} aria-hidden={expanded || undefined}>
-      <ProjectFrameGuides projectId={project.id} />
       <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2} disabled={expanded}>
       <motion.article
-        layoutId={reduceMotion ? undefined : projectLayoutId(project.id)}
+        layoutId={sharedLayout ? projectLayoutId(project.id) : undefined}
         transition={{ layout: projectLayoutTransition }}
         style={{ borderRadius: 6 }}
         className="project-box project-target"
         data-project={project.id}
+        inert={!present || expanded || undefined}
+        aria-hidden={!present || expanded || undefined}
         onClick={handleCardClick}
       >
         <div className={`project-box-inner relative z-10${previewImage ? " has-preview" : ""}`}>
@@ -44,7 +51,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               <div className="project-box-title-group">
                 <ProjectSketch projectId={project.id} />
                 <motion.h3
-                  layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "title")}
+                  layoutId={sharedLayout ? projectLayoutId(project.id, "title") : undefined}
                   layout="position"
                   transition={projectLayoutTransition}
                   className="project-box-title"
@@ -140,15 +147,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               </div>
             </div>
 
-            <motion.p layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "category")} layout="position" transition={projectLayoutTransition} className="project-box-type">{project.category}</motion.p>
+            <motion.p layoutId={sharedLayout ? projectLayoutId(project.id, "category") : undefined} layout="position" transition={projectLayoutTransition} className="project-box-type">{project.category}</motion.p>
 
             <p className="project-box-summary">{project.summary}</p>
 
-            <ul className="project-box-tags" aria-label="Technologies">
-              {project.tags.map((tag) => (
-                <li key={tag}>{tag}</li>
-              ))}
-            </ul>
+            <TechnologyBadges tags={visibleTags} matches={technologyMatches} />
 
             {previewImage && (
               <a
@@ -169,7 +172,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               >
                 <span className="project-card-preview-face">
                 <motion.img
-                  layoutId={reduceMotion ? undefined : projectLayoutId(project.id, "image")}
+                  layoutId={sharedLayout ? projectLayoutId(project.id, "image") : undefined}
                   transition={projectLayoutTransition}
                   src={previewImage.src}
                   alt={previewImage.alt}
@@ -208,6 +211,5 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
         </div>
       </motion.article>
       </CometCard>
-    </HoverEffectItem>
   );
 };

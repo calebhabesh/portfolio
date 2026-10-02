@@ -42,9 +42,9 @@ try {
 
   for (const scenario of ["Normal startup", "Prepared during card entrance", "Delayed model startup", "Slow shader compilation", "Late React mounting", "Late project module evaluation", "Late hero module evaluation"]) {
     if (process.env.STARTUP_SCENARIO && scenario !== process.env.STARTUP_SCENARIO) continue;
-    // Whole-row calibration can place card two below a 900px viewport.
-    // Keep both entrance subjects visible in this startup fixture.
-    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    // The search controls and whole-row calibration can place card two below
+    // a 1000px viewport. Keep both entrance subjects visible in this fixture.
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     if (scenario.endsWith("module evaluation") || scenario === "Delayed model startup" || scenario === "Prepared during card entrance") {
