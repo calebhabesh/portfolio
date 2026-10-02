@@ -17,6 +17,9 @@ Edit `src/data/projects.ts` and put project images in `public/projects/`.
 `npm run generate:projects` updates the static project markup in `index.html` for
 visitors without JavaScript; production builds run it automatically.
 
+See [project demo links](project-demos.md) for README anchors, video publishing,
+and the distinction between source, recorded demos, and live applications.
+
 ## Emblem assets
 
 `models/emblem/` contains the original Blender project and GLB, the Blender backup,
