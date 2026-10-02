@@ -1,0 +1,50 @@
+name: portfolio
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  caddy:
+    image: caddy@sha256:77c07d5ebfa5be9fd6c820d2094ae662c9e7eeb9bf98346b7f639900263ee2a2
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
+    ports:
+      - "127.0.0.1:8088:8080"
+    volumes:
+      - ./infra:/etc/caddy:ro
+      - ./site:/srv/portfolio:ro
+    logging: *logging
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz | grep -qx ok"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  cloudflared:
+    image: cloudflare/cloudflared@sha256:e39ee8da81ad5e05d77f38d2f51c60ca51bf2a8450ac3abab50c17fdb91d91bf
+    profiles: [tunnel]
+    restart: unless-stopped
+    # The connector needs the host loopback, where the origin is published.
+    network_mode: host
+    user: "1001:1001"
+    mem_limit: 128m
+    cpus: 0.5
+    command:
+      - tunnel
+      - --no-autoupdate
+      - --metrics
+      - 127.0.0.1:20088
+      - run
+      - --token-file
+      - /run/secrets/tunnel-token
+    volumes:
+      - ./secrets:/run/secrets:ro
+    depends_on:
+      caddy:
+        condition: service_healthy
+    logging: *logging

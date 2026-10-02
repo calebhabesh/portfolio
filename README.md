@@ -47,4 +47,6 @@ The build generates a static site in `dist/`. Preview it at <http://localhost:41
 
 See [development notes](docs/development.md) for checks and the model workflow.
 
+See [VPS deployment](docs/deployment.md) for hosting, Cloudflare setup, updates, and rollback.
+
 [MIT license](LICENSE) · [Third-party notices](docs/THIRD_PARTY_NOTICES.md)
