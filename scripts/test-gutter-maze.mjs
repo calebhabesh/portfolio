@@ -23,6 +23,28 @@ const paintCount = page => page.evaluate(() => window.mazeProbe.paints);
 const exploredCells = page => page.evaluate(() => Object.fromEntries(Object.entries(window.mazeProbe.last)
   .map(([side, fills]) => [side, fills.map(({ x, y }) => ({ x, y }))])));
 
+async function checkRoundFade(page) {
+  const layers = await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => {
+    const boundary = course.querySelector(".gutter-maze-boundaries");
+    let boundaryOpacity = 1;
+    for (let element = boundary; element; element = element.parentElement) {
+      boundaryOpacity *= Number(getComputedStyle(element).opacity);
+    }
+    return {
+      boundaryOpacity,
+      drawingOpacity: Number(getComputedStyle(course.querySelector(".gutter-maze-drawing")).opacity),
+      searchOpacity: Number(getComputedStyle(course.querySelector(".gutter-maze-search")).opacity),
+      lightOpacity: Number(getComputedStyle(course, "::before").opacity),
+    };
+  }));
+  for (const layer of layers) {
+    assert.equal(layer.boundaryOpacity, 0.5, "Chalk boundaries must stay visible through round fades");
+    assert.ok(layer.drawingOpacity > 0 && layer.drawingOpacity < 1, "The maze must keep its round fade.");
+    assert.equal(layer.searchOpacity, layer.drawingOpacity, "Search cells must fade with the maze");
+    assert.equal(layer.lightOpacity, layer.drawingOpacity, "The gutter light must fade with the maze");
+  }
+}
+
 async function checkGeometry(page, visible) {
   const geometry = await page.evaluate(() => {
     const rect = element => {
@@ -191,7 +213,7 @@ try {
     await page.waitForTimeout(300);
     assert.equal(await root.getAttribute("data-state"), "static");
     assert.equal(await paintCount(page), 0, "Reduced motion must never start the search.");
-    const walls = await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
+    const walls = await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
     assert.notEqual(walls[0], walls[1], "Both mazes must have different walls.");
     const bottom = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
     for (const top of [1, 17, 51, 52, 53, 327, bottom, 0]) {
@@ -346,7 +368,7 @@ try {
     await checkGeometry(page, true);
     await mkdir(new URL("../.artifacts/", import.meta.url), { recursive: true });
     await page.screenshot({ path: new URL(`../.artifacts/maze-search-${theme}.png`, import.meta.url).pathname });
-    assert.deepEqual(await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), walls,
+    assert.deepEqual(await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), walls,
       "Scrolling must preserve wall geometry and the active search.");
     assert.equal(await root.getAttribute("data-round"), round);
 
@@ -462,6 +484,8 @@ try {
     assert.deepEqual(await page.locator(".gutter-maze-course").evaluateAll(courses => courses.map(course => course.dataset.expanded)), frozenProgress,
       "The searches must stay frozen throughout the longer result hold.");
     // Pause during the flash as well as during search.
+    const boundaryMarks = await page.locator(".gutter-maze-boundaries").evaluateAll(groups =>
+      groups.map(group => [...group.children].map(path => path.getAttribute("d"))));
     await page.evaluate(() => {
       Object.defineProperty(document, "hidden", { configurable: true, value: true });
       document.dispatchEvent(new Event("visibilitychange"));
@@ -471,12 +495,20 @@ try {
     await page.clock.runFor(1000);
     assert.equal(await root.getAttribute("data-round"), round);
     await page.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event("visibilitychange")); });
-    await page.clock.runFor(2000);
+    await page.clock.runFor(1200);
+    assert.equal(await root.getAttribute("data-state"), "exiting");
+    await checkRoundFade(page);
+    await page.clock.runFor(800);
     assert.ok(Number(await root.getAttribute("data-round")) > Number(round), "The result flash must lead to a fresh pair.");
+    assert.equal(await root.getAttribute("data-state"), "entering");
+    await checkRoundFade(page);
+    assert.deepEqual(await page.locator(".gutter-maze-boundaries").evaluateAll(groups =>
+      groups.map(group => [...group.children].map(path => path.getAttribute("d")))), boundaryMarks,
+      "The chalk boundary marks must stay identical between rounds.");
     const reset = await page.evaluate(round => window.mazeProbe.rounds.find(event => Number(event.round) === Number(round) + 1), round);
     assert.ok(reset.at - result.at >= 5250 && reset.at - result.at < 5420,
       "Start the next round after the paused interval, pulse, and exit fade, with no extra quiet hold.");
-    assert.notDeepEqual(await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), walls);
+    assert.notDeepEqual(await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), walls);
     // Native media-query events follow the browser's rendering cycle,
     // independently of the virtual timers used to fast-forward races.
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -520,7 +552,7 @@ try {
     assert.deepEqual(errors, [], "The maze must not introduce browser or hydration errors.");
     const compactHeight = await root.evaluate(element => element.getBoundingClientRect().height);
     const currentRound = await root.getAttribute("data-round");
-    const currentWalls = await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
+    const currentWalls = await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d")));
     await page.locator(".project-details-button").first().click();
     await page.getByRole("dialog").waitFor();
     assert.match(await page.getByRole("dialog").innerText(), /Custom Hardware/);
@@ -540,7 +572,7 @@ try {
     near(await root.evaluate(element => element.getBoundingClientRect().height), compactHeight,
       "Closing details must preserve the maze height");
     assert.equal(await root.getAttribute("data-round"), currentRound, "Project Notes must never restart the maze.");
-    assert.deepEqual(await page.locator(".gutter-maze-walls path:first-child").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), currentWalls,
+    assert.deepEqual(await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d"))), currentWalls,
       "Opening and closing details must keep every maze wall fixed.");
     await page.close();
   }

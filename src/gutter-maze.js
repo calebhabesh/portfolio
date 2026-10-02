@@ -2,6 +2,7 @@ import { CELL_STATE, createMazeSearch, generateMaze, seededRandom } from "./maze
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const PENCIL_GRAIN_URL = new URL("./assets/pencil-grain.svg", import.meta.url).href;
+const CHALK_GRAIN_URL = new URL("./assets/chalk-grain.svg", import.meta.url).href;
 const STEP_MS = 150;
 const SEARCH_BATCH_SIZE = 6;
 const REVEAL_MS = 900;
@@ -18,38 +19,40 @@ const ease = value => {
   return t * t * (3 - 2 * t);
 };
 
-function sketchWalls(maze, unit) {
-  const random = seededRandom(maze.seed ^ 0x5A17);
+function sketchWalls(maze, unit, side) {
+  let random = seededRandom(maze.seed ^ 0x5A17);
   const strokes = [[], []];
+  const boundaries = [[], []];
   const scale = unit / 52;
-  const line = (x1, y1, x2, y2) => {
+  const line = (x1, y1, x2, y2, target = strokes) => {
     const horizontal = y1 === y2;
+    const chalk = target === boundaries;
     const points = [];
     // A grainy pencil stroke with a few closely retraced marks.
     // Keep its endpoints fixed so adjoining walls meet on the page grid.
     for (let point = 0; point <= 8; point++) {
       const t = point / 8;
-      const drift = point === 0 || point === 8 ? 0 : (random() - 0.5) * 1.7 * scale;
+      const drift = point === 0 || point === 8 ? 0 : (random() - 0.5) * (chalk ? 1.2 : 1.7) * scale;
       const x = x1 + (x2 - x1) * t + (horizontal ? 0 : drift);
       const y = y1 + (y2 - y1) * t + (horizontal ? drift : 0);
       points.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
     }
-    strokes[0].push(points.join(""));
-    // Keep the occasional second pass within the original stroke's width.
-    // Short spans vary the pencil pressure without separating into strands.
-    if (random() < 0.65) {
-      const start = 0.1 + random() * 0.18;
-      const end = 0.65 + random() * 0.25;
-      const offset = (random() < 0.5 ? -0.35 : 0.35) * scale;
+    target[0].push(points.join(""));
+    // Pencil retraces stay within the stroke. Chalk overlaps the edge in
+    // longer, uneven passes, like the layered marks on the corner crosses.
+    if (random() < (chalk ? 0.85 : 0.65)) {
+      const start = chalk ? 0.06 + random() * 0.14 : 0.1 + random() * 0.18;
+      const end = chalk ? 0.75 + random() * 0.23 : 0.65 + random() * 0.25;
+      const offset = (random() < 0.5 ? -1 : 1) * (chalk ? 0.85 + random() * 0.3 : 0.35) * scale;
       const retrace = [];
       for (let point = 0; point <= 5; point++) {
         const t = start + (end - start) * point / 5;
-        const drift = offset + (random() - 0.5) * 0.9 * scale;
+        const drift = offset + (random() - 0.5) * (chalk ? 0.65 : 0.9) * scale;
         const x = x1 + (x2 - x1) * t + (horizontal ? 0 : drift);
         const y = y1 + (y2 - y1) * t + (horizontal ? drift : 0);
         retrace.push(`${point ? "L" : "M"}${x.toFixed(2)} ${y.toFixed(2)}`);
       }
-      strokes[1].push(retrace.join(""));
+      target[1].push(retrace.join(""));
     }
   };
   for (let row = 0; row < maze.rows; row++) {
@@ -58,12 +61,19 @@ function sketchWalls(maze, unit) {
       const x = column * unit, y = row * unit;
       // Draw shared walls once, with their junctions on the page lattice.
       if (walls & 1) line(x, y, x + unit, y);
-      // The page grid supplies the outer edges; sketch only interior walls.
+      // Sketch the outer edges separately in the boundary color.
       if (column > 0 && walls & 8) line(x, y, x, y + unit);
       if (row === maze.rows - 1 && walls & 4) line(x, y + unit, x + unit, y + unit);
     }
   }
-  return strokes.map(paths => paths.join(""));
+  // Boundary marks stay identical when the maze seed changes each round.
+  random = seededRandom(side === "left" ? 0xC4A1 : 0xC4A2);
+  for (let row = 0; row < maze.rows; row++) {
+    const y = row * unit;
+    line(0, y, 0, y + unit, boundaries);
+    line(maze.columns * unit, y, maze.columns * unit, y + unit, boundaries);
+  }
+  return { walls: strokes.map(paths => paths.join("")), boundaries: boundaries.map(paths => paths.join("")) };
 }
 
 function solutionCells(maze, path, unit) {
@@ -85,9 +95,13 @@ function sizeCourse(course, left, geometry) {
   element.style.setProperty("--maze-width", `${width}px`);
   svg.setAttribute("viewBox", `0 0 ${width} ${drawingHeight}`);
   svg.style.height = `${drawingHeight}px`;
-  sketchWalls(maze, unit).forEach((stroke, index) => svg.children[index].setAttribute("d", stroke));
+  const sketch = sketchWalls(maze, unit, element.dataset.side);
+  sketch.walls.forEach((stroke, index) => course.drawing.children[index].setAttribute("d", stroke));
+  sketch.boundaries.forEach((stroke, index) => course.boundaries.children[index].setAttribute("d", stroke));
   for (const target of svg.querySelectorAll("mask, mask rect")) {
-    target.setAttribute("width", String(width));
+    // Let the textured boundary straddle the grid line without clipping.
+    target.setAttribute("x", "-4");
+    target.setAttribute("width", String(width + 8));
     target.setAttribute("height", String(drawingHeight));
   }
   if (element.dataset.outcome === "win") solution.setAttribute("d", solutionCells(maze, search.path, unit));
@@ -106,19 +120,22 @@ function createCourse(maze, side, left, geometry) {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.classList.add("gutter-maze-walls");
   svg.setAttribute("preserveAspectRatio", "none");
+  const drawing = document.createElementNS(SVG_NS, "g");
+  drawing.classList.add("gutter-maze-drawing");
+  svg.append(drawing);
   const wall = document.createElementNS(SVG_NS, "path");
   wall.classList.add("gutter-maze-wall-stroke");
   const grainId = `maze-grain-${side}-${maze.seed}`;
   wall.setAttribute("mask", `url(#${grainId})`);
-  svg.append(wall);
+  drawing.append(wall);
   const retrace = document.createElementNS(SVG_NS, "path");
   retrace.classList.add("gutter-maze-wall-retrace");
   retrace.setAttribute("mask", `url(#${grainId})`);
-  svg.append(retrace);
+  drawing.append(retrace);
   const solution = document.createElementNS(SVG_NS, "path");
   solution.classList.add("gutter-maze-solution");
-  svg.append(solution);
-  // Tile one small grain image, rather than filtering the full-page maze.
+  drawing.append(solution);
+  // Tile small grain images, rather than filtering the full-page maze.
   // Mask only the walls so the search and winning cell fills stay legible.
   const definitions = document.createElementNS(SVG_NS, "defs");
   const pattern = document.createElementNS(SVG_NS, "pattern");
@@ -139,13 +156,27 @@ function createCourse(maze, side, left, geometry) {
   const texture = document.createElementNS(SVG_NS, "rect");
   texture.setAttribute("fill", `url(#${pattern.id})`);
   mask.append(texture);
-  definitions.append(pattern, mask);
+  const chalkPattern = pattern.cloneNode(true);
+  chalkPattern.id = `${grainId}-chalk-tile`;
+  chalkPattern.firstChild.setAttribute("href", CHALK_GRAIN_URL);
+  const chalkMask = mask.cloneNode(true);
+  chalkMask.id = `${grainId}-chalk`;
+  chalkMask.firstChild.setAttribute("fill", `url(#${chalkPattern.id})`);
+  definitions.append(pattern, mask, chalkPattern, chalkMask);
   svg.append(definitions);
+  const boundaries = document.createElementNS(SVG_NS, "g");
+  boundaries.classList.add("gutter-maze-boundaries");
+  boundaries.setAttribute("mask", `url(#${chalkMask.id})`);
+  const boundary = document.createElementNS(SVG_NS, "path");
+  const boundaryRetrace = document.createElementNS(SVG_NS, "path");
+  boundaryRetrace.classList.add("gutter-maze-boundary-retrace");
+  boundaries.append(boundary, boundaryRetrace);
+  svg.append(boundaries);
   const canvas = document.createElement("canvas");
   canvas.className = "gutter-maze-search";
   const context = canvas.getContext("2d");
   element.append(svg, canvas);
-  const course = { element, maze, search: createMazeSearch(maze), context, solution,
+  const course = { element, maze, search: createMazeSearch(maze), context, solution, drawing, boundaries,
     displayedStates: new Uint8Array(maze.walls.length), previousStates: new Uint8Array(maze.walls.length),
     activeCell: -1, previousActiveCell: -1 };
   sizeCourse(course, left, geometry);
@@ -320,7 +351,9 @@ export function initGutterMazes() {
       const opacity = elapsed < ENTRY_MS ? ease(elapsed / ENTRY_MS)
         : resolvedAt !== undefined && elapsed > resolvedAt + PULSE_MS
           ? 1 - ease((elapsed - resolvedAt - PULSE_MS) / EXIT_MS) : 1;
-      if (container.style.opacity !== String(opacity)) container.style.opacity = String(opacity);
+      if (container.style.getPropertyValue("--maze-round-opacity") !== String(opacity)) {
+        container.style.setProperty("--maze-round-opacity", String(opacity));
+      }
       if (searchPaintPending) {
         paintSearches();
         const fadingSearch = elapsed >= revealedAt && elapsed < revealedAt + REVEAL_FADE_MS;
@@ -343,7 +376,7 @@ export function initGutterMazes() {
     if (reducedMotion.matches) {
       stop();
       container.dataset.state = "static";
-      container.style.opacity = "1";
+      container.style.setProperty("--maze-round-opacity", "1");
       paintSearches();
       return;
     }
@@ -391,7 +424,7 @@ export function initGutterMazes() {
         // A different cell count needs new mazes, but resizing a visible
         // illustration must not restart its entrance fade on every event.
         if (alreadyVisible) elapsed = ENTRY_MS;
-        container.style.opacity = alreadyVisible || reducedMotion.matches ? "1" : "0";
+        container.style.setProperty("--maze-round-opacity", alreadyVisible || reducedMotion.matches ? "1" : "0");
       }
     }
     updateColors();
