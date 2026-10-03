@@ -72,6 +72,10 @@ async function checkGrid(page) {
         return { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
       }),
       name: rect(document.querySelector(".hero-name")),
+      nameLine: rect(document.querySelector(".hero-name-line")),
+      ethiopic: rect(document.querySelector(".hero-name .brand-script")),
+      nameFontSize: parseFloat(getComputedStyle(document.querySelector(".hero-name")).fontSize),
+      ethiopicFontSize: parseFloat(getComputedStyle(document.querySelector(".hero-name .brand-script")).fontSize),
       frames: [...document.querySelectorAll(".project-frame")].map(frame => ({
         ...rect(frame), inset: parseFloat(getComputedStyle(frame).paddingTop), surface: rect(frame.querySelector(".project-box")),
         footer: rect(frame.querySelector(".project-details-button")),
@@ -99,11 +103,11 @@ async function checkGrid(page) {
   near(geometry.logo.x, geometry.shell.x, "Logo must start on the left guide");
   near(geometry.brand.y + geometry.brand.height / 2, unit / 2, "Brand must be centered in grid row zero");
   assert.equal(geometry.headerControls.length, 4, "Header must contain three contact links and the theme toggle");
-  const controlRow = page.viewportSize().width <= 480 ? unit : 0;
+  const controlRow = 0;
   for (const control of geometry.headerControls) {
     near(control.width, unit, "Header control must fill one grid column");
     near(control.height, unit, "Header control must fill one grid row");
-    near(control.y, controlRow, "Header controls must occupy row zero, or row one on small screens");
+    near(control.y, controlRow, "Header controls must share row zero with the brand");
     near(control.x, geometry.columnOrigin + Math.round((control.x - geometry.columnOrigin) / unit) * unit,
       "Header control must start on a grid column");
     near(control.icon.x + control.icon.width / 2, control.x + unit / 2, "Control icon must be horizontally centered");
@@ -138,11 +142,22 @@ async function checkGrid(page) {
     near(frame.surface.y + frame.surface.height - frame.footer.y - frame.footer.height,
       frame.bottomPadding, "Details button must keep a consistent bottom inset instead of a spare grid row");
   }
-  near(geometry.photo.width, Math.round(geometry.photo.width / unit) * unit, "Portrait must span whole grid columns");
+  near(geometry.photo.width, 2 * unit, "Portrait must span two grid columns");
   near(geometry.photo.height, geometry.photo.width, "Portrait must remain square");
   near(geometry.photo.y, Math.round(geometry.photo.y / unit) * unit, "Portrait must start on a zero-origin grid row");
-  near(geometry.name.y, geometry.photo.y, "Name must start in the portrait row");
-  near(geometry.name.height, geometry.photo.height, "Name must occupy the portrait row");
+  near(geometry.name.y + geometry.name.height / 2, geometry.photo.y + geometry.photo.height / 2, "Name must remain centered beside the portrait");
+  near(geometry.name.height, geometry.photo.height, "Name stack must match the portrait height");
+  near(geometry.nameLine.y, geometry.photo.y, "Name must occupy the first portrait row");
+  near(geometry.nameLine.height, unit, "Name must occupy one grid row");
+  near(geometry.ethiopic.y, geometry.photo.y + unit, "Ethiopic text must occupy the second portrait row");
+  near(geometry.ethiopic.height, unit, "Ethiopic text must occupy one grid row");
+  if (page.viewportSize().width <= 768) {
+    assert.ok(geometry.nameFontSize <= unit * 0.65 + 0.1, "Mobile name must use a smaller font size");
+    near(geometry.photo.y, geometry.header.y + geometry.header.height, "Mobile portrait must sit directly below the header");
+  } else {
+    near(geometry.nameFontSize, unit * 0.9, "Name font size must be 90% of its grid row");
+  }
+  near(geometry.ethiopicFontSize, geometry.nameFontSize * 0.65, "Ethiopic text must remain smaller than the name");
   assert.equal(geometry.photoCorners.length, 4, "Portrait must have four mini crosses");
   for (const [index, corner] of geometry.photoCorners.entries()) {
     near(corner.x, geometry.photo.x + (index % 2) * geometry.photo.width, "Portrait cross must meet its column vertex");

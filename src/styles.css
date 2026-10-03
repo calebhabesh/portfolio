@@ -604,9 +604,8 @@ canvas:focus-visible {
 }
 
 .hero-identity {
-  --hero-avatar-size: var(--portrait-unit, var(--grid-unit));
+  --hero-avatar-size: calc(var(--portrait-unit, var(--grid-unit)) * 2);
   --hero-name-gap: 12px;
-  --hero-name-max: 3.2rem;
   container-type: inline-size;
   display: flex;
   align-items: center;
@@ -657,17 +656,27 @@ canvas:focus-visible {
   flex: 1;
   min-width: 0;
   margin: 0;
-  font-size: clamp(1.25rem, calc((100cqi - var(--hero-avatar-size) - var(--hero-name-gap)) / 10.5), var(--hero-name-max));
+  font-size: calc(var(--portrait-unit, var(--grid-unit)) * 0.9);
   font-weight: 750;
   letter-spacing: -0.035em;
-  height: var(--portrait-unit, var(--grid-unit));
+  height: var(--hero-avatar-size);
   line-height: var(--portrait-unit, var(--grid-unit));
   white-space: nowrap;
   color: var(--ink);
 }
 
+.hero-name-line,
+.hero-name .brand-script {
+  display: flex;
+  align-items: center;
+  height: var(--portrait-unit, var(--grid-unit));
+  line-height: var(--portrait-unit, var(--grid-unit));
+  margin: 0;
+}
+
 .hero-name .brand-script {
   font-size: 0.65em;
+  padding-left: 3px;
 }
 
 .hero-subtitle {
@@ -2401,13 +2410,13 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .hero {
-    padding-block: 16px var(--hero-projects-space, calc(var(--grid-unit) / 2));
+    padding-block: 0 var(--hero-projects-space, calc(var(--grid-unit) / 2));
     grid-template-columns: 1fr;
     gap: 0;
   }
 
-  .hero-identity {
-    --hero-name-max: 2.3rem;
+  .hero-name {
+    font-size: min(calc(var(--portrait-unit, var(--grid-unit)) * 0.65), calc((100cqi - var(--hero-avatar-size) - var(--hero-name-gap)) / 6.6));
   }
 
   .emblem-stage {
@@ -2432,11 +2441,12 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .site-header {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .site-header .brand {
-    flex-basis: 100%;
+    min-width: 0;
+    gap: 6px;
   }
 
   .header-nav {
@@ -2453,12 +2463,11 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .brand-name {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
   }
 
   .hero-identity {
     --hero-name-gap: 10px;
-    --hero-name-max: 1.95rem;
   }
 
   .hero-subtitle {
