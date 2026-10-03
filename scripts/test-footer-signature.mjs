@@ -109,7 +109,7 @@ try {
   let layout = await getFooterLayout(page);
   assert.equal(layout.artworkVisible, "visible");
   assert.notEqual(layout.mask, "none");
-  assert.ok(Math.abs(layout.signature.x + layout.signature.width / 2 - (layout.email.x + layout.email.width + layout.byline.x) / 2) < 1, "Center the signature in the space between the email and byline.");
+  assert.ok(Math.abs(layout.signature.x + layout.signature.width / 2 - (layout.footer.x + layout.footer.width / 2)) < 1, "Center the signature under the project cards.");
   assert.ok(layout.email.x < layout.signature.x && layout.signature.x < layout.byline.x);
   await waitForScrollCue(page);
   await page.locator(".site-footer").screenshot({ path: new URL("desktop-light.png", artifacts).pathname });
@@ -131,6 +131,7 @@ try {
     await page.locator(".site-footer").scrollIntoViewIfNeeded();
     layout = await getFooterLayout(page);
     assert.equal(layout.overflow, false, `Footer should fit at ${width}px.`);
+    assert.ok(Math.abs(layout.signature.x + layout.signature.width / 2 - (layout.email.x + layout.email.width + layout.byline.x) / 2) < 1, `Center the mobile signature between the email and byline at ${width}px.`);
     assert.equal(layout.footer.height, await originalFooterHeight(page), `Preserve the original footer height at ${width}px.`);
     assert.ok(layout.email.x + layout.email.width <= layout.signature.x + 1);
     assert.ok(layout.signature.x + layout.signature.width <= layout.byline.x + 1);

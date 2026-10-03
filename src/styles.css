@@ -680,7 +680,7 @@ canvas:focus-visible {
 }
 
 .hero-subtitle {
-  margin: 10px 0 0;
+  margin: 16px 0 0;
   font-size: 1.0625rem;
   font-weight: 500;
   color: var(--ink-soft);
@@ -2263,7 +2263,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .site-footer {
   margin-top: 0;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, clamp(0px, calc(100% - 280px), 144px)) minmax(0, 1fr);
   min-height: 56px;
   padding-block: 18px calc(18px + env(safe-area-inset-bottom));
   align-items: center;
@@ -2414,6 +2414,16 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   :root {
     --page-gutter: 18px;
     --grid-columns: 12;
+  }
+
+  .site-footer {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .footer-signature-art,
+  .footer-signature > svg {
+    width: min(115px, 80%);
+    height: 58px;
   }
 
   .footer-email,

@@ -199,7 +199,7 @@ try {
 
   // Initial cards still fly in when the emblem module is slow.
   // Keep two cards visible below the search controls and snapped grid rows.
-  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
+  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1280 } });
   await loadingPage.addInitScript(() => {
     window.initialCardAnimations = 0;
     window.contentEntrances = [];
@@ -270,7 +270,7 @@ try {
 
   // Delayed React still hydrates the same static cards; below-fold cards reveal on scroll.
   for (const islandDelay of [900, 2000]) {
-    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
+    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1280 } });
     await reloadPage.addInitScript(() => {
       window.cardEntranceStarts = [];
       window.animatedCards = new Map();
