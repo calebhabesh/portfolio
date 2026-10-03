@@ -60,6 +60,9 @@ const emblemSceneModulePromise = import("./emblem-scene.js");
 import("./headshot-island.tsx").catch((error) => {
   console.error("The headshot hover could not start.", error);
 });
+import("./technology-loop-island.jsx").catch((error) => {
+  console.error("The technology logo loop could not start.", error);
+});
 import("./background-boxes-island.tsx").catch((error) => {
   console.error("The grid pointer trail could not start.", error);
 });

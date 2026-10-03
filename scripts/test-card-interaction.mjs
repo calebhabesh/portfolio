@@ -334,6 +334,9 @@ try {
     // Hover may scroll the control into view while its entrance settles.
     // Sample the resting viewport coordinates after that setup completes.
     await button.hover();
+    if (width <= 640) {
+      await card.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+    }
     const frameBounds = await frame.boundingBox();
     assert.ok(frameBounds, "The project card has no fixed frame.");
     const bounds = await card.boundingBox();
@@ -364,6 +367,10 @@ try {
     assert.equal(await page.getByRole('dialog').count(), 0,
       "Clicking selectable description text should not expand the card.");
     assert.ok(!secondTransform.includes('scale'), "The Comet Card should not scale up on hover.");
+    await page.waitForFunction(() => {
+      const glare = document.querySelector('.project-comet-card .comet-glare');
+      return glare && getComputedStyle(glare).opacity === '1';
+    });
     assert.equal(
       await page.locator('.project-comet-card').first().locator('.comet-glare').evaluate((element) => getComputedStyle(element).opacity),
       "1",

@@ -1,12 +1,9 @@
 # Project Checklist
 ## Immediate Tasks
-- [ ] Make spacing under photo and location line uniform
-- [ ] Add ai technologies to projects
-- [ ] Add technologies/skills proficiencies as a aceternity sliding banner display
+- [ ] Add animated signature to page at bottom in between email and "Built By"
 - [ ] Use project title then described tech term afterwards
 - [ ] Add demos for all projects that are not live. Integrate them into the calebhabesh.com website
 - [ ] Make sure to add public repos for file-sync and courtload
-- [ ] Connect site to live calebhabesh.com. Some things to hash out in cloudflare dashboard. Choose where you are going to deploy (VPS, rpi, etc)
 - [x] Be specific where necessary in projects: verified hardware models in descriptions; decision-relevant specifications in notes
 - [x] Add animation to page contents
 - [x] Use satoshi font off fontshare
@@ -27,6 +24,7 @@
 ## Questions
 
 ## Maybe
+- [ ] Add ai technologies to projects
 
 ## Bugs
 

@@ -21,17 +21,20 @@
   --technology-match-outline: #f4dfa0;
   --technology-match-ink: #735506;
   --technology-prose-match-ink: #634500;
-  --search-glass: rgba(255, 255, 255, 0.22);
-  --glass-rim: rgba(255, 255, 255, 0.36);
-  --glass-edge-shadow: rgba(22, 31, 27, 0.09);
-  --glass-elevation: 0 1px 6px rgba(22, 31, 27, 0.05);
+  --search-glass: rgba(164, 181, 178, 0.16);
+  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(74, 98, 93, 0.04) 100%);
+  --glass-outline: rgba(62, 83, 77, 0.25);
+  --glass-bevel-width: 2px;
+  --glass-rim: rgba(255, 255, 255, 0.75);
+  --glass-edge-shadow: rgba(42, 62, 56, 0.13);
+  --glass-elevation: 0 1px 3px rgba(22, 31, 27, 0.07);
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.07);
   --grid-line: rgba(35, 61, 58, 0.1);
   --maze-wall: rgba(35, 61, 58, 0.42);
   --maze-spotlight: rgba(78, 129, 204, 0.115);
   --maze-wall-width: 2.4px;
-  --maze-boundary: #c0a957;
+  --maze-boundary: #6d28d9;
   --maze-boundary-width: calc(var(--maze-wall-width) + 0.6px);
   --maze-boundary-opacity: 0.5;
   --maze-explored: #a45b3e;
@@ -92,6 +95,9 @@
   --technology-match-ink: #d0b360;
   --technology-prose-match-ink: #efd48a;
   --search-glass: rgba(255, 255, 255, 0.045);
+  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 65%);
+  --glass-outline: transparent;
+  --glass-bevel-width: 1px;
   --glass-rim: rgba(255, 255, 255, 0.1);
   --glass-edge-shadow: rgba(0, 0, 0, 0.17);
   --glass-elevation: 0 1px 8px rgba(0, 0, 0, 0.12);
@@ -100,6 +106,7 @@
   --grid-line: rgba(224, 239, 232, 0.1);
   --maze-wall: rgba(224, 239, 232, 0.4);
   --maze-boundary: #c8b05d;
+  --maze-boundary-opacity: 0.5;
   --maze-spotlight: rgba(149, 195, 255, 0.17);
   --maze-explored: #e8b089;
   --maze-explored-opacity: 0.1;
@@ -453,7 +460,7 @@ canvas:focus-visible {
 
 .header-grid-link,
 .theme-toggle {
-  /* Row-zero controls meet the viewport edge; keep that seam unlit. */
+  /* Keep the viewport seam unlit in dark mode; light mode adds a full bezel. */
   --glass-top-rim: transparent;
   display: grid;
   width: var(--grid-unit);
@@ -466,12 +473,43 @@ canvas:focus-visible {
   color: var(--muted);
   cursor: pointer;
   text-decoration: none;
-  transition: color 150ms ease, background-color 150ms ease;
+  transition: color 150ms ease;
+}
+
+:root:not([data-theme="dark"]) .header-grid-link,
+:root:not([data-theme="dark"]) .theme-toggle {
+  --glass-top-rim: var(--glass-rim);
+}
+
+.header-grid-link--github {
+  --header-hover-bg: #000000;
+}
+
+.header-grid-link--linkedin {
+  --header-hover-bg: #0a66c2;
+}
+
+.header-grid-link--email {
+  --header-hover-bg: #187b40;
+}
+
+.theme-toggle {
+  --header-hover-bg: #6d28d9;
+}
+
+[data-theme="dark"] .theme-toggle {
+  /* Golden yellow keeps the white sun above 3:1 icon contrast. */
+  --header-hover-bg: #a67c00;
+}
+
+.header-grid-link--email:is(:hover, :focus-visible) .header-grid-icon {
+  fill: #ffffff;
+  stroke: #ea4335;
 }
 
 .header-grid-link:is(:hover, :focus-visible),
 .theme-toggle:is(:hover, :focus-visible) {
-  color: var(--green);
+  color: #ffffff;
   text-decoration: none;
 }
 
@@ -481,17 +519,15 @@ canvas:focus-visible {
   position: absolute;
   z-index: -1;
   inset: 0;
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--green) 24%, transparent),
-    color-mix(in srgb, var(--green) 12%, transparent));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 40%, transparent);
+  /* Fade a fixed-color layer without animating layout or the glass blur. */
+  background: var(--header-hover-bg);
   opacity: 0;
   transition: opacity 180ms ease;
   pointer-events: none;
 }
 
-.header-grid-link:is(:hover, :focus-visible)::after,
-.theme-toggle:is(:hover, :focus-visible)::after {
+.header-grid-link:is(:hover, :focus-visible):after,
+.theme-toggle:is(:hover, :focus-visible):after {
   opacity: 1;
 }
 
@@ -526,22 +562,33 @@ canvas:focus-visible {
   }
 }
 
-.theme-icon-moon {
-  opacity: 0;
-  transform: rotate(-25deg) scale(0.75);
-}
-
-[data-theme="dark"] .theme-icon-sun {
+.theme-icon-sun {
   opacity: 0;
   transform: rotate(25deg) scale(0.75);
 }
 
-[data-theme="dark"] .theme-icon-moon {
+.theme-icon-sun circle {
+  fill: currentColor;
+}
+
+.theme-icon-moon {
+  fill: currentColor;
   opacity: 1;
   transform: rotate(0) scale(1);
 }
 
+[data-theme="dark"] .theme-icon-sun {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+[data-theme="dark"] .theme-icon-moon {
+  opacity: 0;
+  transform: rotate(-25deg) scale(0.75);
+}
+
 .hero {
+  position: relative;
   display: grid;
   min-height: auto;
   padding-block: 12px var(--hero-projects-space, calc(var(--grid-unit) / 2));
@@ -653,6 +700,61 @@ canvas:focus-visible {
   line-height: 1.62;
 }
 
+.hero-intro p {
+  margin: 0;
+}
+
+.technology-loop {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  top: var(--technology-loop-top, auto);
+  bottom: var(--grid-unit);
+  width: calc(var(--grid-unit) * 8);
+  height: var(--grid-unit);
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  opacity: 0.55;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.technology-loop .logoloop__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.technology-loop-control {
+  width: 100%;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.technology-loop-control [data-dragging] {
+  cursor: grabbing;
+}
+
+.technology-loop .logoloop__item img {
+  max-width: calc(var(--grid-unit) * 2);
+  filter: brightness(0);
+}
+
+[data-theme="dark"] .technology-loop .logoloop__item img {
+  filter: brightness(0) invert(1);
+}
+
+.technology-loop-control .logoloop:focus-visible {
+  outline: 1px solid var(--muted);
+  outline-offset: -2px;
+}
+
+@media (max-width: 768px) {
+  .technology-loop { width: 100%; }
+}
+
 .emblem-figure {
   min-width: 0;
   margin: 0;
@@ -742,6 +844,7 @@ canvas:focus-visible {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 18px;
+  overflow-anchor: none;
 }
 
 .section-title {
@@ -820,14 +923,15 @@ canvas:focus-visible {
   position: relative;
   isolation: isolate;
   border-radius: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 65%), var(--search-glass);
+  background: var(--glass-sheen), var(--search-glass);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   box-shadow:
-    inset 1px 0 0 var(--glass-rim),
-    inset -1px 0 0 var(--glass-edge-shadow),
-    inset 0 1px 0 var(--glass-top-rim, var(--glass-rim)),
-    inset 0 -1px 0 var(--glass-edge-shadow),
+    inset 0 0 0 1px var(--glass-outline),
+    inset var(--glass-bevel-width) 0 0 var(--glass-rim),
+    inset calc(-1 * var(--glass-bevel-width)) 0 0 var(--glass-edge-shadow),
+    inset 0 var(--glass-bevel-width) 0 var(--glass-top-rim, var(--glass-rim)),
+    inset 0 calc(-1 * var(--glass-bevel-width)) 0 var(--glass-edge-shadow),
     inset 0 0 6px color-mix(in srgb, var(--glass-rim) 30%, transparent),
     var(--glass-elevation);
 }
@@ -893,11 +997,11 @@ canvas:focus-visible {
 .project-search-clear {
   display: flex;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: var(--grid-unit);
+  height: var(--grid-unit);
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -909,9 +1013,16 @@ canvas:focus-visible {
   display: none;
 }
 
-.project-search-clear:hover {
+.project-search-clear:hover,
+.project-search-clear:focus-visible {
   background: var(--tag-bg);
   color: var(--ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-search-clear {
+    transition: background-color 220ms ease-in-out, color 220ms ease-in-out;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1211,7 +1322,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   position: absolute;
   inset: 0;
   overflow: visible;
-  stroke: var(--line-strong);
+  stroke: color-mix(in srgb, var(--line-strong) 65%, var(--ink));
   stroke-width: 1px;
 }
 

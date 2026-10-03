@@ -41,7 +41,7 @@ export const projects: ProjectItem[] = [
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
     summary:
-      "A self-hosted smart doorbell with a hand-assembled ESP32-S3 circuit board and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
+      "A self-hosted smart doorbell with a hand-assembled, custom-designed PCB built around the ESP32-S3 and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
     evidence: [
       {
         heading: "Custom Hardware",

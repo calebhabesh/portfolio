@@ -206,11 +206,16 @@ try {
     assert.equal(await root.evaluate(element => getComputedStyle(element).pointerEvents), "none");
     for (const width of [2048, 1440, 1366, 1024, 768, 390]) {
       await page.setViewportSize({ width, height: 1167 });
-      await page.waitForTimeout(300);
+      await page.evaluate(() => window.dispatchEvent(new Event("resize")));
+      await page.clock.runFor(100);
+      await page.waitForTimeout(100);
       await checkGeometry(page, width >= 1366);
     }
     await page.setViewportSize({ width: 2048, height: 1167 });
-    await page.waitForTimeout(300);
+    await page.evaluate(() => window.dispatchEvent(new Event("resize")));
+    await page.clock.runFor(500);
+    await page.waitForTimeout(200);
+    await checkGeometry(page, true);
     assert.equal(await root.getAttribute("data-state"), "static");
     assert.equal(await paintCount(page), 0, "Reduced motion must never start the search.");
     const walls = await page.locator(".gutter-maze-wall-stroke").evaluateAll(paths => paths.map(path => path.getAttribute("d")));

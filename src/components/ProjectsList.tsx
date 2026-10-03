@@ -305,6 +305,7 @@ export const ProjectsList: React.FC = () => {
                   className="project-frame"
                   data-project-tone={project?.tone}
                   data-expanded={Boolean(project && active?.id === project.id) || undefined}
+                  inert={Boolean(project && active?.id === project.id) || undefined}
                 >
                   <ProjectFrameGuides projectId={frameProject.id} />
                   <AnimatePresence initial={false} mode="wait">

@@ -14,6 +14,7 @@ export function initGridPointerTrail(canvas) {
   const finePointer = matchMedia("(any-pointer: fine)");
   const cardFrames = [...document.querySelectorAll(".project-frame")];
   const searchField = document.querySelector(".project-search-field");
+  const technologyLoop = document.querySelector(".technology-loop");
   const headerControls = [...document.querySelectorAll(".header-grid-link, .theme-toggle")];
   const cells = new Map();
   let occupiedCells = [];
@@ -34,9 +35,9 @@ export function initGridPointerTrail(canvas) {
   };
 
   const reserveContent = () => {
-    // Reserve document cells occupied by cards, portrait, search, and header
+    // Reserve document cells occupied by cards, portrait, search, logos, and header
     // controls. Account for rounding at edges without reserving a spare row.
-    occupiedCells = [...cardFrames, document.querySelector(".headshot-frame"), searchField, ...headerControls].filter(Boolean).map(element => {
+    occupiedCells = [...cardFrames, document.querySelector(".headshot-frame"), searchField, technologyLoop, ...headerControls].filter(Boolean).map(element => {
       const rect = element.getBoundingClientRect();
       return {
         firstColumn: Math.floor((rect.left - originX) / unit + 0.001),
@@ -113,7 +114,7 @@ export function initGridPointerTrail(canvas) {
   };
 
   const isReservedContent = event => event.target instanceof Element
-    && Boolean(event.target.closest(".project-frame, .headshot-frame, .project-search-field, .header-grid-link, .theme-toggle"));
+    && Boolean(event.target.closest(".project-frame, .headshot-frame, .project-search-field, .technology-loop, .header-grid-link, .theme-toggle"));
   const onPointerOver = event => { if (isReservedContent(event)) clear(); };
   const onPointerMove = event => {
     if (isReservedContent(event)) {
@@ -132,9 +133,12 @@ export function initGridPointerTrail(canvas) {
   // without changing or independently rounding the existing grid.
   const observer = new MutationObserver(measure);
   observer.observe(root, { attributes: true, attributeFilter: ["style", "data-theme"] });
+  const hero = technologyLoop?.closest(".hero");
+  if (hero) observer.observe(hero, { attributes: true, attributeFilter: ["style"] });
   const frameObserver = new ResizeObserver(measure);
   cardFrames.forEach(element => frameObserver.observe(element));
   if (searchField) frameObserver.observe(searchField);
+  if (technologyLoop) frameObserver.observe(technologyLoop);
   window.addEventListener("pointermove", onPointerMove, { passive: true });
   window.addEventListener("pointerover", onPointerOver, { passive: true });
   window.addEventListener("resize", measure, { passive: true });

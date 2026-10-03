@@ -99,6 +99,7 @@ async function checkPage(browser, viewport, screenshotName) {
     console.error("[SMOKE TIMEOUT DEBUG]:", debugInfo);
     throw err;
   }
+  await emblemStage.scrollIntoViewIfNeeded();
   await page.waitForFunction(
     () => Boolean(document.querySelector("[data-emblem-stage]")?.dataset.orientation),
   );
@@ -159,7 +160,7 @@ async function checkPage(browser, viewport, screenshotName) {
 
   assert.match(
     (await page.locator(".hero-intro").allInnerTexts()).join(" "),
-    /full-stack tools, connected devices, and reliable data systems/,
+    /(Building|I build) across full-stack web, data infrastructure, and connected hardware/,
     "Hero intro should describe the work shown in the projects."
   );
 

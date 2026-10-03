@@ -11,6 +11,7 @@ export function initBlueprintGrid() {
   const results = projects.querySelector(".project-search-results");
   if (!results) return;
   const sectionHeader = projects.querySelector(".project-section-header");
+  const technologyLoop = document.querySelector(".technology-loop");
 
   const frames = [...projects.querySelectorAll(".project-frame")];
   const contents = frames.map(frame => frame.querySelector(".project-box-inner"));
@@ -83,6 +84,14 @@ export function initBlueprintGrid() {
       const naturalHeaderTop = headerTop - (heroSpace - unit / 2);
       const correction = Math.max(0, Math.ceil(naturalHeaderTop / unit - 0.001) * unit - naturalHeaderTop);
       geometryChanged = setLength(hero.style, "--hero-projects-space", Math.round((unit / 2 + correction) * 64) / 64) || geometryChanged;
+      if (technologyLoop) {
+        const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+        const search = sectionHeader.querySelector(".project-search-field");
+        const searchTop = search.getBoundingClientRect().top + window.scrollY - headerY;
+        const searchRow = Math.floor(searchTop / unit + 0.001);
+        // Use the existing empty row; the loop never changes section spacing.
+        setLength(hero.style, "--technology-loop-top", (searchRow - 2) * unit - heroTop);
+      }
     }
     const projectsTop = results.getBoundingClientRect().top + window.scrollY;
     // Snap the compact card to whole rows. Desktop details buttons use the
