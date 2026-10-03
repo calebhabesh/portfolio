@@ -69,7 +69,7 @@ try {
       }));
       const point = {
         x: grid.left + (Math.floor((width * 0.62 - grid.left) / grid.unit) + 0.5) * grid.unit,
-        y: grid.origin + (Math.ceil(-grid.origin / grid.unit) + 0.5) * grid.unit,
+        y: grid.origin + (Math.ceil(-grid.origin / grid.unit) + 1.5) * grid.unit,
       };
       const originalBackground = await background(page);
       const clip = { x: Math.floor(point.x), y: Math.floor(point.y), width: 2, height: 2 };

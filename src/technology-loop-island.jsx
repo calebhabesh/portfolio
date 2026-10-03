@@ -33,7 +33,7 @@ function TechnologyLoop() {
         logos={logos}
         speed={stopped ? 0 : 18}
         logoHeight={36}
-        style={{ "--logoloop-logoHeight": "calc(var(--grid-unit) * 0.7)" }}
+        style={{ "--logoloop-logoHeight": "calc(var(--grid-unit) * var(--technology-logo-scale, 0.7))" }}
         gap={28}
         pauseOnHover={false}
         draggable

@@ -61,6 +61,7 @@ async function checkGrid(page) {
         text: control.textContent.trim(), background: getComputedStyle(control).backgroundColor,
       })),
       sectionHeader: rect(document.querySelector(".project-section-header")),
+      search: rect(document.querySelector(".project-search-field")),
       columns: Number(body.getPropertyValue("--grid-columns")),
       row: parseFloat(body.backgroundSize.split(",")[2].trim().split(" ").at(-1)),
       origin: parseFloat(body.backgroundPosition.split(",")[2].trim().split(" ").at(-1)),
@@ -118,6 +119,12 @@ async function checkGrid(page) {
   }
   near(geometry.sectionHeader.y, Math.round(geometry.sectionHeader.y / unit) * unit,
     "Selected Projects must start on a grid row after the social row is removed");
+  near(geometry.search.y, Math.round(geometry.search.y / unit) * unit, "Search must start on a grid row");
+  near(geometry.search.height, unit, "Search must occupy one grid row");
+  near(geometry.search.x, geometry.columnOrigin + Math.round((geometry.search.x - geometry.columnOrigin) / unit) * unit, "Search must start on a grid column");
+  if (page.viewportSize().width <= 640) {
+    near(geometry.frames[0].y, geometry.search.y + 2 * unit, "Mobile cards must leave one empty row below search");
+  }
   near(geometry.themeIcon.x + geometry.themeIcon.width / 2, geometry.toggle.x + geometry.toggle.width / 2,
     "Theme icon must be centered in its hover target");
   near(geometry.themeIcon.y + geometry.themeIcon.height / 2, geometry.toggle.y + geometry.toggle.height / 2,
@@ -153,7 +160,7 @@ async function checkGrid(page) {
   near(geometry.ethiopic.height, unit, "Ethiopic text must occupy one grid row");
   if (page.viewportSize().width <= 768) {
     assert.ok(geometry.nameFontSize <= unit * 0.65 + 0.1, "Mobile name must use a smaller font size");
-    near(geometry.photo.y, geometry.header.y + geometry.header.height, "Mobile portrait must sit directly below the header");
+    near(geometry.photo.y, geometry.header.y + geometry.header.height + unit, "Mobile portrait must leave one empty grid row below the header");
   } else {
     near(geometry.nameFontSize, unit * 0.9, "Name font size must be 90% of its grid row");
   }

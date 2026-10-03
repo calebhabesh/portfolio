@@ -761,7 +761,14 @@ canvas:focus-visible {
 }
 
 @media (max-width: 768px) {
-  .technology-loop { width: 100%; }
+  .technology-loop {
+    --technology-logo-scale: 0.5;
+    width: 100%;
+  }
+
+  .technology-loop-control {
+    transform: translateY(3px);
+  }
 }
 
 .emblem-figure {
@@ -1037,7 +1044,7 @@ canvas:focus-visible {
 @media (max-width: 640px) {
   .project-section-header {
     grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
+    gap: 0;
   }
 
   .project-section-header .section-title {
@@ -2409,8 +2416,13 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     --grid-columns: 12;
   }
 
+  .footer-email,
+  .footer-byline {
+    font-size: 0.75rem;
+  }
+
   .hero {
-    padding-block: 0 var(--hero-projects-space, calc(var(--grid-unit) / 2));
+    padding-block: var(--grid-unit) var(--hero-projects-space, calc(var(--grid-unit) / 2));
     grid-template-columns: 1fr;
     gap: 0;
   }
