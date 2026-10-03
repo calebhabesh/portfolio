@@ -64,7 +64,13 @@ From the development checkout, run:
 bash scripts/deploy-vps.sh
 ```
 
-The script builds locally, uploads a complete release, validates Caddy, and
+The script reuses the local build if it passed `npm run check` or
+`npm run check:full` and the source and output contents are unchanged. Otherwise
+it builds locally and runs the quick checks before contacting the VPS. Running
+`npm run build` alone does not qualify a build for reuse. For broad layout,
+rendering, or startup changes, run `npm run check:full` before deployment.
+
+The script uploads a complete release, validates Caddy, and
 atomically switches the `site/current` symlink. Existing assets remain available
 for visitors who loaded an older page. Updating static files does not restart
 Caddy or the tunnel. Both containers have restart policies, memory/CPU ceilings,

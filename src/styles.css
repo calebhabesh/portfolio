@@ -21,13 +21,13 @@
   --technology-match-outline: #f4dfa0;
   --technology-match-ink: #735506;
   --technology-prose-match-ink: #634500;
-  --search-glass: rgba(164, 181, 178, 0.16);
-  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(74, 98, 93, 0.04) 100%);
-  --glass-outline: rgba(62, 83, 77, 0.25);
+  --search-glass: rgba(164, 181, 178, 0.25);
+  --glass-sheen: radial-gradient(ellipse at 50% 35%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.04) 80%);
   --glass-bevel-width: 2px;
-  --glass-rim: rgba(255, 255, 255, 0.75);
-  --glass-edge-shadow: rgba(42, 62, 56, 0.13);
-  --glass-elevation: 0 1px 3px rgba(22, 31, 27, 0.07);
+  --glass-bevel-light: rgba(255, 255, 255, 0.2);
+  --glass-bevel-shadow: rgba(42, 62, 56, 0.075);
+  --glass-inner-glow: rgba(255, 255, 255, 0.12);
+  --glass-elevation: 0 2px 6px rgba(22, 31, 27, 0.08);
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.07);
   --grid-line: rgba(35, 61, 58, 0.1);
@@ -94,13 +94,12 @@
   --technology-match-outline: #d0b360;
   --technology-match-ink: #d0b360;
   --technology-prose-match-ink: #efd48a;
-  --search-glass: rgba(255, 255, 255, 0.045);
-  --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 65%);
-  --glass-outline: transparent;
-  --glass-bevel-width: 1px;
-  --glass-rim: rgba(255, 255, 255, 0.1);
-  --glass-edge-shadow: rgba(0, 0, 0, 0.17);
-  --glass-elevation: 0 1px 8px rgba(0, 0, 0, 0.12);
+  --search-glass: rgba(255, 255, 255, 0.065);
+  --glass-sheen: radial-gradient(ellipse at 50% 35%, rgba(255, 255, 255, 0.055), transparent 80%);
+  --glass-bevel-light: rgba(255, 255, 255, 0.05);
+  --glass-bevel-shadow: rgba(0, 0, 0, 0.1);
+  --glass-inner-glow: rgba(255, 255, 255, 0.025);
+  --glass-elevation: 0 2px 6px rgba(0, 0, 0, 0.14);
   --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
   --grid-line: rgba(224, 239, 232, 0.1);
@@ -460,8 +459,6 @@ canvas:focus-visible {
 
 .header-grid-link,
 .theme-toggle {
-  /* Keep the viewport seam unlit in dark mode; light mode adds a full bezel. */
-  --glass-top-rim: transparent;
   display: grid;
   width: var(--grid-unit);
   height: var(--grid-unit);
@@ -474,11 +471,6 @@ canvas:focus-visible {
   cursor: pointer;
   text-decoration: none;
   transition: color 150ms ease;
-}
-
-:root:not([data-theme="dark"]) .header-grid-link,
-:root:not([data-theme="dark"]) .theme-toggle {
-  --glass-top-rim: var(--glass-rim);
 }
 
 .header-grid-link--github {
@@ -714,6 +706,7 @@ canvas:focus-visible {
 }
 
 .technology-loop {
+  --technology-logo-scale: 0.7;
   position: absolute;
   z-index: 3;
   right: 0;
@@ -765,10 +758,6 @@ canvas:focus-visible {
     --technology-logo-scale: 0.5;
     width: 100%;
   }
-
-  .technology-loop-control {
-    transform: translateY(3px);
-  }
 }
 
 .emblem-figure {
@@ -784,7 +773,7 @@ canvas:focus-visible {
   max-width: 360px;
   margin-inline: auto;
   align-self: center;
-  transform: translateY(-18px);
+  transform: translateY(-30px);
   isolation: isolate;
 }
 
@@ -937,18 +926,19 @@ canvas:focus-visible {
 .theme-toggle,
 .project-search-field {
   position: relative;
-  isolation: isolate;
   border-radius: 0;
   background: var(--glass-sheen), var(--search-glass);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* The filter creates the stacking context; isolation would exclude the grid
+     from the backdrop in Chromium. Keep the grid visible through a slight blur. */
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  /* Low-contrast light/shade bands form a subtle bevel without a separate rim. */
   box-shadow:
-    inset 0 0 0 1px var(--glass-outline),
-    inset var(--glass-bevel-width) 0 0 var(--glass-rim),
-    inset calc(-1 * var(--glass-bevel-width)) 0 0 var(--glass-edge-shadow),
-    inset 0 var(--glass-bevel-width) 0 var(--glass-top-rim, var(--glass-rim)),
-    inset 0 calc(-1 * var(--glass-bevel-width)) 0 var(--glass-edge-shadow),
-    inset 0 0 6px color-mix(in srgb, var(--glass-rim) 30%, transparent),
+    inset var(--glass-bevel-width) 0 0 var(--glass-bevel-light),
+    inset 0 var(--glass-bevel-width) 0 var(--glass-bevel-light),
+    inset calc(-1 * var(--glass-bevel-width)) 0 0 var(--glass-bevel-shadow),
+    inset 0 calc(-1 * var(--glass-bevel-width)) 0 var(--glass-bevel-shadow),
+    inset 0 0 12px var(--glass-inner-glow),
     var(--glass-elevation);
 }
 
@@ -974,7 +964,14 @@ canvas:focus-visible {
   pointer-events: none;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  .project-search-field:hover::after {
+    opacity: 0.55;
+  }
+}
+
 .project-search-field:focus-within::after {
+  box-shadow: inset 0 0 0 1.75px color-mix(in srgb, var(--green) 50%, transparent);
   opacity: 1;
 }
 
@@ -2448,7 +2445,7 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     min-height: 0;
     max-width: 300px;
     margin-inline: auto;
-    transform: none;
+    transform: translateY(-4px);
   }
 
   .project-box-inner {
@@ -2473,11 +2470,6 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
 
   .header-nav {
     margin-left: auto;
-  }
-
-  .header-grid-link,
-  .theme-toggle {
-    --glass-top-rim: var(--glass-rim);
   }
 
   .calling-card-avatar {
@@ -2528,6 +2520,9 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     pointer-events: none !important;
   }
 
+  .hero,
+  .emblem-stage,
+  .technology-loop,
   #emblem-canvas,
   .emblem-interaction-guide {
     transition: none !important;

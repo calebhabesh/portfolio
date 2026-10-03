@@ -3,12 +3,48 @@
 ## Commands
 
 - `npm run dev`: start Vite at <http://localhost:5173>, with LAN access.
-- `npm run build`: regenerate assets and build the static site into `dist/`.
+- `npm run build`: update static project markup, regenerate changed assets, and build the static site into `dist/`.
 - `npm run preview`: serve `dist/` at <http://localhost:4173>. Rebuild to include source changes.
 - `npm run test:smoke`: check the production build across desktop and mobile layouts, keyboard navigation, and reduced motion.
 - `npm run test:search`: check technology matching, badge highlights, filtering, keyboard controls, and grid alignment.
 - `npm run test:footer-signature`: check recorded handwriting, scroll playback, theme colors, responsive placement, and static fallbacks.
-- `npm run check`: build and run the full verification suite.
+- `npm run check`: build and run the quick checks for routine updates.
+- `npm run check:full`: build and run the complete regression suite, including physics, animation timing, and detailed layout checks.
+- `npm run test:build`: check asset caching and verified-build reuse without launching a browser.
+
+## Verification workflow
+
+For routine text, image, and project-content changes, run `npm run check`. This
+checks the build workflow and technology matching, then uses one browser and
+preview server for desktop/light and mobile/dark checks. It verifies hydration,
+3D scene readiness, horizontal overflow, search and empty results, dialog and
+gallery controls, keyboard focus, theme switching, browser/resource errors, and
+desktop accessibility. The mobile scenario also uses reduced motion.
+
+For a feature change, add the relevant commands below after the quick check:
+
+| Changed area | Additional checks |
+| --- | --- |
+| Search or filtering | `npm run test:search` |
+| Cards, dialogs, or galleries | `npm run test:cards` |
+| Grid, layout, or startup scrolling | `npm run test:grid` and `npm run test:scroll` |
+| Pointer trail | `npm run test:trail` |
+| Paper texture | `npm run test:paper` |
+| Maze generation or drawing | `npm run test:maze` |
+| Footer signature | `npm run test:footer-signature` |
+| Signature recorder (development tool) | `npm run test:signature` |
+| 3D scene or startup scheduling | `npm run test:startup` and `npm run test:smoke` |
+
+Run `npm run check:full` for broad changes to shared styles, layout, rendering,
+or startup behavior. It retains every check from the previous full suite and
+prints individual runtimes. Browser and performance checks run sequentially so
+resource contention does not distort timing assertions. The recorder studio
+remains a separate development-tool check.
+
+Individual browser commands use the existing `dist/`; rebuild after changing
+source. Deployment reuses a build that passed `check` or `check:full` only while
+both the source and the built files still match their recorded content hashes.
+An unverified, stale, or missing build triggers a fresh build and quick check.
 
 Browser checks use system Chromium (`/usr/bin/chromium` by default). Set `CHROMIUM_PATH`
 to use another installation. Screenshots go to the ignored `.artifacts/` directory.
@@ -72,7 +108,13 @@ To regenerate individual assets:
 - `npm run pack:emblem`: gzip the optimized model and collision field into `src/assets/`.
 - `npm run generate:textures`: bake the procedural surface maps into WebP textures.
 
-Production builds run collision generation, packing, and texture generation automatically.
+Production builds run collision generation, packing, texture generation, and
+paper baking when their inputs or generated outputs change. The cache hashes
+generator code, its local dependencies, the dependency lockfile, and output
+contents; file timestamps alone cannot hide a change. Cache records live in the
+ignored `.artifacts/build/` directory. A fresh checkout regenerates everything
+once. Delete `.artifacts/build/` to force regeneration on the next build, or use
+the individual generation commands above.
 Keep the generated files in `src/assets/` in version control so development works immediately.
 
 The original model generator is `scripts/generate-emblem.py`. It requires Blender

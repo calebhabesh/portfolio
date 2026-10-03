@@ -8,8 +8,9 @@ REMOTE_DIR=/home/ubuntu/apps/portfolio
 RELEASE="$(git rev-parse --short=12 HEAD)-$(date -u +%Y%m%dT%H%M%SZ)"
 SSH_OPTIONS=(-o BatchMode=yes -o ConnectTimeout=15)
 
-# Build before touching the running release. Node and build tools stay local.
-npm run build
+# Reuse the tested build only while its source and output fingerprints match.
+# Otherwise build and run the quick checks before touching the running release.
+node scripts/check.mjs --reuse
 [[ -s dist/index.html && -d dist/assets ]] || { echo 'Missing production build.' >&2; exit 1; }
 
 ssh "${SSH_OPTIONS[@]}" "$SSH_HOST" \

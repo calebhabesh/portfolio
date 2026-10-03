@@ -59,7 +59,7 @@ export const projects: ProjectItem[] = [
           "Image capture, upload, deep sleep, and audio features have been tested on the battery-powered prototype. The latest firmware still needs a final test on the device, and current draw has yet to be measured with the enclosure closed.",
       },
     ],
-    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3 · KiCad", "Soldering"],
+    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
     additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
     images: [
       {

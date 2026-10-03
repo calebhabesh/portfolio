@@ -12,6 +12,7 @@ export function initBlueprintGrid() {
   if (!results) return;
   const sectionHeader = projects.querySelector(".project-section-header");
   const technologyLoop = document.querySelector(".technology-loop");
+  const emblemStage = document.querySelector(".emblem-stage");
 
   const frames = [...projects.querySelectorAll(".project-frame")];
   const contents = frames.map(frame => frame.querySelector(".project-box-inner"));
@@ -89,8 +90,27 @@ export function initBlueprintGrid() {
         const search = sectionHeader.querySelector(".project-search-field");
         const searchTop = search.getBoundingClientRect().top + window.scrollY - headerY;
         const searchRow = Math.floor(searchTop / unit + 0.001);
-        // Use the existing empty row; the loop never changes section spacing.
-        setLength(hero.style, "--technology-loop-top", (searchRow - 2) * unit - heroTop);
+        // Desktop places the loop one row higher than mobile, without
+        // changing section spacing.
+        const loopTop = (searchRow - (mobile ? 2 : 3)) * unit;
+        setLength(hero.style, "--technology-loop-top", loopTop - heroTop);
+        if (emblemStage) {
+          const copyBounds = heroCopy.getBoundingClientRect();
+          const copyTop = copyBounds.top + window.scrollY - entranceY;
+          const copyBottom = copyTop + copyBounds.height;
+          const stageHeight = emblemStage.offsetHeight;
+          const naturalStageTop = emblemStage.parentElement.getBoundingClientRect().top + window.scrollY;
+          // Move only the model: the logo loop keeps its snapped row. On desktop
+          // the group is centered against the copy with a small upward model
+          // nudge; mobile has equal space above and below the model canvas.
+          const stageTop = mobile
+            ? (copyBottom + loopTop - stageHeight) / 2
+            : copyTop + copyBottom - (loopTop + unit) - 8;
+          const stageOffset = stageTop - naturalStageTop;
+          if (Number.isFinite(stageOffset)) {
+            emblemStage.style.transform = `translateY(${stageOffset}px)`;
+          }
+        }
       }
     }
     const projectsTop = results.getBoundingClientRect().top + window.scrollY;
