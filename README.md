@@ -36,6 +36,16 @@ npm run dev
 
 Open <http://localhost:5173>.
 
+## Record a signature
+
+Run `npm run signature` and open <http://localhost:5174/tools/signature-recorder/>.
+Write with a pen, mouse, or touch; replay the drawing and check it in the footer preview.
+Download both JSON (strokes, timing, and pressure) and SVG (cropped artwork) for each
+take you like. A browser draft restores after reload, and saved JSON can be imported.
+
+The studio is a development tool and is not included in the portfolio build.
+See [signature capture notes](docs/signature.md) for the workflow and data format.
+
 ## Build
 
 ```bash

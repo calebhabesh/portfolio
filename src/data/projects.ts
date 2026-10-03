@@ -46,7 +46,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Custom Hardware",
         detail:
-          "The Rev C board was designed and routed in KiCad. It connects an OV5640 camera, microphone, speaker, and battery power circuitry to an ESP32-S3 with 8 MB of PSRAM for camera and audio buffers.",
+          "The Rev C board was designed and routed in KiCad. It connects an OV5640 camera, microphone, speaker, and battery power circuitry to an ESP32-S3-WROOM-1 module with 8 MB of PSRAM for camera and audio buffers.",
       },
       {
         heading: "Device-to-Dashboard Flow",

@@ -381,6 +381,8 @@ try {
     // the viewport. Bring the probe into view before testing its surface.
     if (width <= 640) {
       await card.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" }));
+    } else if (width >= 1000) {
+      await page.evaluate(() => window.scrollTo({ top: 100, behavior: "instant" }));
     }
     const restingBounds = await page.locator('.project-comet-card').first().boundingBox();
     assert.ok(restingBounds, "The Comet wrapper has no rendered bounds.");

@@ -154,6 +154,16 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && "Intersect
   });
 }
 
+let disposeFooterSignature;
+let signatureDisposed = false;
+import("./footer-signature.js").then(({ initFooterSignature }) => {
+  if (!signatureDisposed) disposeFooterSignature = initFooterSignature();
+}).catch(error => console.error("The signature animation could not start.", error));
+if (import.meta.hot) import.meta.hot.dispose(() => {
+  signatureDisposed = true;
+  disposeFooterSignature?.();
+});
+
 let activeEmblemScene = null;
 
 if (import.meta.hot) {

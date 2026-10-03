@@ -1,0 +1,88 @@
+@import "@fontsource-variable/manrope";
+@import "@fontsource-variable/newsreader";
+
+:root {
+  color-scheme: light;
+  --paper: #f7f6f2;
+  --ink: #161f1b;
+  --muted: #57625d;
+  --line: #b7bcb4;
+  --green: #1d6141;
+  font-family: "Manrope Variable", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+button, select { min-height: 44px; border: 1px solid var(--line); border-radius: 5px; background: transparent; color: var(--ink); padding: 10px 16px; }
+button { cursor: pointer; font-size: 13px; font-weight: 600; }
+button:hover:not(:disabled) { background: #e6eae1; }
+button.primary { background: var(--green); color: #fff; border-color: var(--green); }
+button.primary:hover:not(:disabled) { background: #164a32; }
+button:disabled { opacity: 0.42; cursor: default; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
+.studio { width: min(100% - 64px, 1040px); margin: 0 auto; }
+.studio-header { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line); margin-bottom: 54px; }
+.portfolio-link { color: var(--muted); text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; min-height: 44px; }
+.eyebrow { font-size: 10px; font-weight: 650; text-transform: uppercase; letter-spacing: 0.16em; }
+.section-number { color: var(--green); margin: 0 0 12px; }
+h1, h2 { font-family: "Newsreader Variable", Georgia, serif; font-weight: 450; letter-spacing: -0.035em; }
+h1 { font-size: clamp(44px, 6vw, 72px); line-height: 1; margin: 0 0 16px; }
+h2 { font-size: 30px; line-height: 1.1; margin: 0; }
+.intro { font-size: 14px; max-width: 620px; line-height: 1.8; color: var(--muted); margin: 0 0 28px; }
+.capture-meta { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; margin-bottom: 12px; color: var(--muted); }
+.drawing-frame { position: relative; border: 1px solid var(--line); background-color: #fdfcf9; background-image: linear-gradient(#161f1b05 1px, transparent 1px), linear-gradient(90deg, #161f1b05 1px, transparent 1px); background-size: 40px 40px; }
+#drawing { display: block; width: 100%; aspect-ratio: 5 / 2; touch-action: none; cursor: crosshair; }
+#empty-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; pointer-events: none; color: var(--muted); }
+#empty-hint span { font-family: "Newsreader Variable", Georgia, serif; font-size: clamp(22px, 4vw, 38px); font-style: italic; }
+#empty-hint small { font-size: 11px; }
+[hidden] { display: none !important; }
+.frame-cross { position: absolute; font-family: Georgia, serif; font-size: 24px; color: var(--muted); line-height: 1; pointer-events: none; }
+.top-left { top: -12px; left: -8px; transform: rotate(-5deg); }
+.top-right { top: -12px; right: -8px; transform: rotate(6deg); }
+.bottom-left { bottom: -12px; left: -8px; transform: rotate(4deg); }
+.bottom-right { bottom: -12px; right: -8px; transform: rotate(-7deg); }
+.canvas-caption { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 11px; margin: 12px 0 22px; }
+.canvas-caption p { margin: 0; }
+#recording-stats { white-space: nowrap; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.button-group, .export-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.timing-label { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); }
+select { font-size: 12px; padding-right: 28px; }
+.settings { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 20px 0 0; font-size: 12px; color: var(--muted); }
+.width-control { display: flex; align-items: center; gap: 12px; }
+input[type="range"] { width: 120px; accent-color: var(--green); min-height: 44px; margin: 0; }
+output { width: 24px; font-variant-numeric: tabular-nums; }
+.checkbox-label { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
+input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; }
+.settings-note { margin-left: auto; font-size: 11px; }
+.status { color: var(--muted); font-size: 11px; min-height: 18px; margin: 8px 0 0; }
+.preview-section { margin-top: 44px; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.footer-preview { --preview-paper: var(--paper); --preview-ink: var(--ink); --preview-muted: var(--muted); display: grid; grid-template-columns: 1fr 220px 1fr; align-items: center; gap: 16px; min-height: 112px; border-block: 1px solid var(--line); padding: 20px 24px; background: var(--preview-paper); color: var(--preview-ink); }
+.footer-preview.dark { --preview-paper: #121b16; --preview-ink: #f1eee5; --preview-muted: #d3dace; }
+.footer-email, .footer-byline { font-size: 12px; color: var(--preview-muted); }
+.footer-byline { text-align: right; }
+.signature-slot { position: relative; height: 72px; }
+#preview { display: block; width: 100%; height: 100%; }
+#preview-placeholder { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Newsreader Variable", Georgia, serif; font-size: 24px; font-style: italic; color: var(--preview-muted); }
+.preview-note { color: var(--muted); font-size: 11px; line-height: 1.6; }
+.export-section { display: flex; justify-content: space-between; align-items: center; gap: 28px; margin-top: 40px; }
+.export-section p:not(.eyebrow) { max-width: 440px; color: var(--muted); font-size: 12px; line-height: 1.8; margin: 12px 0 0; }
+.studio-footer { font-size: 11px; line-height: 1.7; color: var(--muted); padding: 30px 0; margin-top: 24px; }
+@media (max-width: 760px) {
+  .toolbar, .export-section { align-items: flex-start; flex-direction: column; }
+  .settings-note { margin-left: 0; width: 100%; }
+  .footer-preview { grid-template-columns: 1fr; justify-items: center; gap: 10px; }
+  .signature-slot { width: 220px; }
+  .footer-byline { text-align: center; }
+}
+@media (max-width: 480px) {
+  .studio { width: calc(100% - 32px); }
+  .studio-header { margin-bottom: 36px; }
+  .studio-header .eyebrow { max-width: 140px; text-align: right; line-height: 1.8; }
+  .capture-meta, .canvas-caption { flex-direction: column; gap: 6px; }
+  .settings { gap: 6px 16px; }
+  .section-heading { align-items: flex-start; }
+}

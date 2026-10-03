@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Signature studio · Caleb Habesh</title>
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="studio">
+      <header class="studio-header">
+        <a class="portfolio-link" href="/">← Portfolio</a>
+        <span class="eyebrow">Caleb Habesh / signature studio</span>
+      </header>
+      <section aria-labelledby="studio-title">
+        <p class="eyebrow section-number">01 / Capture your handwriting</p>
+        <h1 id="studio-title">Make your mark.</h1>
+        <p class="intro">Write naturally with your Wacom. Lift the pen between strokes, add your usual flourish, and replay it when you’re happy.</p>
+        <div class="capture-meta">
+          <span id="input-status">Ready for your pen, mouse, or touch</span>
+          <span id="pressure-status">Pressure: waiting for pen input</span>
+        </div>
+        <div class="drawing-frame">
+          <canvas id="drawing" width="1000" height="400" role="img" aria-label="Signature drawing area" aria-describedby="drawing-help"></canvas>
+          <div id="empty-hint" aria-hidden="true"><span>Your signature goes here</span><small>Pen down. Make it yours.</small></div>
+          <span class="frame-cross top-left" aria-hidden="true">+</span>
+          <span class="frame-cross top-right" aria-hidden="true">+</span>
+          <span class="frame-cross bottom-left" aria-hidden="true">+</span>
+          <span class="frame-cross bottom-right" aria-hidden="true">+</span>
+        </div>
+        <div class="canvas-caption"><p id="drawing-help">Draw anywhere inside the frame. Pen lifts and pauses are recorded.</p><span id="recording-stats">No strokes yet</span></div>
+        <div class="toolbar">
+          <div class="button-group">
+            <button id="undo" type="button" disabled>Undo stroke</button>
+            <button id="clear" type="button" disabled>Clear</button>
+            <button id="replay" class="primary" type="button" disabled>Replay signature</button>
+          </div>
+          <label class="timing-label">Playback
+            <select id="timing">
+              <option value="original">Original timing</option>
+              <option value="2000">2 seconds</option>
+              <option value="3000">3 seconds</option>
+            </select>
+          </label>
+        </div>
+        <div class="settings">
+          <label class="width-control" for="ink-width">Ink weight <input id="ink-width" type="range" min="1" max="10" step="0.5" value="4" /><output id="ink-width-value" for="ink-width">4</output></label>
+          <label class="checkbox-label"><input id="use-pressure" type="checkbox" checked /> Use pen pressure</label>
+          <span class="settings-note">Adjust the ink without drawing again.</span>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite">Your draft is saved in this browser as you draw.</p>
+      </section>
+      <section class="preview-section" aria-labelledby="preview-title">
+        <div class="section-heading"><div><p class="eyebrow section-number">02 / See it in context</p><h2 id="preview-title">A personal sign-off.</h2></div><button id="theme" type="button" aria-pressed="false">Dark preview</button></div>
+        <div id="footer-preview" class="footer-preview">
+          <span class="footer-email">calebhabesh@gmail.com</span>
+          <div class="signature-slot"><canvas id="preview" width="440" height="144" role="img" aria-label="Your signature at footer size"></canvas><span id="preview-placeholder" aria-hidden="true">Your mark</span></div>
+          <span class="footer-byline">Built by Caleb Habesh</span>
+        </div>
+        <p class="preview-note">Replay runs here too, so you can judge the handwriting at footer size.</p>
+      </section>
+      <section class="export-section" aria-labelledby="export-title">
+        <div><p class="eyebrow section-number">03 / Keep your favourite take</p><h2 id="export-title">Ready when you are.</h2><p>Save both files for each take you like. JSON keeps the movement; SVG keeps the artwork.</p></div>
+        <div class="export-actions">
+          <button id="download-json" class="primary" type="button" disabled>Download JSON</button>
+          <button id="download-svg" type="button" disabled>Download SVG</button>
+          <button id="load" type="button">Load saved JSON</button>
+          <input id="import" type="file" accept=".json,application/json" hidden />
+        </div>
+      </section>
+      <footer class="studio-footer">Everything stays in your browser. Download a take before clearing it.</footer>
+    </main>
+    <script type="module" src="./recorder.js"></script>
+  </body>
+</html>

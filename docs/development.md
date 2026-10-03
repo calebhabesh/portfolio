@@ -7,6 +7,7 @@
 - `npm run preview`: serve `dist/` at <http://localhost:4173>. Rebuild to include source changes.
 - `npm run test:smoke`: check the production build across desktop and mobile layouts, keyboard navigation, and reduced motion.
 - `npm run test:search`: check technology matching, badge highlights, filtering, keyboard controls, and grid alignment.
+- `npm run test:footer-signature`: check recorded handwriting, scroll playback, theme colors, responsive placement, and static fallbacks.
 - `npm run check`: build and run the full verification suite.
 
 Browser checks use system Chromium (`/usr/bin/chromium` by default). Set `CHROMIUM_PATH`

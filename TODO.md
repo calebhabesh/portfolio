@@ -1,6 +1,6 @@
 # Project Checklist
 ## Immediate Tasks
-- [ ] Add animated signature to page at bottom in between email and "Built By"
+- [x] Add animated signature to page at bottom in between email and "Built By"
 - [ ] Use project title then described tech term afterwards
 - [ ] Add demos for all projects that are not live. Integrate them into the calebhabesh.com website
 - [ ] Make sure to add public repos for file-sync and courtload
