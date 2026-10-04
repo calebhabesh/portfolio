@@ -195,7 +195,7 @@ export const ProjectsList: React.FC = () => {
                   </div>
                 </div>
 
-                <div ref={scrollRef} className="project-dialog-scroll px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4 overflow-y-auto">
+                <div ref={scrollRef} tabIndex={active.images?.length ? undefined : 0} className="project-dialog-scroll px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4 overflow-y-auto">
 
                   <p className="project-dialog-summary text-[var(--ink-soft)] text-base leading-relaxed m-0">
                     {highlightText(active.summary)}

@@ -22,7 +22,7 @@ export interface ProjectImage {
 
 export interface ProjectItem {
   id: string;
-  tone: "sage" | "slate" | "clay" | "ochre" | "lilac" | "teal" | "orange";
+  tone: "sage" | "slate" | "clay" | "ochre" | "lilac" | "teal" | "orange" | "rose";
   title: string;
   category: string;
   status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone" | "Course project";
@@ -459,6 +459,55 @@ export const projects: ProjectItem[] = [
         url: "https://github.com/calebhabesh/fpga-pong",
         type: "github",
         ariaLabel: "FPGA VGA Pong repository (opens in new tab)",
+        external: true,
+      },
+    ],
+  },
+  {
+    id: "portfolio-site",
+    tone: "rose",
+    title: "Portfolio Site",
+    category: "Personal website · interactive frontend",
+    status: "Live",
+    summary:
+      "The site you are currently viewing! This portfolio brings together project write-ups, searchable technologies, and image galleries around an interactive 3D lion emblem. A blueprint grid and sketched details carry through light and dark themes, with keyboard navigation and reduced-motion support.",
+    evidence: [
+      {
+        heading: "Project Exploration",
+        detail:
+          "React cards expand into accessible dialogs with project evidence and image galleries. Technology search supports combined terms, aliases, and small typos while keeping the card grid stable.",
+      },
+      {
+        heading: "Interactive Graphics",
+        detail:
+          "Three.js renders the lion emblem with baked textures and a collision field. Motion animates project transitions, and an A* pathfinding visualization runs in the blueprint gutters.",
+      },
+      {
+        heading: "Static Delivery and Verification",
+        detail:
+          "Vite builds a static site with generated project markup available before React loads. Playwright checks desktop and mobile layouts, keyboard focus, themes, reduced motion, and browser errors; axe checks accessibility.",
+      },
+      {
+        heading: "Hosting",
+        detail:
+          "Hosted on an Oracle Cloud Infrastructure (OCI) VPS, with Docker Compose and Caddy serving the static site. A dedicated Cloudflare Tunnel connects the origin to the public domain, with Cloudflare providing HTTPS. Releases are uploaded and activated atomically, with previous releases retained for rollback.",
+      },
+    ],
+    tags: ["TypeScript · React", "Three.js", "Vite", "Tailwind CSS", "Motion", "Playwright"],
+    additionalTags: ["JavaScript", "Accessibility", "A* Pathfinding"],
+    links: [
+      {
+        label: "Visit Portfolio",
+        url: "https://calebhabesh.com/",
+        type: "live",
+        ariaLabel: "Visit Caleb Habesh's portfolio (opens in new tab)",
+        external: true,
+      },
+      {
+        label: "Portfolio GitHub",
+        url: "https://github.com/calebhabesh/portfolio",
+        type: "github",
+        ariaLabel: "Portfolio site GitHub repository (opens in new tab)",
         external: true,
       },
     ],

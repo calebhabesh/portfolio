@@ -132,11 +132,11 @@ try {
     const originalBadges = await page.locator(".project-card-animate .project-box-tags").allTextContents();
 
     for (const [query, ids] of [
-      ["J", ["doorlink", "linewatch"]],
-      ["Ja", ["doorlink", "linewatch"]],
-      ["Java", ["doorlink", "linewatch"]],
+      ["J", ["doorlink", "linewatch", "portfolio-site"]],
+      ["Ja", ["doorlink", "linewatch", "portfolio-site"]],
+      ["Java", ["doorlink", "linewatch", "portfolio-site"]],
       ["Mos", ["doorlink"]],
-      ["React", ["doorlink", "linewatch", "file-sync", "courtload"]],
+      ["React", ["doorlink", "linewatch", "file-sync", "courtload", "portfolio-site"]],
       ["React, PostgreSQL", ["doorlink", "linewatch", "courtload"]],
       ["OCI", ["linewatch"]],
       ["Pyhton", ["courtload"]],
@@ -157,7 +157,7 @@ try {
           const style = getComputedStyle(guide);
           return style.visibility === "visible" && Math.abs(Number(style.opacity) - 0.12) < 0.001;
         })), "Unmatched frames should stay faintly visible.");
-      assert.equal(await page.locator('.project-search [role="status"]').textContent(), `${ids.length} of 7 projects`);
+      assert.equal(await page.locator('.project-search [role="status"]').textContent(), `${ids.length} of 8 projects`);
       for (const id of ids) {
         assert.ok(await page.locator(`[data-project="${id}"] .project-box-tags mark`).count(), `${id} lacks visible match evidence.`);
       }
@@ -232,9 +232,9 @@ try {
     await page.getByRole("button", { name: "Clear technology search", exact: true }).click();
     await settled(page);
     assert.equal(await search.evaluate(input => input === document.activeElement), true);
-    assert.equal((await visibleIds(page)).length, 7);
+    assert.equal((await visibleIds(page)).length, 8);
     assert.equal(await page.locator(".project-frame > .project-frame-guides").evaluateAll(guides =>
-      guides.filter(guide => Number(getComputedStyle(guide).opacity) >= 0.999).length), 7);
+      guides.filter(guide => Number(getComputedStyle(guide).opacity) >= 0.999).length), 8);
     assert.deepEqual(await page.locator(".project-card-animate .project-box-tags").allTextContents(), originalBadges);
     assert.equal(await page.locator(".project-card-animate mark").count(), 0);
     assert.equal(await page.evaluate(() => window.searchOriginalCards.every((card, i) => card === document.querySelectorAll(".project-card-animate")[i])), true,

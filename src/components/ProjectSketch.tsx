@@ -3,6 +3,10 @@ import React from "react";
 // Small pen drawings: irregular contours and a faint second pass keep
 // the sketch character in the outlines themselves.
 const sketches: Record<string, { outline: string; detail: string; weight?: number }> = {
+  "portfolio-site": {
+    outline: "M6.4 7.8Q20 7.1 33.6 7.7L34 31.8Q20.2 32.5 6 31.9Z",
+    detail: "M6.3 13.4L33.7 13.1 M10.3 10.5L10.8 10.4 M14 10.4L14.5 10.5 M17.7 10.4L18.2 10.3 M11 18.3L18.1 18.1L18.3 27.2L10.8 27.4Z M22 18.4L29.2 18.2 M22.1 22L29 22.2 M22 25.8L27 25.6",
+  },
   doorlink: {
     outline: "M13.2 9.3Q20 8.1 27 9L27.6 31.9Q20.4 32.8 12.8 31.7Z",
     detail: "M20.1 17.2C25.8 16.1 25.7 24.5 20.3 24.4C15.2 24.9 14.8 17.7 20.1 17.2Z M16.4 12.4L23.7 12.1 M18 28.3L22 28.5 M8.5 13.1Q4.9 19.5 8.7 25.2 M4.7 10.2C1.5 14.4 1.1 23.2 4.9 28.3 M31.3 12.6Q35.5 19.1 31.8 25.5 M35.3 9.8C39 14.4 39.4 23.5 35.6 28.8",

@@ -136,20 +136,20 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.match(await page.locator("h1").innerText(), /Caleb Habesh/);
   assert.equal(await page.locator('link[rel="icon"]').getAttribute("href"), "/favicon.svg");
   assert.match(await page.locator(".brand-script").innerText(), /ካሌብ/);
-  assert.equal(await page.locator("article[data-project]").count(), 7);
+  assert.equal(await page.locator("article[data-project]").count(), 8);
   const projectIds = await page.locator("article[data-project]").evaluateAll(
     (articles) => articles.map((el) => el.getAttribute("data-project"))
   );
   assert.deepEqual(
     projectIds,
-    ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong"],
-    `Expected four personal projects, capstone, then NoC and Pong. Got: ${projectIds.join(", ")}`
+    ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong", "portfolio-site"],
+    `Expected core projects, capstone, NoC, Pong, then the portfolio site. Got: ${projectIds.join(", ")}`
   );
 
   const projectTitles = (await page.locator("article[data-project] .project-box-title").allInnerTexts()).map((t) => t.trim());
   assert.deepEqual(
     projectTitles,
-    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Image Processing", "4×4 NoC Simulator", "FPGA VGA Pong"],
+    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Image Processing", "4×4 NoC Simulator", "FPGA VGA Pong", "Portfolio Site"],
     `Expected exact titles. Got: ${projectTitles.join(", ")}`
   );
   assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
@@ -494,7 +494,7 @@ async function checkReducedMotion(browser) {
   const page = await context.newPage();
   await page.goto(baseUrl, { waitUntil: "networkidle" });
 
-  assert.equal(await page.locator("article[data-project]").count(), 7);
+  assert.equal(await page.locator("article[data-project]").count(), 8);
   await page.locator('[data-project="doorlink"] .project-details-button').click();
   await page.getByRole("dialog").waitFor();
   assert.match(await page.getByRole("dialog").innerText(), /Custom Hardware/);
