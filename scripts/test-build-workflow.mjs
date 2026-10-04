@@ -97,7 +97,7 @@ await beginBuild(); await finishBuild();`);
   const quick = ["test-build-workflow", "test-technology-search", "test-quick"];
   const full = [...quick, "test-blueprint-grid", "test-load-scroll", "test-grid-pointer-trail", "test-paper-grain",
     "test-maze-pathfinding", "test-gutter-maze", "test-startup-performance", "test-card-interaction",
-    "test-search-expansion", "test-project-search", "test-footer-signature", "smoke"];
+    "test-project-expansion", "test-search-expansion", "test-project-search", "test-footer-signature", "smoke"];
   for (const script of full) {
     await writeFile(join(root, `scripts/${script}.mjs`), `import { appendFile } from 'node:fs/promises';
 await appendFile('checks.txt', '${script}\\n');`);

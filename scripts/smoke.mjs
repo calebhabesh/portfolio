@@ -192,8 +192,8 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.ok(await page.locator('article[data-project="doorlink"] a[href="https://github.com/calebhabesh/doorlink"]').count() >= 1, "Doorlink GitHub link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://linewatchto.ca"]').count() >= 1, "LineWatchTO live link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
-  assert.equal(await page.locator('article[data-project="file-sync"] .project-icon-link').count(), 0, "File Sync should not link to its unpublished repository.");
-  assert.equal(await page.locator('article[data-project="courtload"] .project-icon-link').count(), 0, "CourtLoad should not link to its unpublished repository.");
+  assert.equal(await page.locator('article[data-project="file-sync"] a.project-icon-link').count(), 0, "File Sync should not link to its unpublished repository.");
+  assert.equal(await page.locator('article[data-project="courtload"] a.project-icon-link').count(), 0, "CourtLoad should not link to its unpublished repository.");
   assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
 

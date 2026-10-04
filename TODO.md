@@ -1,6 +1,9 @@
 # Project Checklist
 ## Immediate Tasks
 - [x] Add animated signature to page at bottom in between email and "Built By"
+- [ ] Mention PWA for linewatchto
+- [ ] Jira, confluence nonsense
+- [ ] Doorlink should mention that it's securely hosted on the Raspberry Pi 4B on subdomain
 - [ ] Use project title then described tech term afterwards
 - [ ] Add demos for all projects that are not live. Integrate them into the calebhabesh.com website
 - [ ] Make courtload and orbit public, also update their project card descriptions

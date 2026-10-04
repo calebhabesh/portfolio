@@ -6,7 +6,8 @@ export interface ProjectEvidence {
 export interface ProjectLink {
   label: string;
   url: string;
-  type: "live" | "github" | "demo";
+  // A live demo is interactive; "demo" links preserve recorded walkthroughs.
+  type: "live" | "live-demo" | "github" | "demo";
   ariaLabel: string;
   external?: boolean;
 }

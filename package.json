@@ -19,6 +19,7 @@
     "test:signature": "node scripts/test-signature-recorder.mjs",
     "test:footer-signature": "node scripts/test-footer-signature.mjs",
     "test:cards": "node scripts/test-card-interaction.mjs",
+    "test:expansion": "node scripts/test-project-expansion.mjs",
     "test:search": "node scripts/test-technology-search.mjs && node scripts/test-search-expansion.mjs && node scripts/test-project-search.mjs",
     "test:startup": "node scripts/test-startup-performance.mjs",
     "test:grid": "node scripts/test-blueprint-grid.mjs",

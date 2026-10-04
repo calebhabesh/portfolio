@@ -126,11 +126,13 @@ export function initBlueprintGrid() {
       const footerSpace = inFlow ? parseFloat(contentStyle.getPropertyValue("--project-footer-space")) || 0 : 0;
       const contentHeight = parseFloat(contentStyle.height) - footerSpace;
       const preview = content.querySelector(".project-card-preview");
-      // Short summaries still need room for the photo and the details button
-      // below it, even though the button does not occupy a desktop grid row.
+      // Reserve the photo's natural height between the header and details.
+      // Its centered position depends on the snapped height, so measuring its
+      // offset here would feed that height back into the next measurement.
       let minimumHeight = !inFlow && preview
-        ? Math.max(contentHeight, preview.offsetTop + preview.offsetHeight + details.offsetHeight
-          + 8 + parseFloat(contentStyle.paddingBottom))
+        ? Math.max(contentHeight, content.querySelector(".project-box-header").offsetHeight
+          + preview.offsetHeight + details.offsetHeight + 16
+          + parseFloat(contentStyle.paddingTop) + parseFloat(contentStyle.paddingBottom))
         : contentHeight;
       if (!inFlow) {
         const buttonLeft = details.getBoundingClientRect().left;

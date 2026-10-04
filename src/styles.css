@@ -1496,8 +1496,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   width: 100%;
 }
 
-/* Motion owns the surface's visibility during shared layout updates. Hide its
-   non-animated ancestor so scrolling cannot repaint the source card. */
+/* Keep the source hidden through the entire expansion and return flight. */
 .project-frame[data-expanded="true"] .project-comet-card {
   opacity: 0;
   pointer-events: none;
@@ -1556,12 +1555,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
   align-items: center;
   justify-content: center;
   height: 100dvh;
-  padding: 16px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 }
 
 @media (min-width: 640px) {
   .project-dialog-overlay {
-    padding: 24px;
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
   }
 }
 
@@ -1569,6 +1568,15 @@ body:has(.project-dialog-overlay) .project-hover-background {
   isolation: isolate;
   position: relative;
   max-height: 100%;
+}
+
+.project-dialog-surface {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  transform-origin: top left;
+  pointer-events: none;
   background:
     url("/src/assets/paper-grain.webp"),
     radial-gradient(130% 90% at 5% 0%, var(--surface-glow), transparent 65%),
@@ -1577,8 +1585,17 @@ body:has(.project-dialog-overlay) .project-hover-background {
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38), inset 0 1px 0 var(--surface-edge);
 }
 
+.project-dialog-content {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
 .project-box::before,
-.project-dialog::before {
+.project-dialog-surface::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1609,34 +1626,57 @@ body:has(.project-dialog-overlay) .project-hover-background {
   gap: 8px;
 }
 
+.project-dialog-heading {
+  min-width: 0;
+}
+
+.project-dialog-heading .project-box-title-group {
+  min-height: 44px;
+}
+
+.project-dialog-heading h3 {
+  overflow-wrap: anywhere;
+}
+
+.project-dialog-links {
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 24px 12px;
+}
+
 @media (min-width: 640px) {
   .project-dialog-header { padding: 32px 32px 16px; }
+  .project-dialog-links { padding: 8px 32px 16px; }
 }
 
 @media (max-width: 639px) {
-  .project-dialog-header { grid-template-columns: minmax(0, 1fr); }
-  .project-dialog-actions { grid-row: 1; }
-}
-
-@media (max-width: 419px) {
-  .project-dialog-actions .project-dialog-link {
-    min-width: 0;
-    white-space: normal;
-    text-align: center;
+  .project-dialog-content {
+    container-type: inline-size;
   }
-}
 
-@media (max-width: 359px) {
-  .project-dialog-header { padding-inline: 16px; }
-  .project-dialog-actions { gap: 6px; }
-  .project-dialog-actions .project-dialog-link {
+  .project-dialog-header {
+    column-gap: 12px;
+  }
+
+  .project-dialog-heading .project-box-type {
+    width: calc(100% + 56px);
+    font-size: clamp(0.625rem, 3.2cqi, 0.875rem);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .project-dialog-links .project-dialog-link {
     gap: 6px;
-    padding-inline: 8px;
     font-size: 0.8125rem;
   }
 }
 
 .project-dialog-scroll {
+  grid-row: 2;
   position: relative;
   z-index: 1;
   min-height: 0;
@@ -1644,16 +1684,20 @@ body:has(.project-dialog-overlay) .project-hover-background {
   scrollbar-color: color-mix(in srgb, var(--muted) 55%, var(--surface-bottom)) var(--surface-bottom);
 }
 
+.project-dialog-content:has(.project-dialog-scroll-hint[data-visible="true"]) .project-dialog-scroll {
+  mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent);
+}
+
 .project-dialog-scroll-hint {
   position: absolute;
+  grid-row: 2 / 3;
   z-index: 2;
-  inset: auto 6px 0 0;
-  height: 48px;
+  inset: auto 0 0;
+  height: 28px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 8px;
-  background: linear-gradient(to bottom, transparent, var(--surface-bottom) 80%);
+  padding-bottom: 4px;
   color: var(--muted);
   opacity: 0;
   pointer-events: none;
@@ -2096,7 +2140,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  margin-top: -8px;
+  margin-left: auto;
+  margin-top: 0;
   margin-right: -12px;
 }
 
@@ -2108,6 +2153,10 @@ body:has(.project-dialog-overlay) .project-hover-background {
   justify-content: center;
   border-radius: 8px;
   color: var(--muted);
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
   text-decoration: none;
   transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
 }
@@ -2117,10 +2166,20 @@ body:has(.project-dialog-overlay) .project-hover-background {
   height: 20px;
 }
 
-.project-icon-link:hover {
+.project-icon-link:is(a, button:enabled):hover {
   color: var(--green);
   background-color: var(--tag-bg);
   transform: translateY(-1px);
+}
+
+.project-icon-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.project-icon-link:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
 }
 
 .project-expand-button {
@@ -2247,10 +2306,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 @media (min-width: 641px) {
-  .project-box:is([data-project="file-sync"], [data-project="courtload"], [data-project="medical-imaging"]) .project-card-preview img {
-    height: 60px;
-  }
-
   .has-preview > .project-details-button {
     position: absolute;
     right: 0;
@@ -2259,14 +2314,34 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 
   .project-card-preview {
-    align-self: start;
+    position: absolute;
+    grid-column: auto;
+    grid-row: auto;
+    right: var(--project-card-inset);
+    top: calc(50% + var(--project-footer-space, 0px) / 2);
+    translate: 0 -50%;
     margin-block: 0;
   }
 }
 
 @media (max-width: 640px) {
+  .project-box-header {
+    flex-wrap: nowrap;
+  }
+
+  .project-box-header .project-box-title-group {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .project-box-actions {
+    margin-top: 0;
+    gap: 0;
+  }
+
   .project-box .project-box-title {
     font-size: 1.5rem;
+    overflow-wrap: anywhere;
   }
 
   .project-box-summary {

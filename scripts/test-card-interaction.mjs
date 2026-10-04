@@ -322,7 +322,7 @@ try {
       direction: card.dataset.direction,
       travel: parseFloat(getComputedStyle(card).getPropertyValue('--fly-x')),
     })));
-    assert.deepEqual(directions, Array.from({ length: 5 }, (_, index) => ({
+    assert.deepEqual(directions, Array.from({ length: directions.length }, (_, index) => ({
       direction: index % 2 === 0 ? 'left' : 'right',
       travel: (index % 2 === 0 ? -1 : 1) * (width <= 640 ? 44 : 80),
     })), 'Project cards should alternate left and right travel.');
@@ -440,7 +440,7 @@ try {
       while (performance.now() - start < 1200) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
         const dialog = document.querySelector('[role="dialog"]');
-        const rect = dialog?.getBoundingClientRect();
+        const rect = dialog?.querySelector(".project-dialog-surface")?.getBoundingClientRect();
         samples.push({ t: performance.now() - start, x: rect?.x, y: rect?.y, width: rect?.width, height: rect?.height });
       }
       const final = samples.at(-1);

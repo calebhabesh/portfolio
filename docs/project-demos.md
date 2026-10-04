@@ -1,5 +1,17 @@
 # Project demo links
 
+Compact cards always show three actions, in this order:
+
+- **Live Demo** (`type: "live-demo"`) or **Live Site** (`type: "live"`) for a production application.
+- **GitHub** (`type: "github"`).
+- **Expand** for project details.
+
+Missing destinations render as disabled buttons labeled “coming soon.” To
+activate one, add its URL to that project's `links` in `src/data/projects.ts`.
+A production site takes precedence over an interactive demo in the first slot.
+Recorded demonstrations use `type: "demo"` and remain available in the expanded
+view without occupying the interactive-demo slot.
+
 Use two distinct destinations for a project with a recorded demonstration:
 
 - **View Source** → the repository root.
@@ -29,14 +41,15 @@ For the capstone, the public destinations are:
    playback while signed out, and never commit temporary signed playback URLs.
 4. Add a `type: "demo"` link in `src/data/projects.ts`, with `external: true`
    and the repository URL ending in `#demo`. Keep `type: "github"` for source
-   and `type: "live"` for an interactive application.
+   and `type: "live"` for a production site. Use `type: "live-demo"` for an
+   interactive preview.
 5. When a portfolio case study offers captioned playback, serve identical
    copies from `public/projects/<project>/`. Copy captions and posters together
    with the MP4 and verify their hashes against the source repository.
 
 The capstone's captioned player remains at
-`/projects/medical-imaging.html`; the card's Watch Demo action goes directly to
-the repository's two videos. The README also retains captions and transcripts.
+`/projects/medical-imaging.html`; the expanded view's Watch Demo action goes
+directly to the repository's two videos. The README also retains captions and transcripts.
 This convention can be reused when another project's video is ready. Do not add
 a Watch Demo destination until its target section and video exist.
 

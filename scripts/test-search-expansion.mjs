@@ -60,7 +60,7 @@ try {
         while (performance.now() - start < 700) {
           await new Promise(resolve => requestAnimationFrame(resolve));
           const dialog = document.querySelector('[role="dialog"]');
-          if (dialog) samples.push({ t: performance.now() - start, ...dialog.getBoundingClientRect().toJSON() });
+          if (dialog) samples.push({ t: performance.now() - start, ...dialog.querySelector(".project-dialog-surface").getBoundingClientRect().toJSON() });
         }
         return { source, samples };
       }, id);
@@ -104,7 +104,7 @@ try {
         while (performance.now() - start < 500) {
           await new Promise(resolve => requestAnimationFrame(resolve));
           const dialog = document.querySelector('[role="dialog"]');
-          if (dialog) samples.push(dialog.getBoundingClientRect().toJSON());
+          if (dialog) samples.push(dialog.querySelector(".project-dialog-surface").getBoundingClientRect().toJSON());
         }
         return samples;
       });

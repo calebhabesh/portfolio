@@ -29,7 +29,7 @@ try {
       for (const script of [
         "test-blueprint-grid", "test-load-scroll", "test-grid-pointer-trail", "test-paper-grain",
         "test-maze-pathfinding", "test-gutter-maze", "test-startup-performance", "test-card-interaction",
-        "test-search-expansion", "test-project-search", "test-footer-signature", "smoke",
+        "test-project-expansion", "test-search-expansion", "test-project-search", "test-footer-signature", "smoke",
       ]) await timed(script, process.execPath, [`scripts/${script}.mjs`]);
     }
     // No passing receipt is written when any command above fails.

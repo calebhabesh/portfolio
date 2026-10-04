@@ -1,9 +1,9 @@
 import React from "react";
-import { motion, useIsPresent, useReducedMotion } from "motion/react";
-import { projectLayoutId, projectLayoutTransition } from "../lib/project-motion";
+import { useIsPresent } from "motion/react";
 import { type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
 import { ProjectSketch } from "./ProjectSketch";
+import { ProjectLinkIcon } from "./ProjectLinkButton";
 import { TechnologyBadges } from "./TechnologyBadges";
 import type { TechnologyMatches } from "../lib/technology-search";
 
@@ -14,10 +14,29 @@ interface ProjectCardProps {
   technologyMatches?: TechnologyMatches | null;
 }
 
+function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live" | "live-demo" | "github" }) {
+  const link = project.links.find(link => link.type === type);
+  const label = type === "live" ? "Live Site" : type === "github" ? "GitHub" : "Live Demo";
+  const icon = <ProjectLinkIcon type={type} size={18} />;
+  if (!link) {
+    const description = `${label} for ${project.title} (coming soon)`;
+    return (
+      <button type="button" className="project-icon-link" disabled aria-label={description} title={description}>
+        {icon}
+      </button>
+    );
+  }
+  return (
+    <a className="project-icon-link" href={link.url}
+      target={link.external ? "_blank" : undefined} rel={link.external ? "noreferrer" : undefined}
+      aria-label={`${label}: ${link.ariaLabel}`} title={`${label} for ${project.title}`}>
+      {icon}
+    </a>
+  );
+}
+
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, technologyMatches }) => {
-  const reduceMotion = useReducedMotion();
   const present = useIsPresent();
-  const sharedLayout = !reduceMotion && present;
   const previewImage = project.images?.[0];
   const imageCount = project.images?.length || 0;
   const visibleTags = [...new Set([
@@ -36,9 +55,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
 
   return (
       <CometCard className="project-comet-card" rotateDepth={1.25} translateDepth={2} disabled={expanded}>
-      <motion.article
-        layoutId={sharedLayout ? projectLayoutId(project.id) : undefined}
-        transition={{ layout: projectLayoutTransition }}
+      <article
         style={{ borderRadius: 6 }}
         className="project-box project-target"
         data-project={project.id}
@@ -50,12 +67,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
             <div className="project-box-header">
               <div className="project-box-title-group">
                 <ProjectSketch projectId={project.id} />
-                <motion.h3
-                  layoutId={sharedLayout ? projectLayoutId(project.id, "title") : undefined}
-                  layout="position"
-                  transition={projectLayoutTransition}
-                  className="project-box-title"
-                >
+                <h3 className="project-box-title">
                   {onExpand ? (
                     <button
                       type="button"
@@ -67,56 +79,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                   ) : (
                     project.title
                   )}
-                </motion.h3>
+                </h3>
               </div>
 
               <div className="project-box-actions">
-                {project.links.map((link) => (
-                  <a
-                    key={link.url}
-                    className="project-icon-link"
-                    href={link.url}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noreferrer" : undefined}
-                    aria-label={link.ariaLabel || link.label}
-                  >
-                    {link.type === "github" ? (
-                      <svg
-                        viewBox="0 0 24 24"
-                        width="18"
-                        height="18"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-                      </svg>
-                    ) : link.type === "demo" ? (
-                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
-                        <polygon points="8 4 20 12 8 20 8 4" />
-                      </svg>
-                    ) : (
-                      <svg
-                        viewBox="0 0 24 24"
-                        width="18"
-                        height="18"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                      </svg>
-                    )}
-                  </a>
-                ))}
+                <ProjectCardLink project={project} type={project.links.some(link => link.type === "live") ? "live" : "live-demo"} />
+                <ProjectCardLink project={project} type="github" />
                 {onExpand && (
                   <button
                     type="button"
@@ -147,7 +115,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               </div>
             </div>
 
-            <motion.p layoutId={sharedLayout ? projectLayoutId(project.id, "category") : undefined} layout="position" transition={projectLayoutTransition} className="project-box-type">{project.category}</motion.p>
+            <p className="project-box-type">{project.category}</p>
 
             <p className="project-box-summary">{project.summary}</p>
 
@@ -171,9 +139,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                 }}
               >
                 <span className="project-card-preview-face">
-                <motion.img
-                  layoutId={sharedLayout ? projectLayoutId(project.id, "image") : undefined}
-                  transition={projectLayoutTransition}
+                <img
                   src={previewImage.src}
                   alt={previewImage.alt}
                   width={previewImage.width}
@@ -209,7 +175,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               </button>
             )}
         </div>
-      </motion.article>
+      </article>
       </CometCard>
   );
 };
