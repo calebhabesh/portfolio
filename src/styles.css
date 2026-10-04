@@ -1238,6 +1238,18 @@ canvas:focus-visible {
   --project-accent: #30183e;
 }
 
+[data-project-tone="teal"] {
+  --surface-top: #9bd8cc;
+  --surface-bottom: #7fc3b6;
+  --project-accent: #103a35;
+}
+
+[data-project-tone="orange"] {
+  --surface-top: #efbb83;
+  --surface-bottom: #dfa367;
+  --project-accent: #45280e;
+}
+
 :root[data-theme="dark"] [data-project-tone="sage"] {
   --surface-top: #174729;
   --surface-bottom: #123820;
@@ -1266,6 +1278,18 @@ canvas:focus-visible {
   --surface-top: #472f5a;
   --surface-bottom: #352343;
   --project-accent: #e2c5f4;
+}
+
+:root[data-theme="dark"] [data-project-tone="teal"] {
+  --surface-top: #154c47;
+  --surface-bottom: #103a36;
+  --project-accent: #b5e8dd;
+}
+
+:root[data-theme="dark"] [data-project-tone="orange"] {
+  --surface-top: #66380f;
+  --surface-bottom: #4d2a0c;
+  --project-accent: #f7d1a6;
 }
 
 [data-project-tone] {

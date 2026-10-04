@@ -21,7 +21,7 @@ export interface ProjectImage {
 
 export interface ProjectItem {
   id: string;
-  tone: "sage" | "slate" | "clay" | "ochre" | "lilac";
+  tone: "sage" | "slate" | "clay" | "ochre" | "lilac" | "teal" | "orange";
   title: string;
   category: string;
   status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone" | "Course project";
@@ -355,7 +355,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "systemc-noc",
-    tone: "sage",
+    tone: "teal",
     title: "4×4 NoC Simulator",
     category: "SoC architecture · SystemC simulation",
     status: "Course project",
@@ -406,7 +406,7 @@ export const projects: ProjectItem[] = [
   },
   {
     id: "fpga-pong",
-    tone: "ochre",
+    tone: "orange",
     title: "FPGA VGA Pong",
     category: "Digital hardware · VHDL and VGA",
     status: "Course project",

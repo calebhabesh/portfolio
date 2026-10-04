@@ -5,3 +5,4 @@ dist/
 *.log
 __pycache__/
 *.pyc
+docs/coursework-project-shortlist.md
