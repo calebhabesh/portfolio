@@ -511,6 +511,7 @@ try {
     ["file-sync", ["/projects/filesync-history.png", "/projects/filesync-folders.png", "/projects/filesync-conflicts.png"]],
     ["courtload", ["/projects/courtload-comparison.png", "/projects/courtload-evaluation.png"]],
     ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
+    ["fpga-pong", ["/projects/fpga-pong/board-demo-2024.webp", "/projects/fpga-pong/rtl-frame-2026.png"]],
   ]) {
     const preview = galleryPage.locator(`[data-project="${projectId}"] .project-card-preview`);
     assert.equal(await preview.locator('img').getAttribute('src'), imagePaths[0]);

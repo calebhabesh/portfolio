@@ -19,7 +19,7 @@ const results = query => projects.filter(project => matchTechnologyTags(
 ) !== null).map(project => project.id);
 
 for (const [query, ids] of [
-  ["", ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging"]],
+  ["", ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong"]],
   ["J", ["doorlink", "linewatch"]],
   ["j", ["doorlink", "linewatch"]],
   ["P", ["doorlink", "linewatch", "courtload"]],
@@ -40,8 +40,12 @@ for (const [query, ids] of [
   ["Pyhton", ["courtload"]],
   ["postgress", ["doorlink", "linewatch", "courtload"]],
   ["C", ["doorlink"]],
-  ["C++", ["doorlink", "medical-imaging"]],
+  ["C++", ["doorlink", "medical-imaging", "systemc-noc"]],
   ["SQL", ["courtload"]],
+  ["SystemC", ["systemc-noc"]],
+  ["VHDL", ["fpga-pong"]],
+  ["FPGA", ["fpga-pong"]],
+  ["RTL, GHDL", ["fpga-pong"]],
   ["go", ["file-sync"]],
   ["Lab", []],
   ["doorlink", []],

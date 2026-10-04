@@ -24,7 +24,7 @@ export interface ProjectItem {
   tone: "sage" | "slate" | "clay" | "ochre" | "lilac";
   title: string;
   category: string;
-  status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone";
+  status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone" | "Course project";
   summary: string;
   evidence: ProjectEvidence[];
   tags: string[];
@@ -349,6 +349,115 @@ export const projects: ProjectItem[] = [
         url: "https://github.com/calebhabesh/NM03-Capstone-Project",
         type: "github",
         ariaLabel: "Medical Image Processing capstone repository (opens in new tab)",
+        external: true,
+      },
+    ],
+  },
+  {
+    id: "systemc-noc",
+    tone: "sage",
+    title: "4×4 NoC Simulator",
+    category: "SoC architecture · SystemC simulation",
+    status: "Course project",
+    summary:
+      "A 16-node network-on-chip simulator with XY routing, five-port routers, input buffering, and wormhole output reservations. A 2026 refresh adds end-to-end delivery checks and a traffic-load comparison.",
+    evidence: [
+      {
+        heading: "Course Origin",
+        detail:
+          "Built for COE838 in winter 2025 by extending a supplied 1×2 SystemC baseline into a 4×4 mesh. The work adds node connectivity, coordinate routing, configurable destinations, and traffic patterns; the router infrastructure derives from the course baseline.",
+      },
+      {
+        heading: "2026 Verification",
+        detail:
+          "Fifteen traffic scenarios each deliver 1,600 flits, or 320 five-flit packets. An automated scoreboard checks destination, payload, source order, and packet completion, with guards against FIFO overflow and underflow.",
+      },
+      {
+        heading: "Traffic Comparison",
+        detail:
+          "Neighbour, deterministic stride, and hotspot traffic run at five injection periods. The simulator measures flit latency, packet latency, and delivery throughput. Hotspot traffic exposes contention and the effect of holding an output while a packet is generated.",
+      },
+      {
+        heading: "Evidence Scope",
+        detail:
+          "This is a SystemC architecture model. Results are simulated timings, with raw CSV data and repeatable checks in the repository. The project does not include synthesized RTL or FPGA board execution.",
+      },
+    ],
+    tags: ["C++17", "SystemC", "CMake", "NoC", "XY Routing"],
+    additionalTags: ["SoC", "Wormhole Routing", "FIFO", "Arbitration", "Flow Control"],
+    images: [
+      {
+        src: "/projects/systemc-noc/traffic-sweep.png",
+        alt: "SystemC traffic sweep comparing mean flit latency and aggregate delivered throughput for neighbour, stride, and hotspot traffic at five injection periods",
+        caption: "2026 simulation · 1,600 verified flits per run",
+        width: 1920,
+        height: 736,
+      },
+    ],
+    links: [
+      {
+        label: "NoC GitHub",
+        url: "https://github.com/calebhabesh/systemc-noc",
+        type: "github",
+        ariaLabel: "4×4 SystemC NoC simulator repository (opens in new tab)",
+        external: true,
+      },
+    ],
+  },
+  {
+    id: "fpga-pong",
+    tone: "ochre",
+    title: "FPGA VGA Pong",
+    category: "Digital hardware · VHDL and VGA",
+    status: "Course project",
+    summary:
+      "A two-player VHDL Pong game built on a Spartan-3E FPGA, with VGA video, switch-controlled paddles, and collision logic. Preserved board-demo evidence accompanies a 2026 RTL simulation refresh.",
+    evidence: [
+      {
+        heading: "Historical Board Demo",
+        detail:
+          "The COE758 fall 2024 project ran on a Spartan-3E XC3S500E with the lab's video DAC. A photograph from the final report shows the game on a monitor alongside the board. That demonstration uses the original submitted design.",
+      },
+      {
+        heading: "2026 RTL Refresh",
+        detail:
+          "The refresh separates video timing, game state, and rendering. All internal registers use the 50 MHz board clock with pixel and motion enables, and two-stage synchronizers handle switch inputs. Clock constraints and complete RGB sensitivity remove gaps in the archived design.",
+      },
+      {
+        heading: "Automated Verification",
+        detail:
+          "GHDL checks a full 800×525 frame with 640×480 active video, sync timing, blanking, colors, and the DAC clock. Separate gameplay checks exercise paddle bounds, collisions, and goal reset. The frame shown here comes directly from the RTL outputs.",
+      },
+      {
+        heading: "Evidence Scope",
+        detail:
+          "The refreshed RTL passes simulation and GHDL synthesis elaboration. It still needs target-specific timing closure and a new board run; the preserved photograph establishes historical hardware execution.",
+      },
+    ],
+    tags: ["VHDL", "RTL", "FPGA", "VGA", "GHDL", "Spartan-3E"],
+    additionalTags: ["Clock Enables", "Input Synchronization", "Hardware Verification"],
+    images: [
+      {
+        src: "/projects/fpga-pong/board-demo-2024.webp",
+        alt: "Original Pong game displayed on an LG monitor, with the Spartan-3E FPGA board and video connection visible beside it",
+        caption: "2024 board demo · original submitted design",
+        width: 1080,
+        height: 597,
+      },
+      {
+        src: "/projects/fpga-pong/rtl-frame-2026.png",
+        alt: "Frame captured from the refreshed VHDL showing a green Pong court, white border, blue and magenta paddles, and yellow ball",
+        caption: "2026 simulation · frame captured from VHDL outputs",
+        width: 640,
+        height: 480,
+      },
+    ],
+    links: [
+      {
+        label: "Pong GitHub",
+        url: "https://github.com/calebhabesh/fpga-pong",
+        type: "github",
+        ariaLabel: "FPGA VGA Pong repository (opens in new tab)",
         external: true,
       },
     ],

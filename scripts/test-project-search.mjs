@@ -141,8 +141,8 @@ try {
       ["OCI", ["linewatch"]],
       ["Pyhton", ["courtload"]],
       ["C", ["doorlink"]],
-      ["C++", ["doorlink", "medical-imaging"]],
-      ["CMake", ["medical-imaging"]],
+      ["C++", ["doorlink", "medical-imaging", "systemc-noc"]],
+      ["CMake", ["medical-imaging", "systemc-noc"]],
       ["AWS", ["linewatch"]],
       ["post", ["doorlink", "linewatch", "courtload"]],
     ]) {
@@ -157,7 +157,7 @@ try {
           const style = getComputedStyle(guide);
           return style.visibility === "visible" && Math.abs(Number(style.opacity) - 0.12) < 0.001;
         })), "Unmatched frames should stay faintly visible.");
-      assert.equal(await page.locator('.project-search [role="status"]').textContent(), `${ids.length} of 5 projects`);
+      assert.equal(await page.locator('.project-search [role="status"]').textContent(), `${ids.length} of 7 projects`);
       for (const id of ids) {
         assert.ok(await page.locator(`[data-project="${id}"] .project-box-tags mark`).count(), `${id} lacks visible match evidence.`);
       }
@@ -232,9 +232,9 @@ try {
     await page.getByRole("button", { name: "Clear technology search", exact: true }).click();
     await settled(page);
     assert.equal(await search.evaluate(input => input === document.activeElement), true);
-    assert.equal((await visibleIds(page)).length, 5);
+    assert.equal((await visibleIds(page)).length, 7);
     assert.equal(await page.locator(".project-frame > .project-frame-guides").evaluateAll(guides =>
-      guides.filter(guide => Number(getComputedStyle(guide).opacity) >= 0.999).length), 5);
+      guides.filter(guide => Number(getComputedStyle(guide).opacity) >= 0.999).length), 7);
     assert.deepEqual(await page.locator(".project-card-animate .project-box-tags").allTextContents(), originalBadges);
     assert.equal(await page.locator(".project-card-animate mark").count(), 0);
     assert.equal(await page.evaluate(() => window.searchOriginalCards.every((card, i) => card === document.querySelectorAll(".project-card-animate")[i])), true,

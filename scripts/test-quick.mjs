@@ -70,7 +70,7 @@ try {
       assert.ok(await page.locator("#emblem-canvas").isVisible(), "Emblem canvas is missing.");
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "Page overflows horizontally.");
 
-      const allIds = ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging"];
+      const allIds = ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong"];
       const search = page.getByRole("searchbox", { name: "Search technologies" });
       await search.fill("Java");
       await waitForResults(page, ["doorlink", "linewatch"]);
@@ -79,6 +79,31 @@ try {
       await waitForResults(page, []);
       await search.press("Escape");
       assert.equal(await search.inputValue(), "");
+      await waitForResults(page, allIds);
+
+      for (const [id, query] of [["systemc-noc", "SystemC"], ["fpga-pong", "VHDL"]]) {
+        await search.fill(query);
+        await waitForResults(page, [id]);
+        await page.locator(`[data-project="${id}"] .project-expand-button`).click();
+        const courseDialog = page.getByRole("dialog");
+        await courseDialog.waitFor();
+        assert.match(await courseDialog.innerText(), /2026/);
+        assert.equal(await courseDialog.locator(`a[href="https://github.com/calebhabesh/${id}"]`).count(), 1);
+        const courseImage = courseDialog.locator(".project-gallery-stage img");
+        await courseImage.waitFor();
+        await courseImage.evaluate(img => img.decode());
+        assert.ok(await courseImage.evaluate(img => img.naturalWidth > 0));
+        if (id === "fpga-pong") {
+          assert.match(await courseDialog.innerText(), /2024 board demo/);
+          await courseDialog.getByRole("button", { name: "Next image", exact: true }).click();
+          assert.match(await courseImage.getAttribute("src"), /rtl-frame-2026\.png$/);
+          await courseImage.evaluate(img => img.decode());
+          assert.match(await courseDialog.innerText(), /2026 simulation/);
+        }
+        await page.keyboard.press("Escape");
+        await courseDialog.waitFor({ state: "detached" });
+      }
+      await search.fill("");
       await waitForResults(page, allIds);
 
       const expand = page.locator('[data-project="doorlink"] .project-expand-button');
