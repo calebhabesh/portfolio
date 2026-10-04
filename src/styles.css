@@ -152,6 +152,7 @@ html {
 }
 
 body {
+  position: relative;
   isolation: isolate;
   min-width: 320px;
   min-height: 100vh;
@@ -171,13 +172,6 @@ body {
     radial-gradient(ellipse 75% 70% at 50% 38%, var(--vignette-center), transparent 80%);
   --blueprint-background-size: 100% 100%, var(--grid-unit) var(--grid-unit), var(--grid-unit) var(--grid-unit), 100% 100%;
   --blueprint-background-position: 0 0, var(--grid-origin-x, 0px) 0, 0 0, 0 0;
-  /* Content and its grid share document rows, so crosses remain aligned
-     at arbitrary scroll offsets. Whole-pixel lines survive browser zoom.
-     The vignette remains viewport anchored. */
-  background-image: var(--blueprint-background-image);
-  background-size: var(--blueprint-background-size);
-  background-position: var(--blueprint-background-position);
-  background-attachment: fixed, scroll, scroll, fixed;
   color: var(--ink);
   font-family: var(--sans);
   font-size: 16px;
@@ -186,6 +180,22 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   transition: background-color 250ms ease, color 250ms ease;
+}
+
+/* Keep the softly blurred blueprint behind the sharp content and guides.
+   Document-sized rows preserve alignment while scrolling; the vignette
+   remains viewport anchored. */
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: var(--blueprint-background-image);
+  background-size: var(--blueprint-background-size);
+  background-position: var(--blueprint-background-position);
+  background-attachment: fixed, scroll, scroll, fixed;
+  filter: blur(0.6px);
 }
 
 #background-boxes-root {

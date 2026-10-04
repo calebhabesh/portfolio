@@ -49,6 +49,7 @@ async function checkGrid(page) {
       return { x, y: y + scrollY, width, height };
     };
     const body = getComputedStyle(document.body);
+    const background = getComputedStyle(document.body, "::before");
     return {
       shell: rect(document.querySelector(".page-shell")),
       header: rect(document.querySelector(".site-header")),
@@ -63,10 +64,10 @@ async function checkGrid(page) {
       sectionHeader: rect(document.querySelector(".project-section-header")),
       search: rect(document.querySelector(".project-search-field")),
       columns: Number(body.getPropertyValue("--grid-columns")),
-      row: parseFloat(body.backgroundSize.split(",")[2].trim().split(" ").at(-1)),
-      origin: parseFloat(body.backgroundPosition.split(",")[2].trim().split(" ").at(-1)),
-      columnOrigin: parseFloat(body.backgroundPosition.split(",")[1].trim().split(" ")[0]),
-      attachment: body.backgroundAttachment,
+      row: parseFloat(background.backgroundSize.split(",")[2].trim().split(" ").at(-1)),
+      origin: parseFloat(background.backgroundPosition.split(",")[2].trim().split(" ").at(-1)),
+      columnOrigin: parseFloat(background.backgroundPosition.split(",")[1].trim().split(" ")[0]),
+      attachment: background.backgroundAttachment,
       photo: rect(document.querySelector(".hero-headshot")),
       photoCorners: [...document.querySelectorAll(".headshot-frame .project-frame-corner")].map(corner => {
         const bounds = rect(corner);
