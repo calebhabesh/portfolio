@@ -16,8 +16,8 @@
   --gold: #b38b1f;
   --tag-bg: rgba(22, 31, 27, 0.05);
   --gallery-bg: #171b1c;
-  --tech-tag-bg: #e7e9e8;
-  --tech-tag-ink: #303735;
+  --tech-tag-bg: rgba(10, 18, 20, 0.86);
+  --tech-tag-ink: #f1f5f2;
   --technology-match-outline: #f4dfa0;
   --technology-match-ink: #735506;
   --technology-prose-match-ink: #634500;
@@ -67,7 +67,6 @@
   --dialog-action-ink: var(--ink);
   --dialog-action-icon: #53685b;
   --evidence-bg: rgba(42, 81, 78, 0.055);
-  --project-note-bg: rgba(255, 255, 255, 0.3);
   --photo-frame: #e2e0d6;
   --photo-frame-ink: #47514b;
   --headshot-ring-hover: rgba(255, 255, 255, 0.95);
@@ -89,8 +88,6 @@
   --green: #a8dfb7;
   --gold: #d7b852;
   --tag-bg: rgba(241, 238, 229, 0.08);
-  --tech-tag-bg: #343a3c;
-  --tech-tag-ink: #f4f5f3;
   --technology-match-outline: #d0b360;
   --technology-match-ink: #d0b360;
   --technology-prose-match-ink: #efd48a;
@@ -131,7 +128,6 @@
   --dialog-action-ink: var(--ink);
   --dialog-action-icon: #bdd3c1;
   --evidence-bg: rgba(207, 231, 226, 0.065);
-  --project-note-bg: rgba(8, 16, 20, 0.3);
   --photo-frame: #b8bdb5;
   --photo-frame-ink: #303b34;
   --headshot-ring-hover: rgba(255, 255, 255, 0.55);
@@ -1219,98 +1215,98 @@ canvas:focus-visible {
 /* Coloured paper gives each project an identity and follows its card into
    the dialog. Keep the surrounding blueprint guides in the page's ink. */
 [data-project-tone="sage"] {
-  --surface-top: #afdba0;
-  --surface-bottom: #96c883;
+  --surface-top: #aaea8a;
+  --surface-bottom: #88d867;
   --project-accent: #123218;
 }
 
 [data-project-tone="slate"] {
-  --surface-top: #9ed5f5;
-  --surface-bottom: #80bfe7;
+  --surface-top: #8fd7ff;
+  --surface-bottom: #65c3fb;
   --project-accent: #102e42;
 }
 
 [data-project-tone="clay"] {
-  --surface-top: #f2b39e;
-  --surface-bottom: #e89b82;
+  --surface-top: #ffb095;
+  --surface-bottom: #fa916f;
   --project-accent: #451512;
 }
 
 [data-project-tone="ochre"] {
-  --surface-top: #f0d577;
-  --surface-bottom: #e5c052;
+  --surface-top: #ffdb69;
+  --surface-bottom: #faca37;
   --project-accent: #3b2a05;
 }
 
 [data-project-tone="lilac"] {
-  --surface-top: #d0b5ea;
-  --surface-bottom: #bc9bdd;
+  --surface-top: #d5aafd;
+  --surface-bottom: #c289ef;
   --project-accent: #30183e;
 }
 
 [data-project-tone="teal"] {
-  --surface-top: #9bd8cc;
-  --surface-bottom: #7fc3b6;
+  --surface-top: #80e7d0;
+  --surface-bottom: #5bd5ba;
   --project-accent: #103a35;
 }
 
 [data-project-tone="orange"] {
-  --surface-top: #efbb83;
-  --surface-bottom: #dfa367;
+  --surface-top: #ffc078;
+  --surface-bottom: #f9a348;
   --project-accent: #45280e;
 }
 
 [data-project-tone="rose"] {
-  --surface-top: #f0b9d1;
-  --surface-bottom: #e39cbb;
+  --surface-top: #ffafd3;
+  --surface-bottom: #f589b8;
   --project-accent: #45152f;
 }
 
 :root[data-theme="dark"] [data-project-tone="sage"] {
-  --surface-top: #174729;
-  --surface-bottom: #123820;
+  --surface-top: #126532;
+  --surface-bottom: #0e5028;
   --project-accent: #bce9ba;
 }
 
 :root[data-theme="dark"] [data-project-tone="slate"] {
-  --surface-top: #10425b;
-  --surface-bottom: #0c3348;
+  --surface-top: #075885;
+  --surface-bottom: #064467;
   --project-accent: #bce4fa;
 }
 
 :root[data-theme="dark"] [data-project-tone="clay"] {
-  --surface-top: #61202e;
-  --surface-bottom: #481923;
+  --surface-top: #841f34;
+  --surface-bottom: #631828;
   --project-accent: #f4c4b9;
 }
 
 :root[data-theme="dark"] [data-project-tone="ochre"] {
-  --surface-top: #55400c;
-  --surface-bottom: #40300a;
+  --surface-top: #725404;
+  --surface-bottom: #584104;
   --project-accent: #f5e096;
 }
 
 :root[data-theme="dark"] [data-project-tone="lilac"] {
-  --surface-top: #472f5a;
-  --surface-bottom: #352343;
+  --surface-top: #5d2d7e;
+  --surface-bottom: #47235f;
   --project-accent: #e2c5f4;
 }
 
 :root[data-theme="dark"] [data-project-tone="teal"] {
-  --surface-top: #154c47;
-  --surface-bottom: #103a36;
+  --surface-top: #0b6b5f;
+  --surface-bottom: #09534a;
   --project-accent: #b5e8dd;
 }
 
 :root[data-theme="dark"] [data-project-tone="orange"] {
-  --surface-top: #66380f;
-  --surface-bottom: #4d2a0c;
+  --surface-top: #874307;
+  --surface-bottom: #683305;
   --project-accent: #f7d1a6;
 }
 
 :root[data-theme="dark"] [data-project-tone="rose"] {
-  --surface-top: #59223f;
-  --surface-bottom: #431a30;
+  --surface-top: #7b1f53;
+  --surface-bottom: #5e1840;
   --project-accent: #f5c2df;
 }
 
@@ -1766,9 +1762,22 @@ body:has(.project-dialog-overlay) .project-hover-background {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 42%, transparent);
 }
 
+/* A dark glass surface blurs the paper beneath badges and notes. */
+.project-box-tags li,
 .project-evidence {
-  background: var(--project-note-bg);
-  box-shadow: inset 0 1px 0 var(--surface-edge);
+  --technology-match-ink: #f4d98c;
+  --technology-prose-match-ink: #f4d98c;
+  background: var(--tech-tag-bg);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.045), transparent 65%);
+  -webkit-backdrop-filter: blur(12px) saturate(115%);
+  backdrop-filter: blur(12px) saturate(115%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.project-evidence {
+  --ink: var(--tech-tag-ink);
+  --ink-soft: #dce5e1;
+  color: var(--ink-soft);
 }
 
 .project-dialog-link {
@@ -2267,7 +2276,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-box-tags li {
   padding: 5px 11px;
   border-radius: 6px;
-  background: var(--tech-tag-bg);
   color: var(--tech-tag-ink);
   font-size: 0.875rem;
   font-weight: 550;

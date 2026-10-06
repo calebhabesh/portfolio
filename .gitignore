@@ -6,3 +6,4 @@ dist/
 __pycache__/
 *.pyc
 docs/coursework-project-shortlist.md
+TODO.md
