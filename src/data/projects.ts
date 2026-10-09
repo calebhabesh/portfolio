@@ -25,7 +25,7 @@ export interface ProjectItem {
   tone: "sage" | "slate" | "clay" | "ochre" | "lilac" | "teal" | "orange" | "rose";
   title: string;
   category: string;
-  status: "Working prototype" | "Live" | "Pilot tested" | "Complete" | "Capstone" | "Course project";
+  status: "Working prototype" | "Live" | "In development" | "Complete" | "Capstone" | "Course project";
   summary: string;
   evidence: ProjectEvidence[];
   tags: string[];
@@ -199,94 +199,118 @@ export const projects: ProjectItem[] = [
     ],
   },
   {
-    id: "file-sync",
+    id: "orbit",
     tone: "ochre",
-    title: "File Sync",
-    category: "Distributed systems · local-first files",
-    status: "Pilot tested",
+    title: "Orbit",
+    category: "Distributed systems · networking",
+    status: "In development",
     summary:
-      "A Go peer-to-peer file sync daemon for Linux devices. It preserves concurrent edits and transfers content-addressed chunks over authenticated connections.",
+      "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine. Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
     evidence: [
       {
         heading: "Causal History",
         detail:
-          "Immutable version records and vector clocks track edits made while devices are offline. The local interface lets users inspect file history and resolve conflicts.",
+          "SQLite records why each file version exists, so independent edits are detected and preserved. Earlier versions can be restored, and files move in verified 1 MiB chunks that resume after an interruption.",
       },
       {
-        heading: "Recovery",
+        heading: "Crash Safety",
         detail:
-          "SQLite stores metadata, and atomic staging protects file chunks during writes. Fault-injection tests check that stored data survives crashes.",
+          "New contents are staged and published through a recovery journal. Fault-injection tests, 16 abrupt VM resets and five full-disk cases kept protected files intact.",
       },
       {
-        heading: "Real Workflow",
+        heading: "Across Networks",
         detail:
-          "A pilot tested synchronization across a workstation, a Raspberry Pi 4B, and a cloud relay. A local demo also runs multiple peer processes on one machine.",
+          "Devices pair over mutual TLS and connect directly over QUIC with ICE/STUN when possible, falling back to a relay that only sees ciphertext. Between a home network and an Oracle Cloud VM, a 4 MiB version arrived over direct UDP in 6–9 seconds.",
+      },
+      {
+        heading: "Three Real Hosts",
+        detail:
+          "Packaged builds on a Linux laptop, a Raspberry Pi 4B and a cloud VM converged to matching contents. Testing on real networks found a relay-recovery bug that previously never recovered within 180 seconds; it now recovers in about 5.5 seconds.",
       },
     ],
-    tags: ["Go", "TypeScript · React", "SQLite", "Mutual TLS (mTLS)", "Linux"],
+    tags: ["Go", "SQLite", "Mutual TLS (mTLS)", "QUIC · ICE", "Linux"],
+    additionalTags: ["TypeScript · React", "WebSocket", ".deb · .rpm"],
     images: [
       {
-        src: "/projects/filesync-history.png",
-        alt: "File Sync operator console showing workspace files and version history",
+        src: "/projects/orbit-history.png",
+        alt: "Orbit operator console showing workspace files and version history",
         caption: "Workspace files and version history",
         width: 1200,
         height: 750,
       },
       {
-        src: "/projects/filesync-folders.png",
-        alt: "File Sync operator console showing registered folders and a persistent work queue",
+        src: "/projects/orbit-folders.png",
+        alt: "Orbit operator console showing registered folders and a persistent work queue",
         caption: "Registered folders and work queue",
         width: 1280,
         height: 800,
       },
       {
-        src: "/projects/filesync-conflicts.png",
-        alt: "File Sync console showing two preserved versions of a conflicting file",
+        src: "/projects/orbit-conflicts.png",
+        alt: "Orbit console showing two preserved versions of a conflicting file",
         caption: "Conflicting file versions",
         width: 1280,
         height: 800,
       },
     ],
-    links: [],
-  },
-  {
-    id: "courtload",
-    tone: "sage",
-    title: "CourtLoad",
-    category: "NBA analytics · data engineering",
-    status: "Complete",
-    summary:
-      "An NBA analytics dashboard comparing player form and matchups across three historical seasons, with source-linked stats and tested prediction intervals.",
-    evidence: [
+    links: [
       {
-        heading: "Reproducible Data",
-        detail:
-          "A Python ingestion pipeline, PostgreSQL, and tested dbt models turn fixed versions of schedules and box scores into player and opponent statistics for a selected date.",
-      },
-      {
-        heading: "Player Comparison",
-        detail:
-          "A Next.js dashboard backed by FastAPI shows player trends side by side, along with game logs and matchup context.",
-      },
-      {
-        heading: "Model Evaluation",
-        detail:
-          "Evaluation on later games retained the exponentially weighted moving average (EWMA) baseline because a gradient-boosted model failed the acceptance criteria. Users can view the evaluation results in the dashboard.",
+        label: "Orbit GitHub",
+        url: "https://github.com/calebhabesh/orbit",
+        type: "github",
+        ariaLabel: "Orbit GitHub repository (opens in new tab)",
+        external: true,
       },
     ],
-    tags: ["Python · FastAPI", "TypeScript · Next.js", "SQL · dbt", "PostgreSQL"],
-    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "scikit-learn"],
+  },
+  {
+    id: "courtlens",
+    tone: "sage",
+    title: "CourtLens",
+    category: "Data engineering · ML · statistics",
+    status: "In development",
+    summary:
+      "An NBA research workbench covering six seasons and 104,533 player games. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an assistant answers questions from the warehouse.",
+    evidence: [
+      {
+        heading: "Versioned Warehouse",
+        detail:
+          "Python ingestion and 39 tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release.",
+      },
+      {
+        heading: "No Look-Ahead",
+        detail:
+          "Features use only games before the replay date, and players traded mid-season keep separate team stints. A missing box score is recorded as unknown, not as zero points.",
+      },
+      {
+        heading: "Impact Ratings",
+        detail:
+          "202,063 lineup stints rebuilt from public play-by-play feed ridge-regression RAPM, on/off and six-factor ratings, shown with sample sizes and source gaps.",
+      },
+      {
+        heading: "Forecast Evaluation",
+        detail:
+          "Across 10 chronological folds, a prior-season blend reached a 4.88-point mean absolute error against a rolling baseline's 5.09, with 81.2% of results inside the 80% interval. A gradient-boosted model was tested and not adopted.",
+      },
+      {
+        heading: "Checked Assistant",
+        detail:
+          "A tool-calling agent queries the warehouse through read-only tools, and numbers in its answers are checked against query results. It is evaluated against independently computed SQL answers.",
+      },
+    ],
+    tags: ["Python · FastAPI", "SQL · dbt", "PostgreSQL", "scikit-learn", "TypeScript · Next.js"],
+    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "LLM tool calling"],
     images: [
       {
-        src: "/projects/courtload-comparison.png",
-        alt: "CourtLoad dashboard comparing LeBron James and Stephen Curry",
+        src: "/projects/courtlens-comparison.png",
+        alt: "CourtLens dashboard comparing LeBron James and Stephen Curry",
         caption: "Historical player comparison dashboard",
         width: 749,
         height: 1200,
       },
       {
-        src: "/projects/courtload-evaluation.png",
-        alt: "CourtLoad evaluation page comparing historical model error and coverage",
+        src: "/projects/courtlens-evaluation.png",
+        alt: "CourtLens evaluation page comparing historical model error and coverage",
         caption: "Model evaluation on later games",
         width: 1440,
         height: 2817,

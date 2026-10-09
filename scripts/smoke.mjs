@@ -142,14 +142,14 @@ async function checkPage(browser, viewport, screenshotName) {
   );
   assert.deepEqual(
     projectIds,
-    ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong", "portfolio-site"],
+    ["doorlink", "linewatch", "orbit", "courtlens", "medical-imaging", "systemc-noc", "fpga-pong", "portfolio-site"],
     `Expected core projects, capstone, NoC, Pong, then the portfolio site. Got: ${projectIds.join(", ")}`
   );
 
   const projectTitles = (await page.locator("article[data-project] .project-box-title").allInnerTexts()).map((t) => t.trim());
   assert.deepEqual(
     projectTitles,
-    ["Doorlink", "LineWatchTO", "File Sync", "CourtLoad", "Medical Image Processing", "4×4 NoC Simulator", "FPGA VGA Pong", "Portfolio Site"],
+    ["Doorlink", "LineWatchTO", "Orbit", "CourtLens", "Medical Image Processing", "4×4 NoC Simulator", "FPGA VGA Pong", "Portfolio Site"],
     `Expected exact titles. Got: ${projectTitles.join(", ")}`
   );
   assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
@@ -192,8 +192,8 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.ok(await page.locator('article[data-project="doorlink"] a[href="https://github.com/calebhabesh/doorlink"]').count() >= 1, "Doorlink GitHub link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://linewatchto.ca"]').count() >= 1, "LineWatchTO live link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
-  assert.equal(await page.locator('article[data-project="file-sync"] a.project-icon-link').count(), 0, "File Sync should not link to its unpublished repository.");
-  assert.equal(await page.locator('article[data-project="courtload"] a.project-icon-link').count(), 0, "CourtLoad should not link to its unpublished repository.");
+  assert.ok(await page.locator('article[data-project="orbit"] a[href="https://github.com/calebhabesh/orbit"]').count() >= 1, "Orbit GitHub link missing.");
+  assert.equal(await page.locator('article[data-project="courtlens"] a.project-icon-link').count(), 0, "CourtLens should not link to its unpublished repository.");
   assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
 

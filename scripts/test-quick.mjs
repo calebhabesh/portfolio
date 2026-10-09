@@ -70,7 +70,7 @@ try {
       assert.ok(await page.locator("#emblem-canvas").isVisible(), "Emblem canvas is missing.");
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), "Page overflows horizontally.");
 
-      const allIds = ["doorlink", "linewatch", "file-sync", "courtload", "medical-imaging", "systemc-noc", "fpga-pong", "portfolio-site"];
+      const allIds = ["doorlink", "linewatch", "orbit", "courtlens", "medical-imaging", "systemc-noc", "fpga-pong", "portfolio-site"];
       const search = page.getByRole("searchbox", { name: "Search technologies" });
       await search.fill("Java");
       await waitForResults(page, ["doorlink", "linewatch", "portfolio-site"]);

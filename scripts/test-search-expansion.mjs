@@ -38,7 +38,7 @@ try {
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.locator('#projects-root[data-interactive="true"]').waitFor();
     const search = page.getByRole("searchbox", { name: "Search technologies" });
-    for (const [query, id] of [["", "linewatch"], ["Mos", "doorlink"], ["OCI", "linewatch"], ["Go", "file-sync"], ["Java", "doorlink"], ["Pyhton", "courtload"], ["React, PostgreSQL", "doorlink"]]) {
+    for (const [query, id] of [["", "linewatch"], ["Mos", "doorlink"], ["OCI", "linewatch"], ["Go", "orbit"], ["Java", "doorlink"], ["Pyhton", "courtlens"], ["React, PostgreSQL", "doorlink"]]) {
       await search.fill(query);
       await page.waitForFunction(id => {
         const card = document.querySelector(`[data-project="${id}"]`);
