@@ -508,8 +508,8 @@ try {
   for (const [projectId, imagePaths] of [
     ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png", "/projects/doorlink-pcb-layout.png"]],
     ["linewatch", ["/projects/linewatch-onboarding-map.png", "/projects/linewatch-onboarding-impact.png", "/projects/linewatch-onboarding-personal.png", "/projects/linewatch-onboarding-stations.png"]],
-    ["file-sync", ["/projects/filesync-history.png", "/projects/filesync-folders.png", "/projects/filesync-conflicts.png"]],
-    ["courtload", ["/projects/courtload-comparison.png", "/projects/courtload-evaluation.png"]],
+    ["orbit", ["/projects/orbit-history.png", "/projects/orbit-folders.png", "/projects/orbit-conflicts.png"]],
+    ["courtlens", ["/projects/courtlens-comparison.png", "/projects/courtlens-evaluation.png"]],
     ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
     ["fpga-pong", ["/projects/fpga-pong/board-demo-2024.webp", "/projects/fpga-pong/rtl-frame-2026.png"]],
   ]) {
@@ -558,7 +558,7 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = ["file-sync", "courtload"].includes(projectId) ? 0 : ["linewatch", "medical-imaging"].includes(projectId) ? 2 : 1;
+    const expectedLinkCount = projectId === "courtlens" ? 0 : ["linewatch", "medical-imaging"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
     if (projectId === "medical-imaging") {
       const demo = dialog.getByRole("link", { name: /^Watch Demo:/ });

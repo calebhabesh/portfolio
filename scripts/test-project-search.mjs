@@ -136,15 +136,15 @@ try {
       ["Ja", ["doorlink", "linewatch", "portfolio-site"]],
       ["Java", ["doorlink", "linewatch", "portfolio-site"]],
       ["Mos", ["doorlink"]],
-      ["React", ["doorlink", "linewatch", "file-sync", "courtload", "portfolio-site"]],
-      ["React, PostgreSQL", ["doorlink", "linewatch", "courtload"]],
+      ["React", ["doorlink", "linewatch", "orbit", "courtlens", "portfolio-site"]],
+      ["React, PostgreSQL", ["doorlink", "linewatch", "courtlens"]],
       ["OCI", ["linewatch"]],
-      ["Pyhton", ["courtload"]],
+      ["Pyhton", ["courtlens"]],
       ["C", ["doorlink"]],
       ["C++", ["doorlink", "medical-imaging", "systemc-noc"]],
       ["CMake", ["medical-imaging", "systemc-noc"]],
       ["AWS", ["linewatch"]],
-      ["post", ["doorlink", "linewatch", "courtload"]],
+      ["post", ["doorlink", "linewatch", "courtlens"]],
     ]) {
       await search.fill(query);
       await settled(page);
@@ -212,7 +212,7 @@ try {
     // Finish rapid edits while previous exits and moves are still in flight.
     for (const query of ["React", "impossible-stack", "CMake", "Go", "React, SQLite", "post"]) await search.fill(query);
     await settled(page);
-    assert.deepEqual(await visibleIds(page), ["doorlink", "linewatch", "courtload"]);
+    assert.deepEqual(await visibleIds(page), ["doorlink", "linewatch", "courtlens"]);
     await checkGrid(page);
     await search.fill("Rust");
     await settled(page);
