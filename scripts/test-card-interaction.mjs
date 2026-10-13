@@ -508,7 +508,7 @@ try {
   for (const [projectId, imagePaths] of [
     ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png", "/projects/doorlink-pcb-layout.png"]],
     ["linewatch", ["/projects/linewatch-onboarding-map.png", "/projects/linewatch-onboarding-impact.png", "/projects/linewatch-onboarding-personal.png", "/projects/linewatch-onboarding-stations.png"]],
-    ["orbit", ["/projects/orbit/tui-overview-conflict.png", "/projects/orbit/tui-files.png", "/projects/orbit/tui-review-versions.png"]],
+    ["orbit", ["/projects/orbit/demo-three-device-conflict.webp", "/projects/orbit/tui-review-versions.png", "/projects/orbit/soak-timeline.png", "/projects/orbit/network-matrix.png", "/projects/orbit/round-cost.png"]],
     ["courtlens", ["/projects/courtlens/stats-explorer.png", "/projects/courtlens/points-forecasts.png"]],
     ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
     ["fpga-pong", ["/projects/fpga-pong/board-demo-2024.webp", "/projects/fpga-pong/rtl-frame-2026.png"]],
