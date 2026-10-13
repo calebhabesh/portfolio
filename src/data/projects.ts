@@ -33,8 +33,6 @@ export interface ProjectItem {
   tags: string[];
   additionalTags?: string[];
   links: ProjectLink[];
-  // Workflow file in the project's GitHub repo; shown as a live status badge.
-  ciWorkflow?: string;
   images?: ProjectImage[];
 }
 
@@ -187,7 +185,6 @@ export const projects: ProjectItem[] = [
         height: 1020,
       },
     ],
-    ciWorkflow: "ci.yml",
     links: [
       {
         label: "Visit LineWatchTO",
@@ -261,7 +258,6 @@ export const projects: ProjectItem[] = [
         height: 696,
       },
     ],
-    ciWorkflow: "ci.yml",
     links: [
       {
         label: "Conflict & Restore Walkthrough",
@@ -438,7 +434,6 @@ export const projects: ProjectItem[] = [
         height: 736,
       },
     ],
-    ciWorkflow: "verify.yml",
     links: [
       {
         label: "NoC GitHub",
@@ -498,7 +493,6 @@ export const projects: ProjectItem[] = [
         height: 480,
       },
     ],
-    ciWorkflow: "verify.yml",
     links: [
       {
         label: "Pong GitHub",

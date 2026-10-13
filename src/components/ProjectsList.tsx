@@ -10,23 +10,11 @@ import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 import CardHoverEffectDemo from "./card-hover-effect-demo";
 import { TechnologyBadges } from "./TechnologyBadges";
-import { matchTechnologyTags, matchTechnologyText, technologySearchTerms } from "../lib/technology-search";
+import { matchProject, matchSearchText, matchTechnologyText, mergeHighlightRanges, technologySearchTerms } from "../lib/technology-search";
 import { SearchMatchText } from "./SearchMatchText";
 import { useProjectFilterMotion } from "../hooks/use-project-filter-motion";
 import { ProjectFrameGuides } from "./ProjectFrameGuides";
 import { HoverEffectItem } from "./ui/card-hover-effect";
-
-function ProjectCiBadge({ project }: { project: ProjectItem }) {
-  const repo = project.links.find(link => link.type === "github")?.url;
-  if (!project.ciWorkflow || !repo) return null;
-  const workflowUrl = `${repo}/actions/workflows/${project.ciWorkflow}`;
-  return (
-    <a className="project-ci-badge" href={workflowUrl} target="_blank" rel="noreferrer"
-      aria-label={`${project.title} continuous integration status on GitHub Actions (opens in new tab)`}>
-      <img src={`${workflowUrl}/badge.svg?branch=main`} alt="" height={20} loading="lazy" decoding="async" />
-    </a>
-  );
-}
 
 export const ProjectsList: React.FC = () => {
   const reduceMotion = useReducedMotion();
@@ -45,18 +33,18 @@ export const ProjectsList: React.FC = () => {
   const terms = useMemo(() => technologySearchTerms(query), [query]);
   const searchRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const technologyMatches = useMemo(() => {
-    return new Map(projects.map(project => [project.id,
-      matchTechnologyTags([...project.tags, ...(project.additionalTags || [])], terms),
-    ]));
+  const projectMatches = useMemo(() => {
+    return new Map(projects.map(project => [project.id, matchProject(project, terms)]));
   }, [terms]);
   const matchingIds = useMemo(() => new Set(projects
-    .filter(project => technologyMatches.get(project.id) !== null)
-    .map(project => project.id)), [technologyMatches]);
+    .filter(project => projectMatches.get(project.id) !== null)
+    .map(project => project.id)), [projectMatches]);
   const matchingProjects = projects.filter(project => matchingIds.has(project.id));
-  const highlightText = (text: string) => <SearchMatchText text={text} ranges={active
-    ? matchTechnologyText(text, [...active.tags, ...(active.additionalTags || [])], terms)
-    : []} />;
+  // Dialog prose highlights both technology mentions and literal matches.
+  const highlightText = (text: string) => <SearchMatchText text={text} ranges={active ? mergeHighlightRanges([
+    ...matchTechnologyText(text, [...active.tags, ...(active.additionalTags || [])], terms),
+    ...matchSearchText(text, terms),
+  ]) : []} />;
   const prepareFilterMotion = useProjectFilterMotion(listRef);
   const changeQuery = (value: string) => {
     if (value === query) return;
@@ -182,17 +170,18 @@ export const ProjectsList: React.FC = () => {
                   <div className="project-dialog-heading flex flex-col gap-1.5">
                     <div className="project-box-title-group">
                       <ProjectSketch projectId={active.id} />
-                      <h3
-                        id={`dialog-title-${active.id}`}
-                        className="text-2xl font-bold text-[var(--ink)] tracking-tight m-0"
-                      >
-                        <ProjectTitle project={active} />
-                      </h3>
+                      <div className="project-box-title-stack">
+                        <h3
+                          id={`dialog-title-${active.id}`}
+                          className="text-2xl font-bold text-[var(--ink)] tracking-tight m-0"
+                        >
+                          <ProjectTitle project={active} matches={projectMatches.get(active.id)?.text} />
+                        </h3>
+                        <p className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
+                          <SearchMatchText text={active.category} ranges={projectMatches.get(active.id)?.text.category} />
+                        </p>
+                      </div>
                     </div>
-                    <p className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
-                      {active.category}
-                    </p>
-                    <ProjectCiBadge project={active} />
                   </div>
 
                   <div className="project-dialog-actions">
@@ -214,7 +203,7 @@ export const ProjectsList: React.FC = () => {
                     {highlightText(active.summary)}
                   </p>
 
-                  <TechnologyBadges tags={[...active.tags, ...(active.additionalTags || [])]} matches={technologyMatches.get(active.id)} />
+                  <TechnologyBadges tags={[...active.tags, ...(active.additionalTags || [])]} matches={projectMatches.get(active.id)?.technologies} />
 
                   {!!active.images?.length && (
                     <ProjectGallery
@@ -341,7 +330,7 @@ export const ProjectsList: React.FC = () => {
                           project={project}
                           onExpand={openProject}
                           expanded={active?.id === project.id}
-                          technologyMatches={technologyMatches.get(project.id)}
+                          matches={projectMatches.get(project.id)}
                         />
                       </motion.div>
                     ) : index === 0 && (

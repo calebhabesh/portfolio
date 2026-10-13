@@ -23,6 +23,9 @@ const aliases: Record<string, string[]> = {
   pwa: ["progressive web app"],
 };
 
+// Short technology names and aliases that only ever match whole names.
+const exactOnlyTerms = ["c", "go", "ts", "js", "sql"];
+
 function normalize(value: string) {
   return value.toLowerCase().replace(/[.\s_-]/g, "");
 }
@@ -66,7 +69,7 @@ function matchTag(tag: string, term: string): HighlightRange[] {
     const names = [canonical, ...(aliases[canonical] || []).map(normalize)];
     // Short technology names and aliases must not match arbitrary substrings.
     // Other short queries can start a name, such as "J" or "Ja" for "Java".
-    const exactOnly = ["c", "go", "ts", "js", "sql"].includes(query);
+    const exactOnly = exactOnlyTerms.includes(query);
     const exact = names.includes(query);
     const fragment = !exactOnly && (query.length <= 2 ? canonical.startsWith(query) : canonical.includes(query));
     const tolerance = query.length >= 8 ? 2 : query.length >= 5 ? 1 : 0;
@@ -103,7 +106,7 @@ export function matchTechnologyTags(tags: readonly string[], terms: readonly str
   return matches;
 }
 
-function mergeHighlightRanges(ranges: HighlightRange[]) {
+export function mergeHighlightRanges(ranges: HighlightRange[]) {
   const merged: HighlightRange[] = [];
   for (const range of ranges.sort((a, b) => a.start - b.start)) {
     const last = merged.at(-1);
@@ -139,4 +142,62 @@ export function matchTechnologyText(text: string, tags: readonly string[], terms
     }
   }
   return mergeHighlightRanges(ranges);
+}
+
+// Card text a query can match besides the technologies. Dialog-only notes are
+// excluded so every result shows why it matched.
+export const projectTextFields = ["title", "descriptor", "category", "summary"] as const;
+export type ProjectTextField = typeof projectTextFields[number];
+export type ProjectTextMatches = Partial<Record<ProjectTextField, HighlightRange[]>>;
+
+export interface ProjectMatches {
+  technologies: TechnologyMatches;
+  text: ProjectTextMatches;
+}
+
+const fillerWords = ["the", "and", "for", "with", "from", "into", "its", "are", "was", "that", "this"];
+
+// Phrases match from the start of a word. Terms of three letters or fewer,
+// such as "ML" or "PCB", must be whole words. Single letters, filler words and
+// the short technology names only match technologies, so short queries do not
+// match arbitrary prose (for example, "go" does not match "GO Transit").
+export function matchSearchText(text: string, terms: readonly string[]): HighlightRange[] {
+  const ranges: HighlightRange[] = [];
+  for (const term of terms) {
+    const words = term.split(/[\s·/-]+/).filter(Boolean);
+    const length = words.join("").length;
+    if (length < 2 || exactOnlyTerms.includes(normalize(term)) || fillerWords.includes(term)) continue;
+    const wholeWord = length <= 3;
+    const pattern = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("[\\s·/-]+");
+    const boundary = wholeWord ? "(?![\\p{L}\\p{N}+#])" : "";
+    for (const match of text.matchAll(new RegExp(`(?<![\\p{L}\\p{N}])${pattern}${boundary}`, "giu"))) {
+      ranges.push({ start: match.index!, end: match.index! + match[0].length });
+    }
+  }
+  return mergeHighlightRanges(ranges);
+}
+
+// Every term must match the project's technologies or its card text.
+export function matchProject(
+  project: Readonly<Record<ProjectTextField, string>> & { tags: readonly string[]; additionalTags?: readonly string[] },
+  terms: readonly string[],
+): ProjectMatches | null {
+  const tags = [...project.tags, ...(project.additionalTags || [])];
+  const technologies: TechnologyMatches = new Map();
+  const text: ProjectTextMatches = {};
+  for (const term of terms) {
+    const tagMatches = matchTechnologyTags(tags, [term]);
+    let found = !!tagMatches;
+    for (const [tag, ranges] of tagMatches || []) {
+      technologies.set(tag, mergeHighlightRanges([...(technologies.get(tag) || []), ...ranges]));
+    }
+    for (const field of projectTextFields) {
+      const ranges = matchSearchText(project[field], [term]);
+      if (!ranges.length) continue;
+      found = true;
+      text[field] = mergeHighlightRanges([...(text[field] || []), ...ranges]);
+    }
+    if (!found) return null;
+  }
+  return { technologies, text };
 }
