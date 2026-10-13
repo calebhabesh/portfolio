@@ -2182,8 +2182,24 @@ body:has(.project-dialog-overlay) .project-hover-background {
   display: none;
 }
 
+/* The resume descriptor is a subtitle beneath the name. The separator stays
+   in the accessible name ("Name — Descriptor") but is not drawn. */
+.project-title-separator {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .project-title-descriptor {
+  display: block;
+  margin-top: 1px;
+  font-size: 1.0625rem;
   font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
   color: var(--muted);
 }
 
@@ -2410,9 +2426,9 @@ body:has(.project-dialog-overlay) .project-hover-background {
     hyphens: auto;
   }
 
-  /* The resume descriptor moves beneath the name: a full-width line on cards,
-     inside the heading in the roomier dialog. */
-  .project-title-separator,
+  /* Beside the card actions the heading is too narrow for the descriptor, so
+     cards show it as a full-width line instead; the heading keeps it for
+     screen readers. The roomier dialog keeps it in the heading. */
   .project-box .project-title-descriptor {
     position: absolute;
     width: 1px;
@@ -2420,13 +2436,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-
-  .project-title-descriptor {
-    display: block;
-    font-size: 1.0625rem;
-    line-height: 1.35;
-    letter-spacing: 0;
   }
 
   .project-box .project-box-header {
