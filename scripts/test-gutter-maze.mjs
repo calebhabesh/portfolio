@@ -406,6 +406,9 @@ try {
     await page.clock.runFor(5000);
     assert.equal(await paintCount(page), pausedCount, "No frames should paint behind a gallery.");
     await page.keyboard.press("Escape");
+    // The page stays scroll-locked through the return flight, which runs on
+    // the real animation timeline. Resume is checked once the dialog lands.
+    await page.getByRole("dialog").waitFor({ state: "detached" });
     await page.clock.runFor(40);
     assert.equal(await root.getAttribute("data-state"), "searching");
     assert.equal(await root.getAttribute("data-round"), round, "Closing a gallery must preserve the search.");
