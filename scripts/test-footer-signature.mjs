@@ -74,7 +74,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   await mkdir(artifacts, { recursive: true });
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"] });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light" });
   const page = await context.newPage();
   const exceptions = [];

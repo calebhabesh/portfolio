@@ -106,7 +106,7 @@ try {
     if (attempt > 100) throw new Error("Preview server did not start.");
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   for (const theme of ["light", "dark"]) {
     const page = await browser.newPage({ viewport: { width: 2048, height: 1167 }, colorScheme: theme,
       reducedMotion: "reduce", deviceScaleFactor: theme === "dark" ? 2 : 1 });

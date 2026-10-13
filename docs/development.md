@@ -46,7 +46,9 @@ source. Deployment reuses a build that passed `check` or `check:full` only while
 both the source and the built files still match their recorded content hashes.
 An unverified, stale, or missing build triggers a fresh build and quick check.
 
-Browser checks use system Chromium (`/usr/bin/chromium` by default). Set `CHROMIUM_PATH`
+Browser checks use the Chromium build pinned by `playwright-core` (install it with
+`npx playwright-core install chromium`). System Chromium is not used by default because
+version mismatches can crash its renderer. Set `CHROMIUM_PATH`
 to use another installation. Screenshots go to the ignored `.artifacts/` directory.
 
 ## Project content
