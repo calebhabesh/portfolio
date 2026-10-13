@@ -1666,18 +1666,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
   overflow-wrap: anywhere;
 }
 
-.project-ci-badge {
-  display: inline-flex;
-  align-self: flex-start;
-  border-radius: 4px;
-}
-
-.project-ci-badge img {
-  display: block;
-  height: 20px;
-  width: auto;
-}
-
 .project-dialog-links {
   grid-row: 3;
   display: flex;
@@ -1702,11 +1690,39 @@ body:has(.project-dialog-overlay) .project-hover-background {
     column-gap: 12px;
   }
 
+  /* The heading runs under the close button so the stack has the full
+     width; a float keeps only the name's first line clear of the button. */
+  .project-dialog-heading {
+    grid-area: 1 / 1 / 2 / -1;
+  }
+
+  .project-dialog-actions {
+    grid-area: 1 / 2;
+    position: relative;
+  }
+
+  .project-dialog-heading h3::before {
+    content: "";
+    float: right;
+    width: 48px;
+    height: 44px;
+  }
+
+  .project-dialog-header .project-box-title-group {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .project-dialog-header .project-dialog-heading .project-sketch {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
   .project-dialog-heading .project-box-type {
-    width: calc(100% + 56px);
-    font-size: clamp(0.625rem, 3.2cqi, 0.875rem);
+    font-size: clamp(0.75rem, 3.4cqi, 0.875rem);
     letter-spacing: 0.04em;
-    white-space: nowrap;
+    line-height: 1.4;
   }
 
   .project-dialog-links .project-dialog-link {
@@ -1996,7 +2012,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
   grid-column: 1 / -1;
 }
 
-.has-preview > .project-box-type,
 .has-preview > .project-box-summary,
 .has-preview > .project-box-tags {
   grid-column: 1;
@@ -2006,7 +2021,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   position: relative;
   isolation: isolate;
   grid-column: 2;
-  grid-row: 2 / 5;
+  grid-row: 2 / 4;
   align-self: center;
   display: flex;
   flex-direction: column;
@@ -2097,7 +2112,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
     column-gap: 12px;
   }
 
-  .has-preview > .project-box-type,
   .has-preview > .project-box-summary {
     grid-column: 1 / -1;
   }
@@ -2107,7 +2121,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 
   .project-card-preview {
-    grid-row: 4;
+    grid-row: 3;
     width: 106px;
   }
 
@@ -2155,6 +2169,30 @@ body:has(.project-dialog-overlay) .project-hover-background {
   pointer-events: none;
 }
 
+/* Name, descriptor and category stack beside an icon sized to all three. */
+.project-box-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.project-box .project-box-title-group,
+.project-dialog-heading .project-box-title-group {
+  gap: 14px;
+}
+
+.project-box .project-sketch,
+.project-dialog-heading .project-sketch {
+  width: 56px;
+  height: 56px;
+  flex-basis: 56px;
+}
+
+.project-box-header + .project-box-summary {
+  margin-top: 16px;
+}
+
 .project-box-title {
   margin: 0;
   font-size: 1.625rem;
@@ -2197,10 +2235,10 @@ body:has(.project-dialog-overlay) .project-hover-background {
   display: block;
   margin-top: 1px;
   font-size: 1.0625rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.35;
-  color: var(--muted);
+  color: color-mix(in srgb, var(--ink) 75%, #808080);
 }
 
 .project-box-title button:hover {
@@ -2342,6 +2380,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   font-weight: 700;
 }
 
+.project-box-summary .project-search-match,
 .project-dialog-summary .project-search-match,
 .project-evidence .project-search-match {
   color: var(--technology-prose-match-ink);
@@ -2410,9 +2449,35 @@ body:has(.project-dialog-overlay) .project-hover-background {
     flex-wrap: nowrap;
   }
 
-  .project-box-header .project-box-title-group {
+  /* Beside the actions the heading is too narrow for the stack, so the
+     descriptor and category become full-width lines under the name. */
+  .project-box-header .project-box-title-group,
+  .project-box-header .project-box-title-stack {
+    display: contents;
+  }
+
+  .project-box-header .project-sketch {
+    align-self: center;
+  }
+
+  .project-box-header .project-box-title {
     flex: 1;
-    min-height: 44px;
+    align-self: center;
+    min-width: 0;
+  }
+
+  .project-box-header .project-box-actions {
+    order: 1;
+  }
+
+  .project-box-header .project-box-descriptor {
+    order: 2;
+  }
+
+  .project-box-header .project-box-type {
+    order: 3;
+    flex: 0 0 100%;
+    margin-top: -4px;
   }
 
   .project-box-actions {
@@ -2447,9 +2512,9 @@ body:has(.project-dialog-overlay) .project-hover-background {
     flex: 0 0 100%;
     margin: -4px 0 0;
     font-size: 1.0625rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.35;
-    color: var(--muted);
+    color: color-mix(in srgb, var(--ink) 75%, #808080);
   }
 
   .project-box-summary {

@@ -5,7 +5,8 @@ import { CometCard } from "./ui/comet-card";
 import { ProjectSketch } from "./ProjectSketch";
 import { ProjectLinkIcon } from "./ProjectLinkButton";
 import { TechnologyBadges } from "./TechnologyBadges";
-import type { TechnologyMatches } from "../lib/technology-search";
+import type { ProjectMatches, ProjectTextMatches } from "../lib/technology-search";
+import { SearchMatchText } from "./SearchMatchText";
 
 // Matches the sheets from scripts/generate-paper-crumple.mjs and styles.css.
 const CRUMPLE_VARIANTS = 8;
@@ -17,7 +18,7 @@ interface ProjectCardProps {
   project: ProjectItem;
   onExpand?: (project: ProjectItem) => void;
   expanded?: boolean;
-  technologyMatches?: TechnologyMatches | null;
+  matches?: ProjectMatches | null;
 }
 
 function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live" | "live-demo" | "github" }) {
@@ -41,23 +42,23 @@ function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live"
   );
 }
 
-export function ProjectTitle({ project }: { project: ProjectItem }) {
+export function ProjectTitle({ project, matches }: { project: ProjectItem; matches?: ProjectTextMatches }) {
   return (
     <>
-      {project.title}
+      <SearchMatchText text={project.title} ranges={matches?.title} />
       <span className="project-title-separator"> — </span>
-      <span className="project-title-descriptor">{project.descriptor}</span>
+      <span className="project-title-descriptor"><SearchMatchText text={project.descriptor} ranges={matches?.descriptor} /></span>
     </>
   );
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, technologyMatches }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, matches }) => {
   const present = useIsPresent();
   const previewImage = project.images?.[0];
   const imageCount = project.images?.length || 0;
   const visibleTags = [...new Set([
     ...project.tags,
-    ...(project.additionalTags || []).filter(tag => technologyMatches?.has(tag)),
+    ...(project.additionalTags || []).filter(tag => matches?.technologies.has(tag)),
   ])];
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -84,19 +85,22 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
             <div className="project-box-header">
               <div className="project-box-title-group">
                 <ProjectSketch projectId={project.id} />
-                <h3 className="project-box-title">
-                  {onExpand ? (
-                    <button
-                      type="button"
-                      onClick={() => onExpand(project)}
-                      aria-haspopup="dialog"
-                    >
-                      <ProjectTitle project={project} />
-                    </button>
-                  ) : (
-                    <ProjectTitle project={project} />
-                  )}
-                </h3>
+                <div className="project-box-title-stack">
+                  <h3 className="project-box-title">
+                    {onExpand ? (
+                      <button
+                        type="button"
+                        onClick={() => onExpand(project)}
+                        aria-haspopup="dialog"
+                      >
+                        <ProjectTitle project={project} matches={matches?.text} />
+                      </button>
+                    ) : (
+                      <ProjectTitle project={project} matches={matches?.text} />
+                    )}
+                  </h3>
+                  <p className="project-box-type"><SearchMatchText text={project.category} ranges={matches?.text.category} /></p>
+                </div>
               </div>
 
               <div className="project-box-actions">
@@ -131,14 +135,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                 )}
               </div>
               {/* Narrow cards show the descriptor here; the heading keeps it for screen readers. */}
-              <p className="project-box-descriptor" aria-hidden="true">{project.descriptor}</p>
+              <p className="project-box-descriptor" aria-hidden="true"><SearchMatchText text={project.descriptor} ranges={matches?.text.descriptor} /></p>
             </div>
 
-            <p className="project-box-type">{project.category}</p>
+            <p className="project-box-summary"><SearchMatchText text={project.summary} ranges={matches?.text.summary} /></p>
 
-            <p className="project-box-summary">{project.summary}</p>
-
-            <TechnologyBadges tags={visibleTags} matches={technologyMatches} />
+            <TechnologyBadges tags={visibleTags} matches={matches?.technologies} />
 
             {previewImage && (
               <a

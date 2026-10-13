@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createServer } from "vite";
 
 // Load the same TS modules as the app without requiring Node's type stripping.
-const { projects, matchTechnologyTags, matchTechnologyText, technologySearchTerms } = await (async () => {
+const { projects, matchProject, matchSearchText, matchTechnologyTags, matchTechnologyText, technologySearchTerms } = await (async () => {
   const server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
   try {
     return {
@@ -82,4 +82,30 @@ assert.deepEqual(proseMatches("C++ processes images; C++17 is the build standard
 assert.deepEqual(proseMatches("The gateway sends event records.", ["Java"], "J"), []);
 assert.deepEqual(proseMatches("Next.js and Nextjs dashboards.", ["Next.js"], "nextjs"), ["Next.js", "Nextjs"]);
 assert.deepEqual(proseMatches("Mosquitto handles commands.", ["Mosquitto"], ""), []);
+// The search box also matches the card's name, descriptor, category and summary.
+const projectResults = query => projects.filter(project => matchProject(project, technologySearchTerms(query))).map(project => project.id);
+for (const [query, ids] of [
+  ["Java", ["doorlink", "linewatch", "portfolio-site"]],
+  ["doorlink", ["doorlink"]],
+  ["embedded", ["doorlink"]],
+  ["self hosted", ["doorlink"]],
+  ["self-hosted iot", ["doorlink"]],
+  ["ML", ["courtlens"]],
+  ["full stack", ["linewatch"]],
+  ["esp32, doorbell", ["doorlink"]],
+  ["React, doorbell", ["doorlink"]],
+  ["React, SQLite", []],
+  ["go", ["orbit"]],
+  ["Lab", []],
+  ["the", []],
+  ["recruitment", []],
+]) assert.deepEqual(projectResults(query), ids, `Unexpected project matches for ${query}`);
+const textMatches = (text, query) => matchSearchText(text, technologySearchTerms(query))
+  .map(({ start, end }) => text.slice(start, end));
+assert.deepEqual(textMatches("Embedded systems · self-hosted IoT", "self hosted, iot"), ["self-hosted", "IoT"]);
+assert.deepEqual(textMatches("A smart doorbell for the door.", "door"), ["doorbell", "door"].map(word => word.slice(0, 4)));
+assert.deepEqual(textMatches("It clearly labels outdated data.", "lab"), []);
+assert.deepEqual(textMatches("TTC and GO Transit riders.", "go"), []);
+assert.deepEqual(textMatches("Data engineering · ML · statistics", "ml"), ["ML"]);
+console.log("Project search passed: card text, phrases, whole short words and filler words.");
 console.log("Technology search passed: stack conjunction, aliases, typos, short names, qualifiers and highlight ranges.");
