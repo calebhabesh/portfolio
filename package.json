@@ -32,6 +32,7 @@
     "weather:model": "blender --background --python scripts/weather-emblem.py && npm run optimize:model",
     "generate:textures": "node scripts/generate-emblem-textures.mjs",
     "generate:paper": "node scripts/generate-paper-grain.mjs",
+    "generate:crumple": "node scripts/generate-paper-crumple.mjs",
     "pack:emblem": "node scripts/pack-emblem-assets.mjs"
   },
   "dependencies": {

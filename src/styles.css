@@ -1619,12 +1619,22 @@ body:has(.project-dialog-overlay) .project-hover-background {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: url("/src/assets/paper-crumple.png") center / 100% 100% no-repeat;
-  filter: brightness(0.65) contrast(4);
+  background: center / 100% 100% no-repeat;
+  filter: brightness(0.65) contrast(4.4);
   mix-blend-mode: multiply;
-  opacity: 0.55;
+  opacity: 0.62;
   pointer-events: none;
 }
+
+/* Every card has its own crumple sheet; the expanded dialog keeps its card's. */
+[data-crumple="0"]::before { background-image: url("/src/assets/paper-crumple/crumple-0.webp"); }
+[data-crumple="1"]::before { background-image: url("/src/assets/paper-crumple/crumple-1.webp"); }
+[data-crumple="2"]::before { background-image: url("/src/assets/paper-crumple/crumple-2.webp"); }
+[data-crumple="3"]::before { background-image: url("/src/assets/paper-crumple/crumple-3.webp"); }
+[data-crumple="4"]::before { background-image: url("/src/assets/paper-crumple/crumple-4.webp"); }
+[data-crumple="5"]::before { background-image: url("/src/assets/paper-crumple/crumple-5.webp"); }
+[data-crumple="6"]::before { background-image: url("/src/assets/paper-crumple/crumple-6.webp"); }
+[data-crumple="7"]::before { background-image: url("/src/assets/paper-crumple/crumple-7.webp"); }
 
 .project-dialog-header {
   position: relative;
@@ -1654,6 +1664,18 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
 .project-dialog-heading h3 {
   overflow-wrap: anywhere;
+}
+
+.project-ci-badge {
+  display: inline-flex;
+  align-self: flex-start;
+  border-radius: 4px;
+}
+
+.project-ci-badge img {
+  display: block;
+  height: 20px;
+  width: auto;
 }
 
 .project-dialog-links {
@@ -2156,8 +2178,21 @@ body:has(.project-dialog-overlay) .project-hover-background {
   transition: color 150ms ease;
 }
 
+.project-box-descriptor {
+  display: none;
+}
+
+.project-title-descriptor {
+  font-weight: 500;
+  color: var(--muted);
+}
+
 .project-box-title button:hover {
   color: var(--green);
+}
+
+.project-box-title button:hover .project-title-descriptor {
+  color: inherit;
 }
 
 .project-box-title button:focus-visible {
@@ -2372,6 +2407,40 @@ body:has(.project-dialog-overlay) .project-hover-background {
   .project-box .project-box-title {
     font-size: 1.5rem;
     overflow-wrap: anywhere;
+    hyphens: auto;
+  }
+
+  /* The resume descriptor moves beneath the name: a full-width line on cards,
+     inside the heading in the roomier dialog. */
+  .project-title-separator,
+  .project-box .project-title-descriptor {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .project-title-descriptor {
+    display: block;
+    font-size: 1.0625rem;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  .project-box .project-box-header {
+    flex-wrap: wrap;
+  }
+
+  .project-box .project-box-descriptor {
+    display: block;
+    flex: 0 0 100%;
+    margin: -4px 0 0;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--muted);
   }
 
   .project-box-summary {
