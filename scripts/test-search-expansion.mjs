@@ -24,7 +24,7 @@ try {
     if (attempt > 100) throw new Error("Preview server did not start.");
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   for (const { width, reducedMotion } of [
     { width: 1440, reducedMotion: "no-preference" },
     { width: 390, reducedMotion: "no-preference" },

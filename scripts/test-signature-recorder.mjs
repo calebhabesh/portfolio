@@ -48,7 +48,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   await mkdir(artifacts, { recursive: true });
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", headless: true, args: ["--no-sandbox"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, headless: true, args: ["--no-sandbox"] });
   const context = await browser.newContext({ viewport: { width: 1280, height: 1100 }, acceptDownloads: true });
   const page = await context.newPage();
   const errors = [];

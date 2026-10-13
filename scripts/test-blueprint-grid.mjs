@@ -179,7 +179,7 @@ try {
     if (attempt > 100) throw new Error("Preview server did not start.");
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   for (const theme of ["light", "dark"]) {
     const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, colorScheme: theme, reducedMotion: "reduce" });
     // Isolate layout from the independent WebGL scene.

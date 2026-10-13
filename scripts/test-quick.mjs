@@ -41,7 +41,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 100));
   }
   browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+    executablePath: process.env.CHROMIUM_PATH || undefined,
     args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
   });
   for (const scenario of [

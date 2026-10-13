@@ -26,7 +26,7 @@ try {
     });
   });
   browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+    executablePath: process.env.CHROMIUM_PATH || undefined,
     headless: true,
     args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
   });
