@@ -24,6 +24,8 @@ export interface ProjectItem {
   id: string;
   tone: "sage" | "slate" | "clay" | "ochre" | "lilac" | "teal" | "orange" | "rose";
   title: string;
+  // Short role descriptor shown after the title, matching the resume entry.
+  descriptor: string;
   category: string;
   status: "Working prototype" | "Live" | "In development" | "Complete" | "Capstone" | "Course project";
   summary: string;
@@ -31,6 +33,8 @@ export interface ProjectItem {
   tags: string[];
   additionalTags?: string[];
   links: ProjectLink[];
+  // Workflow file in the project's GitHub repo; shown as a live status badge.
+  ciWorkflow?: string;
   images?: ProjectImage[];
 }
 
@@ -39,6 +43,7 @@ export const projects: ProjectItem[] = [
     id: "doorlink",
     tone: "slate",
     title: "Doorlink",
+    descriptor: "Custom-PCB Smart Doorbell",
     category: "Embedded systems · self-hosted IoT",
     status: "Working prototype",
     summary:
@@ -113,6 +118,7 @@ export const projects: ProjectItem[] = [
     id: "linewatch",
     tone: "clay",
     title: "LineWatchTO",
+    descriptor: "Transit Reliability Platform",
     category: "Transit intelligence · full stack",
     status: "Live",
     summary:
@@ -181,6 +187,7 @@ export const projects: ProjectItem[] = [
         height: 1020,
       },
     ],
+    ciWorkflow: "ci.yml",
     links: [
       {
         label: "Visit LineWatchTO",
@@ -202,10 +209,11 @@ export const projects: ProjectItem[] = [
     id: "orbit",
     tone: "ochre",
     title: "Orbit",
+    descriptor: "Peer-to-Peer File Sync",
     category: "Distributed systems · networking",
-    status: "In development",
+    status: "Complete",
     summary:
-      "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine. Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
+      "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine and driven from a CLI and keyboard terminal interface. Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
     evidence: [
       {
         heading: "Causal History",
@@ -215,7 +223,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Crash Safety",
         detail:
-          "New contents are staged and published through a recovery journal. Fault-injection tests, 16 abrupt VM resets and five full-disk cases kept protected files intact.",
+          "New contents are staged and published through a recovery journal. Fault-injection tests, 16 abrupt VM resets and five storage-exhaustion cases kept protected files intact.",
       },
       {
         heading: "Across Networks",
@@ -225,35 +233,43 @@ export const projects: ProjectItem[] = [
       {
         heading: "Three Real Hosts",
         detail:
-          "Packaged builds on a Linux laptop, a Raspberry Pi 4B and a cloud VM converged to matching contents. Testing on real networks found a relay-recovery bug that previously never recovered within 180 seconds; it now recovers in about 5.5 seconds.",
+          "Packaged builds on a Linux laptop, a Raspberry Pi 4B and a cloud VM converged to matching contents. Testing on real networks found a relay-recovery bug that previously never recovered within 180 seconds; it now recovers in 5.4–5.5 seconds.",
       },
     ],
     tags: ["Go", "SQLite", "Mutual TLS (mTLS)", "QUIC · ICE", "Linux"],
-    additionalTags: ["TypeScript · React", "WebSocket", ".deb · .rpm"],
+    additionalTags: ["Bubble Tea TUI", "WebSocket", ".deb · .rpm"],
     images: [
       {
-        src: "/projects/orbit-history.png",
-        alt: "Orbit operator console showing workspace files and version history",
-        caption: "Workspace files and version history",
-        width: 1200,
-        height: 750,
+        src: "/projects/orbit/tui-overview-conflict.png",
+        alt: "Orbit terminal interface overview flagging plan.md as a conflict between a laptop and a Raspberry Pi, with the next review action",
+        caption: "Offline edits on two devices flagged for review",
+        width: 1116,
+        height: 696,
       },
       {
-        src: "/projects/orbit-folders.png",
-        alt: "Orbit operator console showing registered folders and a persistent work queue",
-        caption: "Registered folders and work queue",
-        width: 1280,
-        height: 800,
+        src: "/projects/orbit/tui-files.png",
+        alt: "Orbit terminal Files view listing synced notes, each saved on this device, with plan.md marked Conflict",
+        caption: "Files view with per-file sync state",
+        width: 1116,
+        height: 696,
       },
       {
-        src: "/projects/orbit-conflicts.png",
-        alt: "Orbit console showing two preserved versions of a conflicting file",
-        caption: "Conflicting file versions",
-        width: 1280,
-        height: 800,
+        src: "/projects/orbit/tui-review-versions.png",
+        alt: "Orbit terminal review screen showing the laptop and Pi versions of plan.md preserved side by side, with editor, diff and keep-copies actions",
+        caption: "Both versions preserved for reviewed resolution",
+        width: 1116,
+        height: 696,
       },
     ],
+    ciWorkflow: "ci.yml",
     links: [
+      {
+        label: "Conflict & Restore Walkthrough",
+        url: "https://github.com/calebhabesh/orbit/blob/main/docs/case-study.md#conflict-and-restore-example",
+        type: "demo",
+        ariaLabel: "Orbit conflict and restore walkthrough in the case study (opens in new tab)",
+        external: true,
+      },
       {
         label: "Orbit GitHub",
         url: "https://github.com/calebhabesh/orbit",
@@ -267,15 +283,16 @@ export const projects: ProjectItem[] = [
     id: "courtlens",
     tone: "sage",
     title: "CourtLens",
+    descriptor: "NBA Analytics Platform",
     category: "Data engineering · ML · statistics",
     status: "In development",
     summary:
-      "An NBA research workbench covering six seasons and 104,533 player games. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an assistant answers questions from the warehouse.",
+      "An NBA research workbench covering 26 seasons and 882,849 player-game records. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an optional assistant answers questions from the warehouse.",
     evidence: [
       {
         heading: "Versioned Warehouse",
         detail:
-          "Python ingestion and 39 tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release.",
+          "Python ingestion and tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release. Growing from 3 to 26 seasons left every existing-season fact unchanged.",
       },
       {
         heading: "No Look-Ahead",
@@ -285,35 +302,35 @@ export const projects: ProjectItem[] = [
       {
         heading: "Impact Ratings",
         detail:
-          "202,063 lineup stints rebuilt from public play-by-play feed ridge-regression RAPM, on/off and six-factor ratings, shown with sample sizes and source gaps.",
+          "202,063 lineup stints across 3,901 games, rebuilt from public play-by-play, feed ridge-regression RAPM, on/off and six-factor ratings, shown with sample sizes and source gaps.",
       },
       {
         heading: "Forecast Evaluation",
         detail:
-          "Across 10 chronological folds, a prior-season blend reached a 4.88-point mean absolute error against a rolling baseline's 5.09, with 81.2% of results inside the 80% interval. A gradient-boosted model was tested and not adopted.",
+          "On a sealed 2025–26 holdout of 48,870 forecasts, a transparent prior-season blend scored a 4.643-point mean absolute error with 80.6% of results inside its 80% interval. Gradient-boosted challengers failed the pre-registered promotion gates, so the baseline was kept.",
       },
       {
         heading: "Checked Assistant",
         detail:
-          "A tool-calling agent queries the warehouse through read-only tools, and numbers in its answers are checked against query results. It is evaluated against independently computed SQL answers.",
+          "An optional tool-calling agent queries the warehouse through typed read-only tools. Numbers in its answers are checked against query results, and unsupported figures are flagged rather than presented as verified.",
       },
     ],
     tags: ["Python · FastAPI", "SQL · dbt", "PostgreSQL", "scikit-learn", "TypeScript · Next.js"],
     additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "LLM tool calling"],
     images: [
       {
-        src: "/projects/courtlens-comparison.png",
-        alt: "CourtLens dashboard comparing LeBron James and Stephen Curry",
-        caption: "Historical player comparison dashboard",
-        width: 749,
-        height: 1200,
+        src: "/projects/courtlens/stats-explorer.png",
+        alt: "CourtLens Stats explorer listing 2025–26 players with impact, counting and efficiency columns, each with a league percentile",
+        caption: "Stats explorer with qualified percentiles",
+        width: 1440,
+        height: 1000,
       },
       {
-        src: "/projects/courtlens-evaluation.png",
-        alt: "CourtLens evaluation page comparing historical model error and coverage",
-        caption: "Model evaluation on later games",
+        src: "/projects/courtlens/points-forecasts.png",
+        alt: "CourtLens points-forecast page showing 80% interval coverage on the 2025–26 holdout, a 4.643-point MAE and a do-not-promote decision",
+        caption: "Sealed holdout evaluation · challenger not promoted",
         width: 1440,
-        height: 2817,
+        height: 1000,
       },
     ],
     links: [],
@@ -321,7 +338,8 @@ export const projects: ProjectItem[] = [
   {
     id: "medical-imaging",
     tone: "lilac",
-    title: "Medical Image Processing",
+    title: "Parallel MRI Processing",
+    descriptor: "C++/OpenMP Pipeline",
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:
@@ -366,14 +384,14 @@ export const projects: ProjectItem[] = [
         label: "Watch Capstone Demo",
         url: "https://github.com/calebhabesh/NM03-Capstone-Project#demo",
         type: "demo",
-        ariaLabel: "Watch the Medical Image Processing videos in the GitHub README (opens in new tab)",
+        ariaLabel: "Watch the Parallel MRI Processing videos in the GitHub README (opens in new tab)",
         external: true,
       },
       {
         label: "Capstone GitHub",
         url: "https://github.com/calebhabesh/NM03-Capstone-Project",
         type: "github",
-        ariaLabel: "Medical Image Processing capstone repository (opens in new tab)",
+        ariaLabel: "Parallel MRI Processing capstone repository (opens in new tab)",
         external: true,
       },
     ],
@@ -381,7 +399,8 @@ export const projects: ProjectItem[] = [
   {
     id: "systemc-noc",
     tone: "teal",
-    title: "4×4 NoC Simulator",
+    title: "SystemC NoC",
+    descriptor: "Mesh Interconnect Simulator",
     category: "SoC architecture · SystemC simulation",
     status: "Course project",
     summary:
@@ -419,6 +438,7 @@ export const projects: ProjectItem[] = [
         height: 736,
       },
     ],
+    ciWorkflow: "verify.yml",
     links: [
       {
         label: "NoC GitHub",
@@ -432,7 +452,8 @@ export const projects: ProjectItem[] = [
   {
     id: "fpga-pong",
     tone: "orange",
-    title: "FPGA VGA Pong",
+    title: "FPGA Pong",
+    descriptor: "VHDL VGA Game",
     category: "Digital hardware · VHDL and VGA",
     status: "Course project",
     summary:
@@ -477,12 +498,13 @@ export const projects: ProjectItem[] = [
         height: 480,
       },
     ],
+    ciWorkflow: "verify.yml",
     links: [
       {
         label: "Pong GitHub",
         url: "https://github.com/calebhabesh/fpga-pong",
         type: "github",
-        ariaLabel: "FPGA VGA Pong repository (opens in new tab)",
+        ariaLabel: "FPGA Pong repository (opens in new tab)",
         external: true,
       },
     ],
@@ -490,7 +512,8 @@ export const projects: ProjectItem[] = [
   {
     id: "portfolio-site",
     tone: "rose",
-    title: "Portfolio Site",
+    title: "Portfolio",
+    descriptor: "Interactive Web Portfolio",
     category: "Personal website · interactive frontend",
     status: "Live",
     summary:

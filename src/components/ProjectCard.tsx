@@ -1,11 +1,17 @@
 import React from "react";
 import { useIsPresent } from "motion/react";
-import { type ProjectItem } from "../data/projects";
+import { projects, type ProjectItem } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
 import { ProjectSketch } from "./ProjectSketch";
 import { ProjectLinkIcon } from "./ProjectLinkButton";
 import { TechnologyBadges } from "./TechnologyBadges";
 import type { TechnologyMatches } from "../lib/technology-search";
+
+// Matches the sheets from scripts/generate-paper-crumple.mjs and styles.css.
+const CRUMPLE_VARIANTS = 8;
+export function crumpleVariant(projectId: string) {
+  return Math.max(0, projects.findIndex(project => project.id === projectId)) % CRUMPLE_VARIANTS;
+}
 
 interface ProjectCardProps {
   project: ProjectItem;
@@ -35,6 +41,16 @@ function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live"
   );
 }
 
+export function ProjectTitle({ project }: { project: ProjectItem }) {
+  return (
+    <>
+      {project.title}
+      <span className="project-title-separator"> — </span>
+      <span className="project-title-descriptor">{project.descriptor}</span>
+    </>
+  );
+}
+
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, technologyMatches }) => {
   const present = useIsPresent();
   const previewImage = project.images?.[0];
@@ -47,7 +63,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
   const handleCardClick = (e: React.MouseEvent) => {
     if (!onExpand) return;
     const target = e.target as HTMLElement;
-    if (target.closest("a, button, .project-box-type, .project-box-summary, .project-box-tags")) {
+    if (target.closest("a, button, .project-box-descriptor, .project-box-type, .project-box-summary, .project-box-tags")) {
       return;
     }
     onExpand(project);
@@ -59,6 +75,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
         style={{ borderRadius: 6 }}
         className="project-box project-target"
         data-project={project.id}
+        data-crumple={crumpleVariant(project.id)}
         inert={!present || expanded || undefined}
         aria-hidden={!present || expanded || undefined}
         onClick={handleCardClick}
@@ -74,10 +91,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                       onClick={() => onExpand(project)}
                       aria-haspopup="dialog"
                     >
-                      {project.title}
+                      <ProjectTitle project={project} />
                     </button>
                   ) : (
-                    project.title
+                    <ProjectTitle project={project} />
                   )}
                 </h3>
               </div>
@@ -113,6 +130,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                   </button>
                 )}
               </div>
+              {/* Narrow cards show the descriptor here; the heading keeps it for screen readers. */}
+              <p className="project-box-descriptor" aria-hidden="true">{project.descriptor}</p>
             </div>
 
             <p className="project-box-type">{project.category}</p>

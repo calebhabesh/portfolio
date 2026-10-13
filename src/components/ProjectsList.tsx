@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useProjectExpansion, type ProjectOrigin } from "../hooks/use-project-expansion";
 import { projects, type ProjectItem } from "../data/projects";
-import { ProjectCard } from "./ProjectCard";
+import { ProjectCard, ProjectTitle, crumpleVariant } from "./ProjectCard";
 import { ProjectLinkButton } from "./ProjectLinkButton";
 import { ProjectGallery } from "./ProjectGallery";
 import { ProjectSketch } from "./ProjectSketch";
@@ -15,6 +15,18 @@ import { SearchMatchText } from "./SearchMatchText";
 import { useProjectFilterMotion } from "../hooks/use-project-filter-motion";
 import { ProjectFrameGuides } from "./ProjectFrameGuides";
 import { HoverEffectItem } from "./ui/card-hover-effect";
+
+function ProjectCiBadge({ project }: { project: ProjectItem }) {
+  const repo = project.links.find(link => link.type === "github")?.url;
+  if (!project.ciWorkflow || !repo) return null;
+  const workflowUrl = `${repo}/actions/workflows/${project.ciWorkflow}`;
+  return (
+    <a className="project-ci-badge" href={workflowUrl} target="_blank" rel="noreferrer"
+      aria-label={`${project.title} continuous integration status on GitHub Actions (opens in new tab)`}>
+      <img src={`${workflowUrl}/badge.svg?branch=main`} alt="" height={20} loading="lazy" decoding="async" />
+    </a>
+  );
+}
 
 export const ProjectsList: React.FC = () => {
   const reduceMotion = useReducedMotion();
@@ -164,7 +176,7 @@ export const ProjectsList: React.FC = () => {
               aria-labelledby={`dialog-title-${active.id}`}
               className="project-dialog w-full max-w-[900px] flex flex-col rounded-2xl"
             >
-              <div ref={surfaceRef} className="project-dialog-surface" aria-hidden="true" />
+              <div ref={surfaceRef} className="project-dialog-surface" data-crumple={crumpleVariant(active.id)} aria-hidden="true" />
               <div ref={contentRef} className="project-dialog-content">
                 <div className="project-dialog-header">
                   <div className="project-dialog-heading flex flex-col gap-1.5">
@@ -174,12 +186,13 @@ export const ProjectsList: React.FC = () => {
                         id={`dialog-title-${active.id}`}
                         className="text-2xl font-bold text-[var(--ink)] tracking-tight m-0"
                       >
-                        {active.title}
+                        <ProjectTitle project={active} />
                       </h3>
                     </div>
                     <p className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
                       {active.category}
                     </p>
+                    <ProjectCiBadge project={active} />
                   </div>
 
                   <div className="project-dialog-actions">

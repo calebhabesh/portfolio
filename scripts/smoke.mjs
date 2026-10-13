@@ -146,10 +146,10 @@ async function checkPage(browser, viewport, screenshotName) {
     `Expected core projects, capstone, NoC, Pong, then the portfolio site. Got: ${projectIds.join(", ")}`
   );
 
-  const projectTitles = (await page.locator("article[data-project] .project-box-title").allInnerTexts()).map((t) => t.trim());
+  const projectTitles = (await page.locator("article[data-project] .project-box-title").allTextContents()).map((t) => t.replace(/\s+/g, " ").trim());
   assert.deepEqual(
     projectTitles,
-    ["Doorlink", "LineWatchTO", "Orbit", "CourtLens", "Medical Image Processing", "4×4 NoC Simulator", "FPGA VGA Pong", "Portfolio Site"],
+    ["Doorlink — Custom-PCB Smart Doorbell", "LineWatchTO — Transit Reliability Platform", "Orbit — Peer-to-Peer File Sync", "CourtLens — NBA Analytics Platform", "Parallel MRI Processing — C++/OpenMP Pipeline", "SystemC NoC — Mesh Interconnect Simulator", "FPGA Pong — VHDL VGA Game", "Portfolio — Interactive Web Portfolio"],
     `Expected exact titles. Got: ${projectTitles.join(", ")}`
   );
   assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
@@ -516,7 +516,7 @@ let browser;
 try {
   await waitForServer();
   browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+    executablePath: process.env.CHROMIUM_PATH || undefined,
     headless: true,
     args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
   });

@@ -100,7 +100,7 @@ try {
     if (attempt > 100) throw new Error("Preview server did not start.");
     await new Promise(resolve => setTimeout(resolve, 100));
   }
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium", args: ["--no-sandbox", "--disable-dev-shm-usage"] });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
   for (const { width, theme, reducedMotion } of [
     { width: 1440, theme: "light", reducedMotion: "no-preference" },
     { width: 2048, theme: "dark", reducedMotion: "no-preference" },
@@ -136,7 +136,7 @@ try {
       ["Ja", ["doorlink", "linewatch", "portfolio-site"]],
       ["Java", ["doorlink", "linewatch", "portfolio-site"]],
       ["Mos", ["doorlink"]],
-      ["React", ["doorlink", "linewatch", "orbit", "courtlens", "portfolio-site"]],
+      ["React", ["doorlink", "linewatch", "courtlens", "portfolio-site"]],
       ["React, PostgreSQL", ["doorlink", "linewatch", "courtlens"]],
       ["OCI", ["linewatch"]],
       ["Pyhton", ["courtlens"]],

@@ -23,5 +23,9 @@ for (const step of [
     name: "paper", script: "scripts/generate-paper-grain.mjs",
     inputs: ["src/assets/paper-grain.svg"], outputs: ["src/assets/paper-grain.webp"],
   },
+  {
+    name: "crumple", script: "scripts/generate-paper-crumple.mjs",
+    inputs: [], outputs: ["src/assets/paper-crumple"],
+  },
 ]) await runCachedGenerator(step);
 await beginBuild();

@@ -36,7 +36,7 @@ try {
   }
 
   browser = await chromium.launch({
-    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+    executablePath: process.env.CHROMIUM_PATH || undefined,
     headless: true,
     args: ["--no-sandbox", "--disable-dev-shm-usage", "--enable-unsafe-swiftshader"],
   });
@@ -508,8 +508,8 @@ try {
   for (const [projectId, imagePaths] of [
     ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png", "/projects/doorlink-pcb-layout.png"]],
     ["linewatch", ["/projects/linewatch-onboarding-map.png", "/projects/linewatch-onboarding-impact.png", "/projects/linewatch-onboarding-personal.png", "/projects/linewatch-onboarding-stations.png"]],
-    ["orbit", ["/projects/orbit-history.png", "/projects/orbit-folders.png", "/projects/orbit-conflicts.png"]],
-    ["courtlens", ["/projects/courtlens-comparison.png", "/projects/courtlens-evaluation.png"]],
+    ["orbit", ["/projects/orbit/tui-overview-conflict.png", "/projects/orbit/tui-files.png", "/projects/orbit/tui-review-versions.png"]],
+    ["courtlens", ["/projects/courtlens/stats-explorer.png", "/projects/courtlens/points-forecasts.png"]],
     ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
     ["fpga-pong", ["/projects/fpga-pong/board-demo-2024.webp", "/projects/fpga-pong/rtl-frame-2026.png"]],
   ]) {
@@ -558,7 +558,7 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = projectId === "courtlens" ? 0 : ["linewatch", "medical-imaging"].includes(projectId) ? 2 : 1;
+    const expectedLinkCount = projectId === "courtlens" ? 0 : ["linewatch", "medical-imaging", "orbit"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
     if (projectId === "medical-imaging") {
       const demo = dialog.getByRole("link", { name: /^Watch Demo:/ });
