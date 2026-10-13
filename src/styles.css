@@ -2,6 +2,23 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
+/* Self-hosted and preloaded so text paints in Satoshi without a fallback swap. */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi-variable.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/satoshi-variable-italic.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
   --paper: #f7f6f2;
@@ -181,6 +198,25 @@ body {
 /* Keep the softly blurred blueprint behind the sharp content and guides.
    Document-sized rows preserve alignment while scrolling; the vignette
    remains viewport anchored. */
+/* The head script sets data-layout-pending until the blueprint grid has
+   measured and snapped the page. Entrances wait, then play from their
+   final positions. */
+:root[data-layout-pending] body {
+  opacity: 0;
+}
+
+:root[data-layout-pending] *,
+:root[data-layout-pending] *::before,
+:root[data-layout-pending] *::after {
+  animation-play-state: paused !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition: opacity 240ms ease-out;
+  }
+}
+
 body::before {
   content: "";
   position: absolute;
@@ -736,6 +772,7 @@ canvas:focus-visible {
 
 .technology-loop-control {
   width: 100%;
+  animation: content-fade-in 480ms var(--ease-out) both;
   cursor: grab;
   touch-action: pan-y;
   user-select: none;
@@ -896,6 +933,12 @@ canvas:focus-visible {
   [data-content-reveal="pending"] {
     opacity: 0;
     transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes content-fade-in {
+  from {
+    opacity: 0;
   }
 }
 
@@ -1169,6 +1212,20 @@ canvas:focus-visible {
 
 .project-card-animate[data-card-reveal="pending"] .project-comet-card {
   pointer-events: none;
+}
+
+/* Before main.js marks the cards pending, the head script's gate gives the
+   static markup the same hidden starting state. */
+:root[data-entrance-gate] .project-card-animate:not([data-card-reveal]) .project-comet-card {
+  opacity: 0;
+  transform: translate3d(var(--fly-x), 0, 0);
+  pointer-events: none;
+}
+
+:root[data-entrance-gate] .project-card-animate:not([data-card-reveal]) .project-hover-background,
+:root[data-entrance-gate] .project-card-animate:not([data-card-reveal]) .project-frame-corner path,
+:root[data-entrance-gate] .project-card-animate:not([data-card-reveal]) .project-frame-outline rect {
+  visibility: hidden;
 }
 
 .project-card-animate[data-card-reveal="pending"] .project-hover-background {
@@ -2810,6 +2867,9 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    /* Zero, not 0.01ms: a near-zero duration still starts a transition on
+       every change (property defaults to all), which can be sampled at its
+       starting value before the next frame advances it. */
+    transition-duration: 0s !important;
   }
 }

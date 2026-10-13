@@ -1,8 +1,12 @@
-import "./styles.css";
 import { entranceSelector, projectEntranceReady } from "./project-entrance.js";
 import { initBlueprintGrid } from "./blueprint-grid.js";
 
 const disposeBlueprintGrid = initBlueprintGrid();
+// The grid resnaps once fonts settle and again on the following frame.
+// Reveal the page after that, never later than the head script's fallback.
+Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 600))])
+  .then(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  .then(() => { delete document.documentElement.dataset.layoutPending; });
 if (import.meta.hot) import.meta.hot.dispose(() => disposeBlueprintGrid?.());
 
 let disposeGutterMazes;

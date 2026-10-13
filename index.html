@@ -24,7 +24,21 @@
         const theme = savedTheme === "dark" || savedTheme === "light"
           ? savedTheme
           : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        document.documentElement.dataset.theme = theme;
+        const root = document.documentElement;
+        root.dataset.theme = theme;
+        // Keep the page on bare paper until main.js snaps it to the blueprint
+        // grid, so nothing is painted in a provisional position first.
+        root.dataset.layoutPending = "";
+        setTimeout(() => { delete root.dataset.layoutPending; }, 3000);
+        // Hold the static project cards hidden until main.js claims their
+        // entrance, so the first paint never shows them before they fly in.
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          root.dataset.entranceGate = "";
+          // Release the cards if the module never arrives.
+          setTimeout(() => {
+            if (!document.querySelector("[data-card-reveal]")) delete root.dataset.entranceGate;
+          }, 8000);
+        }
         document.querySelector('meta[name="theme-color"]').content =
           theme === "dark" ? "#111613" : "#f7f6f2";
       })();
@@ -38,9 +52,8 @@
     <meta property="og:url" content="https://calebhabesh.com/" />
     <link rel="canonical" href="https://calebhabesh.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
-    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@1,2" />
+    <link rel="preload" href="/fonts/satoshi-variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/src/styles.css" />
     <link rel="preload" href="/src/assets/lion_emblem.optimized.glb.gzip" as="fetch" crossorigin="anonymous" />
     <link rel="preload" href="/src/assets/emblem-collision-field.bin.gzip" as="fetch" crossorigin="anonymous" />
     <link rel="preload" href="/src/assets/emblem-textures/normal.webp" as="image" type="image/webp" />
