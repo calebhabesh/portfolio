@@ -232,23 +232,21 @@ export const projects: ProjectItem[] = [
         detail:
           "Packaged builds on a Linux laptop, a Raspberry Pi 4B and a cloud VM converged to matching contents. Testing on real networks found a relay-recovery bug that previously never recovered within 180 seconds; it now recovers in 5.4–5.5 seconds.",
       },
+      {
+        heading: "Stress Testing",
+        detail:
+          "A 30-minute soak with 10 devices, 53 daemon kills and 35 network outages ended with every device holding the same 382 files and the same preserved conflicts. The campaign found sync slowing as folders grew; batching receipts made idle sync rounds 26× cheaper.",
+      },
     ],
     tags: ["Go", "SQLite", "Mutual TLS (mTLS)", "QUIC · ICE", "Linux"],
     additionalTags: ["Bubble Tea TUI", "WebSocket", ".deb · .rpm"],
     images: [
       {
-        src: "/projects/orbit/tui-overview-conflict.png",
-        alt: "Orbit terminal interface overview flagging plan.md as a conflict between a laptop and a Raspberry Pi, with the next review action",
-        caption: "Offline edits on two devices flagged for review",
-        width: 1116,
-        height: 696,
-      },
-      {
-        src: "/projects/orbit/tui-files.png",
-        alt: "Orbit terminal Files view listing synced notes, each saved on this device, with plan.md marked Conflict",
-        caption: "Files view with per-file sync state",
-        width: 1116,
-        height: 696,
+        src: "/projects/orbit/demo-three-device-conflict.webp",
+        alt: "Three Orbit terminal interfaces side by side for a laptop, desktop and Raspberry Pi, each flagging packing.txt as a conflict after the laptop edited it while offline, above a shell showing the commands that caused it",
+        caption: "Demo · one offline edit, flagged on all three devices",
+        width: 1920,
+        height: 1080,
       },
       {
         src: "/projects/orbit/tui-review-versions.png",
@@ -257,13 +255,34 @@ export const projects: ProjectItem[] = [
         width: 1116,
         height: 696,
       },
+      {
+        src: "/projects/orbit/soak-timeline.png",
+        alt: "Churn soak timeline for 10 devices over 30 minutes with crash and outage windows shaded; after all faults heal, every device holds identical contents",
+        caption: "10-device churn soak · exact convergence after healing",
+        width: 1647,
+        height: 781,
+      },
+      {
+        src: "/projects/orbit/network-matrix.png",
+        alt: "NAT traversal results: direct paths established in 10 of 10 runs on a LAN, through port-preserving NAT and to a public TCP host, and 0 of 10 through symmetric NAT or blocked UDP, which use the relay; 64 MiB throughput 12.6, 4.2 and 1.6 MiB/s over LAN QUIC, NAT QUIC and relay",
+        caption: "NAT traversal matrix · 50 namespace runs",
+        width: 1617,
+        height: 797,
+      },
+      {
+        src: "/projects/orbit/round-cost.png",
+        alt: "Before and after batching receipts: an idle sync round over 900 versions drops from 19.1 to 0.72 seconds, and successive 300-file batches stop slowing down, from 41, 73 and 83 seconds to 41, 49 and 48",
+        caption: "Fix found by measurement · batched receipts",
+        width: 1755,
+        height: 819,
+      },
     ],
     links: [
       {
-        label: "Conflict & Restore Walkthrough",
-        url: "https://github.com/calebhabesh/orbit/blob/main/docs/case-study.md#conflict-and-restore-example",
+        label: "Watch Orbit Demo",
+        url: "https://github.com/calebhabesh/orbit#demo",
         type: "demo",
-        ariaLabel: "Orbit conflict and restore walkthrough in the case study (opens in new tab)",
+        ariaLabel: "Watch the Orbit three-device demo in the GitHub README (opens in new tab)",
         external: true,
       },
       {
