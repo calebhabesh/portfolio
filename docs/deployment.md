@@ -102,8 +102,9 @@ ln -s releases/<previous-release> current-rollback
 mv -Tf current-rollback current
 ```
 
-Do not delete the release targeted by `current`. Release directories are retained
-for manual rollback and are small; review their disk use periodically.
+Do not delete the release targeted by `current`. Each deploy keeps the five newest
+release directories (always including the live and previous ones) and removes older
+ones, so roll back only to a release that is still listed.
 
 This isolates the portfolio from LineWatchTO releases but still depends on one
 VPS, its Docker daemon, the tunnel, and Cloudflare. It is not a multi-host failover
