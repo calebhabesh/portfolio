@@ -558,7 +558,7 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = projectId === "courtlens" ? 0 : ["linewatch", "medical-imaging", "orbit"].includes(projectId) ? 2 : 1;
+    const expectedLinkCount = ["linewatch", "courtlens", "medical-imaging", "orbit"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
     if (projectId === "medical-imaging") {
       const demo = dialog.getByRole("link", { name: /^Watch Demo:/ });

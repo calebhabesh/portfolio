@@ -25,6 +25,21 @@ export function ProjectLinkIcon({ type, size = 16 }: { type: ProjectLink["type"]
 
 export function ProjectLinkButton({ link }: { link: ProjectItem["links"][number] }) {
   const label = link.type === "github" ? "View Source" : link.type === "demo" ? "Watch Demo" : link.type === "live-demo" ? "Live Demo" : "View Production";
+  if (link.pending) {
+    const description = `${label} (coming soon)`;
+    return (
+      <button
+        type="button"
+        disabled
+        className="project-dialog-link inline-flex items-center gap-2 rounded-lg font-medium"
+        aria-label={description}
+        title={description}
+      >
+        <ProjectLinkIcon type={link.type} />
+        <span>{label}</span>
+      </button>
+    );
+  }
   return (
     <a
       href={link.url}

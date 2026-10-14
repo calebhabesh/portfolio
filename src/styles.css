@@ -1891,6 +1891,13 @@ body:has(.project-dialog-overlay) .project-hover-background {
   color: var(--dialog-action-ink);
 }
 
+.project-dialog-link:disabled,
+.project-dialog-link:disabled:hover {
+  background: var(--dialog-action-bg);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .project-dialog-link:focus-visible {
   outline: 2px solid var(--dialog-action-icon);
   outline-offset: 3px;
