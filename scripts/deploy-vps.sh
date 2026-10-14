@@ -58,5 +58,13 @@ curl -fsS http://127.0.0.1:8088/ | grep '<title>Caleb Habesh</title>' > /dev/nul
 printf '%s\n' "$config_hash" > .caddy-config-sha
 printf '%s\n' "$release" > .current-release
 trap - ERR
+
+# Keep the newest five releases for rollback; never remove the live or previous one.
+keep_live="$(basename "$(readlink site/current)")"
+keep_prev="$(basename "${previous:-none}")"
+find site/releases -mindepth 1 -maxdepth 1 -type d -printf '%T@ %f\n' | sort -rn | tail -n +6 \
+  | while read -r _ name; do
+      [[ "$name" == "$keep_live" || "$name" == "$keep_prev" ]] || rm -rf -- "site/releases/$name"
+    done
 echo "Portfolio origin ready: $release"
 REMOTE
