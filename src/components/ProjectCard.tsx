@@ -25,7 +25,7 @@ function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live"
   const link = project.links.find(link => link.type === type);
   const label = type === "live" ? "Live Site" : type === "github" ? "GitHub" : "Live Demo";
   const icon = <ProjectLinkIcon type={type} size={18} />;
-  if (!link) {
+  if (!link || link.pending) {
     const description = `${label} for ${project.title} (coming soon)`;
     return (
       <button type="button" className="project-icon-link" disabled aria-label={description} title={description}>

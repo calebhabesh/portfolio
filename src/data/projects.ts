@@ -10,6 +10,8 @@ export interface ProjectLink {
   type: "live" | "live-demo" | "github" | "demo";
   ariaLabel: string;
   external?: boolean;
+  // Shown but not clickable until the destination is published.
+  pending?: boolean;
 }
 
 export interface ProjectImage {
@@ -348,7 +350,24 @@ export const projects: ProjectItem[] = [
         height: 1000,
       },
     ],
-    links: [],
+    links: [
+      {
+        label: "Visit CourtLens",
+        url: "https://courtlens.calebhabesh.com",
+        type: "live",
+        ariaLabel: "Visit CourtLens (opens in new tab)",
+        external: true,
+        pending: true,
+      },
+      {
+        label: "CourtLens GitHub",
+        url: "https://github.com/calebhabesh/courtlens",
+        type: "github",
+        ariaLabel: "CourtLens GitHub repository (opens in new tab)",
+        external: true,
+        pending: true,
+      },
+    ],
   },
   {
     id: "medical-imaging",
