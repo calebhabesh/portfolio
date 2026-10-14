@@ -35,6 +35,8 @@ export interface ProjectItem {
   tags: string[];
   additionalTags?: string[];
   links: ProjectLink[];
+  // False when visitors are already looking at the project, so the card shows no live or demo action.
+  showcase?: false;
   images?: ProjectImage[];
 }
 
@@ -474,6 +476,13 @@ export const projects: ProjectItem[] = [
     ],
     links: [
       {
+        label: "Watch NoC Demo",
+        url: "/projects/systemc-noc/traffic-demo.mp4",
+        type: "demo",
+        ariaLabel: "Watch the SystemC NoC stride and hotspot traffic replay (opens in new tab)",
+        external: true,
+      },
+      {
         label: "NoC GitHub",
         url: "https://github.com/calebhabesh/systemc-noc",
         type: "github",
@@ -533,6 +542,13 @@ export const projects: ProjectItem[] = [
     ],
     links: [
       {
+        label: "Watch Pong Demo",
+        url: "/projects/fpga-pong/rtl-gameplay.mp4",
+        type: "demo",
+        ariaLabel: "Watch FPGA Pong gameplay recorded from the VHDL simulation (opens in new tab)",
+        external: true,
+      },
+      {
         label: "Pong GitHub",
         url: "https://github.com/calebhabesh/fpga-pong",
         type: "github",
@@ -574,14 +590,8 @@ export const projects: ProjectItem[] = [
     ],
     tags: ["TypeScript · React", "Three.js", "Vite", "Tailwind CSS", "Motion", "Playwright"],
     additionalTags: ["JavaScript", "Accessibility", "A* Pathfinding"],
+    showcase: false,
     links: [
-      {
-        label: "Visit Portfolio",
-        url: "https://calebhabesh.com/",
-        type: "live",
-        ariaLabel: "Visit Caleb Habesh's portfolio (opens in new tab)",
-        external: true,
-      },
       {
         label: "Portfolio GitHub",
         url: "https://github.com/calebhabesh/portfolio",

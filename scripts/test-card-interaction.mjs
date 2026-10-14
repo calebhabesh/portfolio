@@ -558,13 +558,19 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = ["linewatch", "courtlens", "medical-imaging", "orbit"].includes(projectId) ? 2 : 1;
+    const expectedLinkCount = ["linewatch", "courtlens", "medical-imaging", "orbit", "systemc-noc", "fpga-pong"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
     if (projectId === "medical-imaging") {
       const demo = dialog.getByRole("link", { name: /^Watch Demo:/ });
       assert.equal(await demo.getAttribute("href"), "https://github.com/calebhabesh/NM03-Capstone-Project#demo");
       assert.equal(await demo.getAttribute("target"), "_blank");
       assert.equal(await demo.innerText(), "Watch Demo", "The native recording should be labeled as a demo.");
+    }
+    if (projectId === "systemc-noc" || projectId === "fpga-pong") {
+      // Self-hosted demo videos must exist and be served as MP4.
+      const href = await dialog.getByRole("link", { name: /^Watch Demo:/ }).getAttribute("href");
+      const response = await galleryPage.request.get(new URL(href, galleryPage.url()).href);
+      assert.ok(response.ok() && response.headers()["content-type"]?.includes("video/mp4"), `${projectId} demo video is not served.`);
     }
     for (const link of await projectLinks.all()) {
       assert.doesNotMatch(await link.innerText(), /↗/);
