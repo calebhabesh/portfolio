@@ -1,6 +1,6 @@
 import React from "react";
 import { useIsPresent } from "motion/react";
-import { projects, type ProjectItem } from "../data/projects";
+import { projects, type ProjectItem, type ProjectLink } from "../data/projects";
 import { CometCard } from "./ui/comet-card";
 import { ProjectSketch } from "./ProjectSketch";
 import { ProjectLinkIcon } from "./ProjectLinkButton";
@@ -21,9 +21,9 @@ interface ProjectCardProps {
   matches?: ProjectMatches | null;
 }
 
-function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live" | "live-demo" | "github" }) {
+function ProjectCardLink({ project, type }: { project: ProjectItem; type: ProjectLink["type"] }) {
   const link = project.links.find(link => link.type === type);
-  const label = type === "live" ? "Live Site" : type === "github" ? "GitHub" : "Live Demo";
+  const label = type === "live" ? "Live Site" : type === "github" ? "GitHub" : type === "demo" ? "Demo Video" : "Live Demo";
   const icon = <ProjectLinkIcon type={type} size={18} />;
   if (!link || link.pending) {
     const description = `${label} for ${project.title} (coming soon)`;
@@ -40,6 +40,11 @@ function ProjectCardLink({ project, type }: { project: ProjectItem; type: "live"
       {icon}
     </a>
   );
+}
+
+// A live site is the demo; otherwise the card offers a recorded or interactive one.
+function showcaseLinkType(project: ProjectItem): ProjectLink["type"] {
+  return (["live", "demo", "live-demo"] as const).find(type => project.links.some(link => link.type === type)) ?? "live-demo";
 }
 
 export function ProjectTitle({ project, matches }: { project: ProjectItem; matches?: ProjectTextMatches }) {
@@ -104,7 +109,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
               </div>
 
               <div className="project-box-actions">
-                <ProjectCardLink project={project} type={project.links.some(link => link.type === "live") ? "live" : "live-demo"} />
+                {project.showcase !== false && <ProjectCardLink project={project} type={showcaseLinkType(project)} />}
                 <ProjectCardLink project={project} type="github" />
                 {onExpand && (
                   <button
