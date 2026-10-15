@@ -67,7 +67,7 @@ export const projects: ProjectItem[] = [
           "Image capture, upload, deep sleep, and audio features have been tested on the battery-powered prototype. The latest firmware still needs a final test on the device, and current draw has yet to be measured with the enclosure closed.",
       },
     ],
-    tags: ["C/C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
+    tags: ["C · C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
     additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
     images: [
       {
@@ -229,7 +229,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Across Networks",
         detail:
-          "Devices pair over mutual TLS and connect directly over QUIC with ICE/STUN when possible, falling back to a relay that only sees ciphertext. Between a home network and an Oracle Cloud VM, a 4 MiB version arrived over direct UDP in 6–9 seconds.",
+          "Devices pair over mutual TLS and connect directly over QUIC with ICE and STUN when possible, falling back to a relay that only sees ciphertext. Between a home network and an Oracle Cloud VM, a 4 MiB version arrived over direct UDP in 6–9 seconds.",
       },
       {
         heading: "Three Real Hosts",
@@ -375,7 +375,7 @@ export const projects: ProjectItem[] = [
     id: "medical-imaging",
     tone: "lilac",
     title: "Parallel MRI Processing",
-    descriptor: "C++/OpenMP Pipeline",
+    descriptor: "C++ and OpenMP Pipeline",
     category: "Parallel computing · team capstone",
     status: "Capstone",
     summary:

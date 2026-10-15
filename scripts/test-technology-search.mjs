@@ -67,8 +67,8 @@ assert.deepEqual(highlighted("Python · FastAPI", "pyhton"), ["Python"]);
 assert.deepEqual(highlighted("Oracle Cloud Infrastructure", "oci"), ["Oracle Cloud Infrastructure"]);
 assert.deepEqual(highlighted("AWS (Lab)", "aws"), ["AWS"]);
 assert.deepEqual(highlighted("TypeScript · Next.js", "nextjs"), ["Next.js"]);
-assert.deepEqual(highlighted("C/C++ · ESP-IDF", "C"), ["C"]);
-assert.deepEqual(highlighted("C/C++ · ESP-IDF", "C++"), ["C++"]);
+assert.deepEqual(highlighted("C · C++ · ESP-IDF", "C"), ["C"]);
+assert.deepEqual(highlighted("C · C++ · ESP-IDF", "C++"), ["C++"]);
 assert.deepEqual(highlighted("PostgreSQL", "post, postgres"), ["PostgreS"]);
 assert.deepEqual(technologySearchTerms(" React, , REACT, Spring Boot, "), ["react", "spring boot"]);
 const proseMatches = (text, tags, query) => matchTechnologyText(text, tags, technologySearchTerms(query))
