@@ -149,7 +149,7 @@ async function checkPage(browser, viewport, screenshotName) {
   const projectTitles = (await page.locator("article[data-project] .project-box-title").allTextContents()).map((t) => t.replace(/\s+/g, " ").trim());
   assert.deepEqual(
     projectTitles,
-    ["Doorlink — Custom-PCB Smart Doorbell", "LineWatchTO — Transit Reliability Platform", "Orbit — Peer-to-Peer File Sync", "CourtLens — NBA Analytics Platform", "Parallel MRI Processing — C++/OpenMP Pipeline", "SystemC NoC — Mesh Interconnect Simulator", "FPGA Pong — VHDL VGA Game", "Portfolio — Interactive Web Portfolio"],
+    ["Doorlink — Custom-PCB Smart Doorbell", "LineWatchTO — Transit Reliability Platform", "Orbit — Peer-to-Peer File Sync", "CourtLens — NBA Analytics Platform", "Parallel MRI Processing — C++ and OpenMP Pipeline", "SystemC NoC — Mesh Interconnect Simulator", "FPGA Pong — VHDL VGA Game", "Portfolio — Interactive Web Portfolio"],
     `Expected exact titles. Got: ${projectTitles.join(", ")}`
   );
   assert.equal(await page.locator(".project-badge").count(), 0, "Project status badges should be absent.");
