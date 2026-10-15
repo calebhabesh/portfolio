@@ -202,8 +202,8 @@ async function checkPage(browser, viewport, screenshotName) {
   for (const [project, href] of [
     ["orbit", "https://github.com/calebhabesh/orbit#demo"],
     ["medical-imaging", "https://github.com/calebhabesh/NM03-Capstone-Project#demo"],
-    ["systemc-noc", "/projects/systemc-noc/traffic-demo.mp4"],
-    ["fpga-pong", "/projects/fpga-pong/rtl-gameplay.mp4"],
+    ["systemc-noc", "https://github.com/calebhabesh/systemc-noc#demo"],
+    ["fpga-pong", "https://github.com/calebhabesh/fpga-pong#2026-rtl-simulation"],
   ]) {
     assert.equal(await page.locator(`article[data-project="${project}"] a.project-icon-link[href="${href}"]`).count(), 1, `${project} card should link its demo video.`);
   }

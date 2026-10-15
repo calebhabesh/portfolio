@@ -477,9 +477,9 @@ export const projects: ProjectItem[] = [
     links: [
       {
         label: "Watch NoC Demo",
-        url: "/projects/systemc-noc/traffic-demo.mp4",
+        url: "https://github.com/calebhabesh/systemc-noc#demo",
         type: "demo",
-        ariaLabel: "Watch the SystemC NoC stride and hotspot traffic replay (opens in new tab)",
+        ariaLabel: "Watch the SystemC NoC stride and hotspot traffic replay in the GitHub README (opens in new tab)",
         external: true,
       },
       {
@@ -543,9 +543,9 @@ export const projects: ProjectItem[] = [
     links: [
       {
         label: "Watch Pong Demo",
-        url: "/projects/fpga-pong/rtl-gameplay.mp4",
+        url: "https://github.com/calebhabesh/fpga-pong#2026-rtl-simulation",
         type: "demo",
-        ariaLabel: "Watch FPGA Pong gameplay recorded from the VHDL simulation (opens in new tab)",
+        ariaLabel: "Watch FPGA Pong gameplay recorded from the VHDL simulation in the GitHub README (opens in new tab)",
         external: true,
       },
       {
