@@ -55,7 +55,24 @@ npm run preview
 
 The build generates a static site in `dist/`. Preview it at <http://localhost:4173>.
 
-See [development notes](docs/development.md) for checks and the model workflow.
+## Verify changes
+
+Install the Chromium version used by the browser checks:
+
+```bash
+npx playwright-core install chromium
+```
+
+For routine updates, build the site and run the quick checks:
+
+```bash
+npm run check
+```
+
+For broad changes to shared styles, layout, rendering, or startup behavior, run
+`npm run check:full`.
+
+See [development notes](docs/development.md) for checks by feature and the model workflow.
 
 See [VPS deployment](docs/deployment.md) for hosting, Cloudflare setup, updates, and rollback.
 
