@@ -5,7 +5,7 @@ import { DirectionAwareHover } from "./components/ui/direction-aware-hover";
 const container = document.getElementById("headshot-root");
 const root = container ? hydrateRoot(container, (
   <DirectionAwareHover
-    imageUrl="/caleb-headshot.jpg"
+    imageUrl="/caleb-headshot.jpg?v=20261016"
     alt="Caleb Habesh"
     className="hero-headshot"
   />
