@@ -129,7 +129,7 @@ export const projects: ProjectItem[] = [
     category: "Transit intelligence · full stack",
     status: "Live",
     summary:
-      "A transit dashboard for TTC, GO Transit, and UP Express riders. It brings service alerts, planned closures, station arrivals, and disruption checks for saved commutes into one map view. It clearly labels outdated data, scheduled arrivals, unavailable information, and demo data.",
+      "A transit dashboard for TTC, GO Transit, and UP Express riders, purpose-built for both desktop web and an installable mobile PWA. It maps service alerts, planned closures, station arrivals, and disruptions affecting saved commutes, clearly labeling outdated data, scheduled arrivals, unavailable information, and demo data.",
     evidence: [
       {
         heading: "Two Networks",
