@@ -193,9 +193,9 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://linewatchto.ca"]').count() >= 1, "LineWatchTO live link missing.");
   assert.ok(await page.locator('article[data-project="linewatch"] a[href="https://github.com/calebhabesh/linewatchto"]').count() >= 1, "LineWatchTO GitHub link missing.");
   assert.ok(await page.locator('article[data-project="orbit"] a[href="https://github.com/calebhabesh/orbit"]').count() >= 1, "Orbit GitHub link missing.");
-  // CourtLens links stay disabled until its demo host and repository are published.
-  assert.equal(await page.locator('article[data-project="courtlens"] a.project-icon-link').count(), 0, "CourtLens should not link to unpublished destinations.");
-  assert.equal(await page.locator('article[data-project="courtlens"] button.project-icon-link:disabled').count(), 2, "CourtLens needs disabled live and GitHub actions.");
+  assert.ok(await page.locator('article[data-project="courtlens"] a[href="https://courtlens.calebhabesh.com"]').count() >= 1, "CourtLens live link missing.");
+  assert.ok(await page.locator('article[data-project="courtlens"] a[href="https://github.com/calebhabesh/courtlens"]').count() >= 1, "CourtLens GitHub link missing.");
+  assert.equal(await page.locator('article[data-project="courtlens"] .project-icon-link').count(), 2, "CourtLens needs both live and GitHub actions.");
   assert.ok(await page.locator('article[data-project="medical-imaging"] a[href="https://github.com/calebhabesh/NM03-Capstone-Project"]').count() >= 1, "Medical Imaging GitHub link missing.");
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
   // Projects without a live site offer their demo video from the card.

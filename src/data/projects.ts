@@ -29,7 +29,7 @@ export interface ProjectItem {
   // Short role descriptor shown after the title, matching the resume entry.
   descriptor: string;
   category: string;
-  status: "Working prototype" | "Live" | "In development" | "Complete" | "Capstone" | "Course project";
+  status: "Working prototype" | "Live" | "Live · Privately self-hosted" | "In development" | "Complete" | "Capstone" | "Course project";
   summary: string;
   evidence: ProjectEvidence[];
   tags: string[];
@@ -47,28 +47,33 @@ export const projects: ProjectItem[] = [
     title: "Doorlink",
     descriptor: "Custom-PCB Smart Doorbell",
     category: "Embedded systems · self-hosted IoT",
-    status: "Working prototype",
+    status: "Live · Privately self-hosted",
     summary:
-      "A self-hosted smart doorbell with a hand-assembled, custom-designed PCB built around the ESP32-S3-WROOM-1 module and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers a notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
+      "A privately self-hosted smart doorbell in daily use, with a hand-assembled, custom-designed PCB built around the ESP32-S3-WROOM-1 module and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers an ntfy mobile notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
     evidence: [
       {
         heading: "Custom Hardware",
         detail:
-          "The Rev C board was designed and routed in KiCad. It connects an OV5640 camera, microphone, speaker, and battery power circuitry to an ESP32-S3-WROOM-1 module with 8 MB of PSRAM for camera and audio buffers.",
+          "The Rev C board was designed and routed in KiCad. It connects an OV5640 camera, microphone, speaker, and battery power circuitry to an ESP32-S3-WROOM-1 module with 8 MB of PSRAM for camera and audio buffers. Moving the audio playback buffers off the main task stack reduced its largest frame from 4,368 to 368 bytes.",
       },
       {
         heading: "Device-to-Dashboard Flow",
         detail:
-          "ESP-IDF firmware sends doorbell events to a Spring Boot gateway. PostgreSQL stores event records, MinIO stores images and audio, Mosquitto handles MQTT device commands, and Next.js provides the dashboard.",
+          "ESP-IDF firmware sends doorbell events to a Spring Boot gateway. PostgreSQL stores event records, MinIO stores images and audio, Mosquitto handles MQTT device commands, and Next.js provides the dashboard. The gateway and dashboard are privately self-hosted on a Raspberry Pi 4B behind a Cloudflare Tunnel, with no open router ports.",
       },
       {
-        heading: "Validation Status",
+        heading: "In Daily Use",
         detail:
-          "Image capture, upload, deep sleep, and audio features have been tested on the battery-powered prototype. The latest firmware still needs a final test on the device, and current draw has yet to be measured with the enclosure closed.",
+          "The doorbell is mounted and in active use at home. Over four weeks and 97 button presses, it delivered all 24 visitor photos in a 2.6-second median from press to stored image, while drawing under 1 mA on average for roughly 12 weeks of battery life per charge.",
+      },
+      {
+        heading: "Household Alerts",
+        detail:
+          "The gateway triggers a Home Assistant webhook to play a chime on all home smart speakers, supplementing the doorbell's local chime. It also sends ntfy mobile notifications to household members, with a link to open the dashboard.",
       },
     ],
     tags: ["C · C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
-    additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto"],
+    additionalTags: ["React", "Raspberry Pi 4B", "MinIO", "Mosquitto", "Home Assistant", "ntfy"],
     images: [
       {
         src: "/projects/doorlink-enclosure.jpg",
@@ -129,7 +134,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Two Networks",
         detail:
-          "Custom maps for TTC and GO Transit / UP Express show service disruptions and station details for each network's lines and stops.",
+          "Custom maps for TTC and GO Transit / UP Express show service disruptions and station details for each network's lines and stops, with purpose-built layouts for desktop and mobile.",
       },
       {
         heading: "Personal Impact",
@@ -139,7 +144,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Freshness Rules",
         detail:
-          "A Java and Spring Boot backend ingests transit feeds, with PostGIS for geographic data and Redis for caching. Alerts link to their sources, and outdated source data is labeled rather than shown as current.",
+          "A Java and Spring Boot backend ingests transit feeds, with PostGIS for geographic data and Redis for caching. Alerts link to their sources, and outdated source data is labeled rather than shown as current. Across 91 days in production, the ingestion job completed 99.98% of 296,520 runs and pulled 30.3 million source records.",
       },
       {
         heading: "Delivery Pipeline",
@@ -149,7 +154,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Production Hosting",
         detail:
-          "The production service runs on an Ampere virtual machine in Oracle Cloud Infrastructure (OCI), with 4 OCPUs and 24 GB of RAM. It uses Ubuntu 24.04, Docker Compose, and Caddy for HTTPS.",
+          "The production service runs on an Ampere virtual machine in Oracle Cloud Infrastructure (OCI), with 4 OCPUs and 24 GB of RAM. It uses Ubuntu 24.04, Docker Compose, and Caddy for HTTPS, with Cloudflare caching public API responses at a 10.5 ms median.",
       },
       {
         heading: "AWS Infrastructure Lab",
@@ -304,14 +309,14 @@ export const projects: ProjectItem[] = [
     title: "CourtLens",
     descriptor: "NBA Analytics Platform",
     category: "Data engineering · ML · statistics",
-    status: "In development",
+    status: "Live",
     summary:
       "An NBA research workbench covering 26 seasons and 882,849 player-game records. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an optional assistant answers questions from the warehouse.",
     evidence: [
       {
         heading: "Versioned Warehouse",
         detail:
-          "Python ingestion and tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release. Growing from 3 to 26 seasons left every existing-season fact unchanged.",
+          "Python ingestion and tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release. Growing from 3 to 26 seasons left every existing-season fact unchanged, and query and index tuning cut a 25-season cold read from 35.1 to 12.1 seconds.",
       },
       {
         heading: "No Look-Ahead",
@@ -331,7 +336,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Checked Assistant",
         detail:
-          "An optional tool-calling agent queries the warehouse through typed read-only tools. Numbers in its answers are checked against query results, and unsupported figures are flagged rather than presented as verified.",
+          "An optional tool-calling agent queries the warehouse through typed read-only tools. Numbers in its answers are checked against query results, and unsupported figures are flagged rather than presented as verified. A read-only public instance runs on an ARM64 VPS behind a Cloudflare Tunnel.",
       },
     ],
     tags: ["Python · FastAPI", "SQL · dbt", "PostgreSQL", "scikit-learn", "TypeScript · Next.js"],
@@ -359,7 +364,6 @@ export const projects: ProjectItem[] = [
         type: "live",
         ariaLabel: "Visit CourtLens (opens in new tab)",
         external: true,
-        pending: true,
       },
       {
         label: "CourtLens GitHub",
@@ -367,7 +371,6 @@ export const projects: ProjectItem[] = [
         type: "github",
         ariaLabel: "CourtLens GitHub repository (opens in new tab)",
         external: true,
-        pending: true,
       },
     ],
   },
@@ -384,7 +387,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Pipeline",
         detail:
-          "The pipeline uses FAST to import DICOM scans, preprocess images, segment regions, apply morphological operations, and export the results.",
+          "The pipeline uses FAST to import DICOM scans, preprocess images, segment regions, apply morphological operations, and export the results. During the capstone, I served as Phase I project manager, set up the repository and build environment, and implemented the initial DICOM import stages.",
       },
       {
         heading: "Parallel Design",
