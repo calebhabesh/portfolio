@@ -89,6 +89,12 @@ try {
     const flat = await sharp(await page.screenshot({ clip })).removeAlpha().raw().toBuffer();
     const difference = Math.max(...textured.map((value, index) => Math.abs(value - flat[index])));
     assert.ok(difference >= 10, `Paper grain must visibly affect the ${theme} card (pixel difference: ${difference}).`);
+    const crumpleClip = { x: Math.round(bounds.x + 280), y: Math.round(bounds.y + 40), width: 220, height: 40 };
+    const withCrumple = await sharp(await page.screenshot({ clip: crumpleClip })).removeAlpha().raw().toBuffer();
+    await page.addStyleTag({ content: ".project-box::before { display: none !important; }" });
+    const withoutCrumple = await sharp(await page.screenshot({ clip: crumpleClip })).removeAlpha().raw().toBuffer();
+    const crumpleDifference = Math.max(...withCrumple.map((value, index) => Math.abs(value - withoutCrumple[index])));
+    assert.ok(crumpleDifference >= 14, `Paper crumple creases must visibly affect the ${theme} card (pixel difference: ${crumpleDifference}).`);
     await page.close();
   }
   console.log("Actual project cards passed: texture loads and paints in both themes through Vite dev CSS.");

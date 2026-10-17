@@ -82,14 +82,15 @@ async function crumple(seed) {
   }
   // Bake the brightness(0.65) contrast(4.4) filter and multiply darkening
   // into a black alpha mask so cards composite creases without live filters.
-  const blurred = await sharp(pixels, { raw: { width, height, channels: 1 } }).blur(0.6).raw().toBuffer();
+  const baseWebp = await sharp(pixels, { raw: { width, height, channels: 1 } }).blur(0.6).webp({ quality: 82 }).toBuffer();
+  const { data: blurred, info } = await sharp(baseWebp).raw().toBuffer({ resolveWithObject: true });
   const rgba = Buffer.alloc(width * height * 4);
-  for (let i = 0; i < blurred.length; i++) {
-    const v1 = (blurred[i] / 255) * 0.65;
+  for (let i = 0; i < width * height; i++) {
+    const v1 = (blurred[i * info.channels] / 255) * 0.65;
     const v2 = Math.max(0, Math.min(1, (v1 - 0.5) * 4.4 + 0.5));
     rgba[i * 4 + 3] = Math.round((1 - v2) * 255);
   }
-  return sharp(rgba, { raw: { width, height, channels: 4 } }).webp({ quality: 75, alphaQuality: 60, effort: 6 });
+  return sharp(rgba, { raw: { width, height, channels: 4 } }).webp({ quality: 100, alphaQuality: 100, effort: 6 });
 }
 
 await rm(output, { recursive: true, force: true });
