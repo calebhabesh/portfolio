@@ -69,7 +69,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Household Alerts",
         detail:
-          "The gateway triggers a Home Assistant webhook to play a chime on all home smart speakers, supplementing the doorbell's local chime. It also sends ntfy mobile notifications to household members, with a link to open the dashboard.",
+          "The gateway triggers a Home Assistant webhook to play a chime on all home smart speakers, supplementing the doorbell's local chime. It also sends ntfy mobile notifications to household members. Tapping a notification opens the Doorlink dashboard in their mobile browser.",
       },
     ],
     tags: ["C · C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
