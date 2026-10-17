@@ -50,6 +50,11 @@ export function initGridPointerTrail(canvas) {
 
   const measure = () => {
     clear();
+    if (reducedMotion.matches || !finePointer.matches) {
+      width = height = canvas.width = canvas.height = 0;
+      occupiedCells = [];
+      return;
+    }
     const bounds = canvas.getBoundingClientRect();
     width = bounds.width;
     height = bounds.height;
@@ -62,7 +67,7 @@ export function initGridPointerTrail(canvas) {
     peakOpacity = parseFloat(getComputedStyle(canvas).getPropertyValue("--grid-trail-opacity"));
     reserveContent();
   };
-  const onScroll = () => { clear(); reserveContent(); };
+  const onScroll = () => { clear(); };
 
   const activate = (x, y, now) => {
     const column = Math.floor((x - originX) / unit);
@@ -115,15 +120,18 @@ export function initGridPointerTrail(canvas) {
 
   const isReservedContent = event => event.target instanceof Element
     && Boolean(event.target.closest(".project-frame, .headshot-frame, .project-search-field, .technology-loop, .header-grid-link, .theme-toggle"));
-  const onPointerOver = event => { if (isReservedContent(event)) clear(); };
+  const onPointerOver = event => {
+    if (reducedMotion.matches || !finePointer.matches || event.pointerType === "touch") return;
+    if (isReservedContent(event)) clear();
+  };
   const onPointerMove = event => {
+    if (reducedMotion.matches || !finePointer.matches || event.pointerType === "touch") return;
     if (isReservedContent(event)) {
       clear();
       lastPointerPosition = { x: event.clientX, y: event.clientY };
       return;
     }
-    if (reducedMotion.matches || !finePointer.matches || event.pointerType === "touch"
-      || root.style.overflow === "hidden" || document.hidden || !(unit > 0)) return;
+    if (root.style.overflow === "hidden" || document.hidden || !(unit > 0)) return;
     if (lastPointerPosition?.x === event.clientX && lastPointerPosition?.y === event.clientY) return;
     lastPointerPosition = pendingPoint = { x: event.clientX, y: event.clientY };
     frame ??= requestAnimationFrame(paint);

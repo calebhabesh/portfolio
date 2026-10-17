@@ -1677,8 +1677,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
   z-index: -1;
   border-radius: inherit;
   background: center / 100% 100% no-repeat;
-  filter: brightness(0.65) contrast(4.4);
-  mix-blend-mode: multiply;
   opacity: 0.62;
   pointer-events: none;
 }
@@ -2119,22 +2117,17 @@ body:has(.project-dialog-overlay) .project-hover-background {
   border-radius: inherit;
   transform-origin: center;
   background-color: var(--paper);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
   pointer-events: none;
 }
 
 .project-card-preview::before {
   z-index: -1;
-  background-image: var(--photo-stack-second);
   transform: translate(-2px, -1px) rotate(-3deg);
 }
 
 .project-card-preview::after {
   z-index: -2;
-  background-image: var(--photo-stack-third);
   transform: translate(2px, -3px) rotate(2.5deg);
 }
 
@@ -2831,6 +2824,23 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
 
   .project-box-inner {
     --project-card-inset: 16px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body::before {
+    filter: none;
+  }
+
+  #background-boxes-root,
+  .comet-glare {
+    display: none;
+  }
+
+  .project-box-tags li,
+  .project-evidence {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

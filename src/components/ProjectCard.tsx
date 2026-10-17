@@ -150,10 +150,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
             {previewImage && (
               <a
                 className="project-card-preview"
-                style={{
-                  "--photo-stack-second": `url("${project.images?.[1]?.src || previewImage.src}")`,
-                  "--photo-stack-third": `url("${project.images?.[2]?.src || previewImage.src}")`,
-                } as React.CSSProperties}
                 href={previewImage.src}
                 aria-label={`View ${imageCount} ${imageCount === 1 ? "Image" : "Images"} for ${project.title}`}
                 aria-haspopup={onExpand ? "dialog" : undefined}

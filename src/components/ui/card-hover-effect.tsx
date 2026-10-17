@@ -32,7 +32,9 @@ export function HoverEffectItem({ itemId, children, ...props }: HTMLAttributes<H
     <div
       {...props}
       onPointerEnter={event => {
-        if (event.pointerType !== "touch") state?.setHovered(itemId);
+        if (event.pointerType !== "touch" && !window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+          state?.setHovered(itemId);
+        }
       }}
       onPointerLeave={() => state?.setHovered(null)}
       onFocus={() => state?.setFocused(itemId)}

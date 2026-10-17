@@ -609,6 +609,81 @@ try {
   assert.equal(await reducedPage.locator('.project-hover-background').evaluate(element => getComputedStyle(element).opacity), '1',
     "Keyboard focus should show the highlight immediately with reduced motion.");
   await reducedPage.close();
+
+  const mobileTouchPage = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 3,
+    isMobile: true,
+    hasTouch: true,
+  });
+  await mobileTouchPage.route("**/emblem-scene-*.js", route => route.abort());
+  await mobileTouchPage.addInitScript(() => {
+    window.__mobileScrollProbe = { active: false, gbcrCount: 0, rafCount: 0 };
+    const origGBCR = Element.prototype.getBoundingClientRect;
+    Element.prototype.getBoundingClientRect = function () {
+      if (window.__mobileScrollProbe.active) window.__mobileScrollProbe.gbcrCount++;
+      return origGBCR.call(this);
+    };
+    const origRAF = window.requestAnimationFrame;
+    window.requestAnimationFrame = function (callback) {
+      if (window.__mobileScrollProbe.active) window.__mobileScrollProbe.rafCount++;
+      return origRAF.call(this, callback);
+    };
+  });
+  await mobileTouchPage.goto(baseUrl, { waitUntil: "networkidle" });
+  await mobileTouchPage.locator('#projects-root[data-interactive="true"]').waitFor();
+  await mobileTouchPage.evaluate(async () => {
+    for (let y = 0; y <= document.documentElement.scrollHeight; y += 450) {
+      window.scrollTo({ top: y, behavior: "instant" });
+      await new Promise(resolve => setTimeout(resolve, 25));
+    }
+    document.querySelectorAll(".project-comet-card")[1].scrollIntoView({ block: "center", behavior: "instant" });
+  });
+  await mobileTouchPage.waitForFunction(() =>
+    [...document.querySelectorAll(".project-card-animate")].every(card => card.dataset.cardReveal === "settled"),
+  );
+  await mobileTouchPage.waitForTimeout(100);
+  const mobileCardBounds = await mobileTouchPage.locator(".project-comet-card").nth(1).boundingBox();
+  await mobileTouchPage.evaluate(() => { window.__mobileScrollProbe.active = true; });
+  for (let step = 1; step <= 10; step++) {
+    await mobileTouchPage.evaluate(dy => window.scrollBy(0, dy), 30);
+    await mobileTouchPage.waitForTimeout(16);
+  }
+  await mobileTouchPage.mouse.move(mobileCardBounds.x + 80, mobileCardBounds.y + 80);
+  await mobileTouchPage.mouse.move(mobileCardBounds.x + 120, mobileCardBounds.y + 60, { steps: 4 });
+  await mobileTouchPage.waitForTimeout(60);
+  const mobileReport = await mobileTouchPage.evaluate(() => {
+    window.__mobileScrollProbe.active = false;
+    const card = document.querySelectorAll(".project-comet-card")[1];
+    const surface = card.querySelector(".comet-surface");
+    const box = card.querySelector(".project-box");
+    const boxBefore = getComputedStyle(box, "::before");
+    const tagStyle = getComputedStyle(card.querySelector(".project-box-tags li"));
+    const previewBefore = getComputedStyle(card.querySelector(".project-card-preview"), "::before");
+    return {
+      gbcrCount: window.__mobileScrollProbe.gbcrCount,
+      rafCount: window.__mobileScrollProbe.rafCount,
+      tilted: Boolean(surface?.style.transform && surface.style.transform !== "none" && !surface.style.transform.includes("rotateX(0deg) rotateY(0deg)")),
+      hoverCount: document.querySelectorAll(".project-hover-background").length,
+      tagBackdropFilter: tagStyle.backdropFilter || "none",
+      boxBeforeImage: boxBefore.backgroundImage,
+      boxBeforeFilter: boxBefore.filter,
+      boxBeforeBlendMode: boxBefore.mixBlendMode,
+      bodyBeforeFilter: getComputedStyle(document.body, "::before").filter,
+      previewBeforeImage: previewBefore.backgroundImage,
+    };
+  });
+  assert.equal(mobileReport.gbcrCount, 0, "Mobile card scrolling must not trigger synchronous getBoundingClientRect() layout reads.");
+  assert.equal(mobileReport.rafCount, 0, "Scrolling settled project cards on mobile must not schedule unnecessary animation frames.");
+  assert.equal(mobileReport.tilted, false, "Coarse touch pointers must not tilt 3D project cards.");
+  assert.equal(mobileReport.hoverCount, 0, "Coarse touch pointers must not mount hover background highlights.");
+  assert.equal(mobileReport.tagBackdropFilter, "none", "Mobile technology badges must not stack per-badge backdrop-filter passes.");
+  assert.notEqual(mobileReport.boxBeforeImage, "none", "Mobile project cards must retain their paper crumple texture.");
+  assert.equal(mobileReport.boxBeforeFilter, "none", "Mobile project cards must not run live CSS filters on ::before.");
+  assert.equal(mobileReport.boxBeforeBlendMode, "normal", "Mobile project cards must not stack multiply blend passes on ::before.");
+  assert.equal(mobileReport.bodyBeforeFilter, "none", "Mobile body::before must not run a full-document blur filter.");
+  assert.equal(mobileReport.previewBeforeImage, "none", "Occluded preview stack pseudo-elements must not decode background images.");
+  await mobileTouchPage.close();
 } finally {
   await browser?.close();
   server.kill();

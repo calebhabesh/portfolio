@@ -63,6 +63,7 @@ export const CometCard = ({
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current || reduceMotion || disabled) return;
+    if (typeof window !== "undefined" && window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
 
     const wrapper = ref.current.parentElement!;
     const rect = wrapper.getBoundingClientRect();

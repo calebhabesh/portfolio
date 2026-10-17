@@ -187,7 +187,13 @@ export function initBlueprintGrid() {
   // Observe natural content, not the snapped frames: otherwise changing a
   // frame height would feed its own rounded height back into the calculation.
   [shell, document.querySelector(".hero"), heroCopy, sectionHeader, ...contents].filter(Boolean).forEach(element => observer.observe(element));
-  const contentObserver = new MutationObserver(schedule);
+  const isHoverBackgroundNode = node => node instanceof Element && node.classList.contains("project-hover-background");
+  const contentObserver = new MutationObserver(records => {
+    const hasLayoutMutation = records.some(record =>
+      [...record.addedNodes, ...record.removedNodes].some(node => !isHoverBackgroundNode(node))
+    );
+    if (hasLayoutMutation) schedule();
+  });
   contentObserver.observe(results, { childList: true, subtree: true });
   window.addEventListener("portfolio:project-filter", resnap);
   window.addEventListener("resize", schedule, { passive: true });

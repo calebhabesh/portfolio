@@ -251,22 +251,30 @@ const projectsScrollArrow = document.querySelector("[data-projects-scroll-arrow]
 const projectsSection = document.querySelector("#work") || document.querySelector("#projects-root");
 
 if (projectsScrollArrow && projectsSection) {
+  let lastCardBottom = 0;
+  let hasMatchingCards = false;
+
   const getCards = () => [
     ...projectsSection.querySelectorAll(".project-target, .project-box"),
   ].filter(card => card.closest(entranceSelector)?.dataset.searchMatch !== "false");
 
   const updateProjectsScrollCue = () => {
-    const cards = getCards();
-    if (!cards.length) {
+    if (!hasMatchingCards) {
       projectsScrollArrow.classList.add("is-hidden");
       return;
     }
-    const lastCard = cards[cards.length - 1];
-    const lastRect = lastCard.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-
-    const hasMore = lastRect.bottom > windowHeight + 30;
+    const hasMore = lastCardBottom - window.scrollY > window.innerHeight + 30;
     projectsScrollArrow.classList.toggle("is-hidden", !hasMore);
+  };
+
+  const measureProjectsScrollCue = () => {
+    const cards = getCards();
+    hasMatchingCards = cards.length > 0;
+    if (hasMatchingCards) {
+      const lastCard = cards[cards.length - 1];
+      lastCardBottom = lastCard.getBoundingClientRect().bottom + window.scrollY;
+    }
+    updateProjectsScrollCue();
   };
 
   projectsScrollArrow.addEventListener("click", () => {
@@ -287,11 +295,11 @@ if (projectsScrollArrow && projectsSection) {
   });
 
   window.addEventListener("scroll", updateProjectsScrollCue, { passive: true });
-  window.addEventListener("resize", updateProjectsScrollCue, { passive: true });
-  window.addEventListener("portfolio:project-filter", updateProjectsScrollCue);
-  const projectsObserver = new ResizeObserver(updateProjectsScrollCue);
+  window.addEventListener("resize", measureProjectsScrollCue, { passive: true });
+  window.addEventListener("portfolio:project-filter", measureProjectsScrollCue);
+  const projectsObserver = new ResizeObserver(measureProjectsScrollCue);
   projectsObserver.observe(projectsSection);
-  updateProjectsScrollCue();
+  measureProjectsScrollCue();
 }
 
 // Reveal visible cards in document order; each new viewport batch gets a
