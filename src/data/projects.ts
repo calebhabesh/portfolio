@@ -563,7 +563,7 @@ export const projects: ProjectItem[] = [
   {
     id: "portfolio-site",
     tone: "rose",
-    title: "Portfolio",
+    title: "Portfolio Site",
     descriptor: "Interactive Web Portfolio",
     category: "Personal website · interactive frontend",
     status: "Live",
