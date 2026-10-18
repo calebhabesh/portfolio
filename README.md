@@ -1,4 +1,4 @@
-# Caleb Habesh Portfolio
+# <img src="public/favicon.svg" width="34" height="34" align="absmiddle" alt="" /> Caleb Habesh Portfolio
 
 My personal portfolio, with searchable project technologies, image galleries, and an
 interactive 3D lion emblem. The site supports light and dark themes, keyboard
