@@ -3,7 +3,7 @@
 // changing a card sketch:  npm run generate:og
 //
 // The card reuses the site's dark blueprint grid, the lion mark, and each
-// project's sketch in its dark card accent, read straight from the source.
+// project's sketch in its card colour, read straight from the source.
 // The Ge'ez name needs "Noto Sans Ethiopic" installed on this machine.
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
@@ -29,14 +29,15 @@ for (const m of sketchSource.matchAll(
   sketches[m[1]] = { outline: m[2], detail: m[3], weight: m[4] || 1.35 };
 }
 
-// Projects in site order, each drawn in its dark-theme card accent.
+// Projects in site order, each drawn in its card's bright light-theme
+// paper colour, which stays vivid against the dark grid.
 const tiles = [...projects.matchAll(/^ {4}id: "([^"]+)",\n {4}tone: "(\w+)"/gm)].map(([, id, tone]) => {
   const sketch = sketches[id];
   if (!sketch) throw new Error(`No sketch found for project "${id}"`);
-  const block = css.match(new RegExp(`\\[data-theme="dark"\\] \\[data-project-tone="${tone}"\\] \\{([^}]+)\\}`))?.[1];
-  if (!block) throw new Error(`No dark colours found for tone "${tone}"`);
+  const block = css.match(new RegExp(`\\n\\[data-project-tone="${tone}"\\] \\{([^}]+)\\}`))?.[1];
+  if (!block) throw new Error(`No light colours found for tone "${tone}"`);
   const color = (name) => block.match(new RegExp(`--${name}: (#[0-9a-f]+)`))[1];
-  return `<div class="tile" style="color:${color("project-accent")}">
+  return `<div class="tile" style="color:${color("surface-bottom")}">
     <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="${sketch.weight}" stroke-linecap="round" stroke-linejoin="round">
       <g transform="rotate(-5 20 20)">
         <path d="${sketch.outline}"/>
