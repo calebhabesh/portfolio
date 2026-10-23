@@ -3,7 +3,7 @@
 // changing a card sketch:  npm run generate:og
 //
 // The card reuses the site's dark blueprint grid, the lion mark, and each
-// project's sketch and dark card colours, read straight from the source.
+// project's sketch in its dark card accent, read straight from the source.
 // The Ge'ez name needs "Noto Sans Ethiopic" installed on this machine.
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
@@ -29,14 +29,14 @@ for (const m of sketchSource.matchAll(
   sketches[m[1]] = { outline: m[2], detail: m[3], weight: m[4] || 1.35 };
 }
 
-// Projects in site order, each with its dark-theme card colours.
+// Projects in site order, each drawn in its dark-theme card accent.
 const tiles = [...projects.matchAll(/^ {4}id: "([^"]+)",\n {4}tone: "(\w+)"/gm)].map(([, id, tone]) => {
   const sketch = sketches[id];
   if (!sketch) throw new Error(`No sketch found for project "${id}"`);
   const block = css.match(new RegExp(`\\[data-theme="dark"\\] \\[data-project-tone="${tone}"\\] \\{([^}]+)\\}`))?.[1];
   if (!block) throw new Error(`No dark colours found for tone "${tone}"`);
   const color = (name) => block.match(new RegExp(`--${name}: (#[0-9a-f]+)`))[1];
-  return `<div class="tile" style="background:linear-gradient(${color("surface-top")},${color("surface-bottom")});color:${color("project-accent")}">
+  return `<div class="tile" style="color:${color("project-accent")}">
     <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="${sketch.weight}" stroke-linecap="round" stroke-linejoin="round">
       <g transform="rotate(-5 20 20)">
         <path d="${sketch.outline}"/>
@@ -72,8 +72,8 @@ body::before{content:"";position:absolute;inset:0;filter:blur(.6px);
 h1{position:absolute;left:120px;font-size:96px;font-weight:800;letter-spacing:-.035em;line-height:1;white-space:nowrap}
 .script{position:absolute;left:120px;top:282px;font-family:"Noto Sans Ethiopic",sans-serif;color:#b9c5b9;font-weight:500;font-size:42px;line-height:1.3}
 .tiles{position:absolute;left:120px;top:387px;display:flex}
-.tile{width:60px;height:60px;border:4px solid transparent;background-clip:padding-box!important;border-radius:7px;display:grid;place-items:center;box-shadow:inset 0 1px 0 #ffffff1a}
-.tile svg{width:42px;height:42px}
+.tile{width:60px;height:60px;display:grid;place-items:center}
+.tile svg{width:54px;height:54px}
 </style>
 <img class="lion" src="${lion}" alt="">
 <h1 id="name">Caleb Habesh<i id="baseline" style="display:inline-block;width:0;height:0"></i></h1>
