@@ -8,6 +8,7 @@
     "signature": "vite --host 127.0.0.1 --port 5174 --strictPort --open /tools/signature-recorder/",
     "generate:collision": "node scripts/generate-collision-field.mjs",
     "generate:projects": "node scripts/generate-static-projects.mjs",
+    "generate:og": "node scripts/generate-og-image.mjs",
     "prebuild": "node scripts/prepare-assets.mjs",
     "build": "vite build",
     "postbuild": "node scripts/build-cache.mjs --record",
