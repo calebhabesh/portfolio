@@ -55,7 +55,8 @@ const [font, lion] = await Promise.all([
 
 // 1200×627 at 2× gives LinkedIn's preferred 1.91:1 at 2400×1254.
 // Grid squares are 60px; horizontal lines fall at y = 27 + 60k so one sits
-// 10px under the name's baseline at y = 267, and the tiles fill 387–447.
+// 10px under the name's baseline at y = 267, and the sketches
+// (80px slots) rest on the y = 447 line.
 const card = `<!doctype html><meta charset="utf-8"><style>
 @font-face{font-family:Satoshi;src:url(${font}) format("woff2");font-weight:300 900}
 *{box-sizing:border-box;margin:0}
@@ -72,9 +73,9 @@ body::before{content:"";position:absolute;inset:0;filter:blur(.6px);
 .lion{position:absolute;right:-55px;top:50%;transform:translateY(-50%) rotate(-6deg);height:480px;filter:drop-shadow(0 20px 40px #0008)}
 h1{position:absolute;left:120px;font-size:96px;font-weight:800;letter-spacing:-.035em;line-height:1;white-space:nowrap}
 .script{position:absolute;left:120px;top:282px;font-family:"Noto Sans Ethiopic",sans-serif;color:#b9c5b9;font-weight:500;font-size:42px;line-height:1.3}
-.tiles{position:absolute;left:120px;top:387px;display:flex}
-.tile{width:60px;height:60px;display:grid;place-items:center}
-.tile svg{width:54px;height:54px}
+.tiles{position:absolute;left:120px;top:367px;display:flex}
+.tile{width:80px;height:80px;display:grid;place-items:center}
+.tile svg{width:78px;height:78px}
 </style>
 <img class="lion" src="${lion}" alt="">
 <h1 id="name">Caleb Habesh<i id="baseline" style="display:inline-block;width:0;height:0"></i></h1>
