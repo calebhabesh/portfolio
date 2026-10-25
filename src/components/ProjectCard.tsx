@@ -57,6 +57,17 @@ export function ProjectTitle({ project, matches }: { project: ProjectItem; match
   );
 }
 
+// The font centres "·" on lowercase letters; raise it to the uppercase category line.
+export function centerSeparators(text: string): React.ReactNode {
+  return text.split("·").flatMap((part, index) =>
+    index ? [<span className="project-meta-separator" key={index}>·</span>, part] : [part]);
+}
+
+// Kept unbroken so narrow cards wrap the dates onto their own line.
+export function ProjectDates({ dates }: { dates: string }) {
+  return <span className="project-box-dates"> <span className="project-meta-separator">·</span> {dates}</span>;
+}
+
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, matches }) => {
   const present = useIsPresent();
   const previewImage = project.images?.[0];
@@ -104,7 +115,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                       <ProjectTitle project={project} matches={matches?.text} />
                     )}
                   </h3>
-                  <p className="project-box-type"><SearchMatchText text={project.category} ranges={matches?.text.category} /></p>
+                  <p className="project-box-type"><SearchMatchText text={project.category} ranges={matches?.text.category} format={centerSeparators} /><ProjectDates dates={project.dates} /></p>
                 </div>
               </div>
 

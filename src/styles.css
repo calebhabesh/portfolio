@@ -2396,6 +2396,16 @@ body:has(.project-dialog-overlay) .project-hover-background {
   text-box-edge: cap alphabetic;
 }
 
+.project-meta-separator {
+  position: relative;
+  top: -0.08em;
+}
+
+.project-box-dates {
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--ink) 75%, #808080);
+}
+
 .project-box-summary {
   margin: 12px 0 0;
   max-width: 76ch;
