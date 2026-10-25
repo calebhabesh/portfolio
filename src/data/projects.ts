@@ -29,6 +29,8 @@ export interface ProjectItem {
   // Short role descriptor shown after the title, matching the resume entry.
   descriptor: string;
   category: string;
+  // Start and end months, matching the resume entry.
+  dates: string;
   status: "Working prototype" | "Live" | "Live · Privately self-hosted" | "In development" | "Complete" | "Capstone" | "Course project";
   summary: string;
   evidence: ProjectEvidence[];
@@ -47,6 +49,7 @@ export const projects: ProjectItem[] = [
     title: "Doorlink",
     descriptor: "Custom-PCB Smart Doorbell",
     category: "Embedded systems · self-hosted IoT",
+    dates: "May 2026 – Sept 2026",
     status: "Live · Privately self-hosted",
     summary:
       "A privately self-hosted smart doorbell in daily use, with a hand-assembled, custom-designed PCB built around the ESP32-S3-WROOM-1 module and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers an ntfy notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
@@ -134,6 +137,7 @@ export const projects: ProjectItem[] = [
     title: "LineWatchTO",
     descriptor: "Transit Reliability Platform",
     category: "Transit intelligence · full stack",
+    dates: "May 2026 – Sept 2026",
     status: "Live",
     summary:
       "A transit dashboard for TTC, GO Transit, and UP Express riders, purpose-built for both desktop web and an installable mobile PWA. It maps service alerts, planned closures, station arrivals, and disruptions affecting saved commutes, clearly labeling outdated data, scheduled arrivals, unavailable information, and demo data.",
@@ -224,6 +228,7 @@ export const projects: ProjectItem[] = [
     title: "Orbit",
     descriptor: "Peer-to-Peer File Sync",
     category: "Distributed systems · networking",
+    dates: "Aug 2026 – Oct 2026",
     status: "Complete",
     summary:
       "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine and driven from a CLI and keyboard terminal interface. Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
@@ -316,6 +321,7 @@ export const projects: ProjectItem[] = [
     title: "CourtLens",
     descriptor: "NBA Analytics Platform",
     category: "Data engineering · ML · statistics",
+    dates: "Aug 2026 – Oct 2026",
     status: "Live",
     summary:
       "An NBA research workbench covering 26 seasons and 882,849 player-game records. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an optional assistant answers questions from the warehouse.",
@@ -387,9 +393,10 @@ export const projects: ProjectItem[] = [
     title: "Parallel MRI Processing",
     descriptor: "C++ and OpenMP Pipeline",
     category: "Parallel computing · team capstone",
+    dates: "Sept 2024 – May 2025",
     status: "Capstone",
     summary:
-      "A four-person C++ capstone exploring parallel image processing with FAST and OpenMP. A 2026 refresh adds a working stage demo and verified benchmarks.",
+      "A four-person C++ capstone exploring parallel image processing with FAST and OpenMP. A FAST pipeline filters and segments DICOM brain scans on the GPU while OpenMP workers convert and export the results in parallel.",
     evidence: [
       {
         heading: "Pipeline",
@@ -448,9 +455,10 @@ export const projects: ProjectItem[] = [
     title: "SystemC NoC",
     descriptor: "Mesh Interconnect Simulator",
     category: "SoC architecture · SystemC simulation",
+    dates: "Apr 2025 – May 2025",
     status: "Course project",
     summary:
-      "A 16-node network-on-chip simulator with XY routing, five-port routers, input buffering, and wormhole output reservations. A 2026 refresh adds end-to-end delivery checks and a traffic-load comparison.",
+      "A 16-node network-on-chip simulator with XY routing, five-port routers, input buffering, and wormhole output reservations. An automated scoreboard checks every delivered packet, and the simulator compares latency and throughput across traffic patterns and injection rates.",
     evidence: [
       {
         heading: "Course Origin",
@@ -507,9 +515,10 @@ export const projects: ProjectItem[] = [
     title: "FPGA Pong",
     descriptor: "VHDL VGA Game",
     category: "Digital hardware · VHDL and VGA",
+    dates: "Nov 2024 – Dec 2024",
     status: "Course project",
     summary:
-      "A two-player VHDL Pong game built on a Spartan-3E FPGA, with VGA video, switch-controlled paddles, and collision logic. Preserved board-demo evidence accompanies a 2026 RTL simulation refresh.",
+      "A two-player VHDL Pong game built on a Spartan-3E FPGA, with VGA video, switch-controlled paddles, and collision logic. GHDL testbenches check a full VGA frame along with paddle bounds, collisions, and goal resets.",
     evidence: [
       {
         heading: "Historical Board Demo",
@@ -573,6 +582,7 @@ export const projects: ProjectItem[] = [
     title: "Portfolio Site",
     descriptor: "Interactive Web Portfolio",
     category: "Personal website · interactive frontend",
+    dates: "Sept 2026 – Oct 2026",
     status: "Live",
     summary:
       "The site you are currently viewing! This portfolio brings together project write-ups, searchable technologies, and image galleries around an interactive 3D lion emblem. A blueprint grid and sketched details carry through light and dark themes, with keyboard navigation and reduced-motion support.",

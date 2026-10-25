@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useProjectExpansion, type ProjectOrigin } from "../hooks/use-project-expansion";
 import { projects, type ProjectItem } from "../data/projects";
-import { ProjectCard, ProjectTitle, crumpleVariant } from "./ProjectCard";
+import { ProjectCard, ProjectDates, ProjectTitle, centerSeparators, crumpleVariant } from "./ProjectCard";
 import { ProjectLinkButton } from "./ProjectLinkButton";
 import { ProjectGallery } from "./ProjectGallery";
 import { ProjectSketch } from "./ProjectSketch";
@@ -178,7 +178,8 @@ export const ProjectsList: React.FC = () => {
                           <ProjectTitle project={active} matches={projectMatches.get(active.id)?.text} />
                         </h3>
                         <p className="project-box-type m-0 text-sm font-semibold text-[var(--green)]">
-                          <SearchMatchText text={active.category} ranges={projectMatches.get(active.id)?.text.category} />
+                          <SearchMatchText text={active.category} ranges={projectMatches.get(active.id)?.text.category} format={centerSeparators} />
+                          <ProjectDates dates={active.dates} />
                         </p>
                       </div>
                     </div>
