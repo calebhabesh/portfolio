@@ -449,7 +449,7 @@ canvas:focus-visible {
   display: flex;
   min-height: var(--grid-unit);
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
 }
 
@@ -461,7 +461,7 @@ canvas:focus-visible {
 .calling-card-avatar {
   display: block;
   width: auto;
-  height: 22px;
+  height: 30px;
   flex-shrink: 0;
 }
 
@@ -477,7 +477,7 @@ canvas:focus-visible {
 }
 
 .brand-name {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.2;
@@ -2800,9 +2800,14 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
 
   .site-header {
     flex-wrap: nowrap;
+    container-type: inline-size;
   }
 
+  /* Fit the brand to the space beside the four header links, keeping 8px
+     clear of them after the 6px gap. At these sizes the name renders about
+     6.72em wide and the 1.5em-tall lion 1.28em; 8.2em leaves rendering slack. */
   .site-header .brand {
+    --brand-size: min(1.0625rem, (100cqi - 4 * var(--grid-unit) - 14px) / 8.2);
     min-width: 0;
     gap: 6px;
   }
@@ -2812,11 +2817,12 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 
   .calling-card-avatar {
-    height: 18px;
+    height: calc(var(--brand-size) * 1.5);
   }
 
   .brand-name {
-    font-size: 0.75rem;
+    font-size: var(--brand-size);
+    white-space: nowrap;
   }
 
   .hero-identity {
