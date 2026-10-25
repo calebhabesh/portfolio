@@ -64,7 +64,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "In Daily Use",
         detail:
-          "The doorbell is mounted and in active use at home. Over four weeks and 97 button presses, it delivered all 24 visitor photos in a 2.6-second median from press to stored image, while drawing under 1 mA on average for roughly 12 weeks of battery life per charge.",
+          "The doorbell is mounted and in active use at home. Over four weeks and 97 button presses, it delivered all 24 visitor photos with a 2.9-second median from press alert to stored image, while drawing under 1 mA on average for roughly 12 weeks of battery life per charge.",
       },
       {
         heading: "Household Alerts",
@@ -112,6 +112,13 @@ export const projects: ProjectItem[] = [
       },
     ],
     links: [
+      {
+        label: "Watch Doorlink Demo",
+        url: "https://github.com/calebhabesh/doorlink#demo",
+        type: "demo",
+        ariaLabel: "Watch the Doorlink live demo video in the GitHub README (opens in new tab)",
+        external: true,
+      },
       {
         label: "Doorlink GitHub",
         url: "https://github.com/calebhabesh/doorlink",
