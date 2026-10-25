@@ -49,7 +49,7 @@ export const projects: ProjectItem[] = [
     category: "Embedded systems · self-hosted IoT",
     status: "Live · Privately self-hosted",
     summary:
-      "A privately self-hosted smart doorbell in daily use, with a hand-assembled, custom-designed PCB built around the ESP32-S3-WROOM-1 module and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers an ntfy mobile notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
+      "A privately self-hosted smart doorbell in daily use, with a hand-assembled, custom-designed PCB built around the ESP32-S3-WROOM-1 module and a Raspberry Pi 4B gateway. When a visitor presses the button, the device wakes, captures and uploads an image, triggers an ntfy notification, and returns to deep sleep. The dashboard also supports recorded voice replies.",
     evidence: [
       {
         heading: "Custom Hardware",
@@ -69,7 +69,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Household Alerts",
         detail:
-          "The gateway triggers a Home Assistant webhook to play a chime on all home smart speakers, supplementing the doorbell's local chime. It also sends ntfy mobile notifications to household members. Tapping a notification opens the Doorlink dashboard in their mobile browser.",
+          "The gateway triggers a Home Assistant webhook to play a chime on all home smart speakers, supplementing the doorbell's local chime. It also sends ntfy notifications to household members' phones and computers. Tapping a notification opens the Doorlink dashboard in their browser.",
       },
     ],
     tags: ["C · C++ · ESP-IDF", "Java · Spring Boot", "TypeScript · Next.js", "PostgreSQL", "MQTT", "ESP32-S3", "KiCad", "Soldering"],
