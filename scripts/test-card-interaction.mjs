@@ -558,9 +558,10 @@ try {
         "Gallery changes must not reveal the original card behind the dialog.");
     }
     const projectLinks = dialog.locator(".project-dialog-link");
-    const expectedLinkCount = ["linewatch", "courtlens", "medical-imaging", "orbit", "systemc-noc", "fpga-pong"].includes(projectId) ? 2 : 1;
+    const expectedLinkCount = ["doorlink", "linewatch", "courtlens", "medical-imaging", "orbit", "systemc-noc", "fpga-pong"].includes(projectId) ? 2 : 1;
     assert.equal(await projectLinks.count(), expectedLinkCount, `${projectId} should only show available public destinations.`);
     const demoVideos = {
+      doorlink: "https://github.com/calebhabesh/doorlink#demo",
       "medical-imaging": "https://github.com/calebhabesh/NM03-Capstone-Project#demo",
       "systemc-noc": "https://github.com/calebhabesh/systemc-noc#demo",
       "fpga-pong": "https://github.com/calebhabesh/fpga-pong#2026-rtl-simulation",
