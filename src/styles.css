@@ -2302,10 +2302,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
   color: var(--green);
 }
 
-.project-box-title button:hover .project-title-descriptor {
-  color: inherit;
-}
-
 .project-box-title button:focus-visible {
   outline: 2px solid var(--green);
   outline-offset: 4px;
@@ -2404,6 +2400,18 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-box-dates {
   white-space: nowrap;
   color: color-mix(in srgb, var(--ink) 75%, #808080);
+}
+
+/* Drawn rather than typed: the font's "|" overshoots the uppercase line. Sized
+   to land flush with the rendered capitals; margins match the dot's gaps. */
+.project-date-divider {
+  display: inline-block;
+  width: 2px;
+  height: 0.95cap;
+  margin: 0 0.09em 0 0.06em;
+  border-radius: 999px;
+  vertical-align: -0.025cap;
+  background: currentColor;
 }
 
 .project-box-summary {

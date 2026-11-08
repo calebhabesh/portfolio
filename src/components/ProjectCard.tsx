@@ -57,15 +57,15 @@ export function ProjectTitle({ project, matches }: { project: ProjectItem; match
   );
 }
 
-// The font centres "·" on lowercase letters; raise it to the uppercase category line.
+// The font centres "·" and "–" on lowercase letters; raise them to the uppercase meta line.
 export function centerSeparators(text: string): React.ReactNode {
-  return text.split("·").flatMap((part, index) =>
-    index ? [<span className="project-meta-separator" key={index}>·</span>, part] : [part]);
+  return text.split(/([·–])/).map((part, index) =>
+    index % 2 ? <span className="project-meta-separator" key={index}>{part}</span> : part);
 }
 
 // Kept unbroken so narrow cards wrap the dates onto their own line.
 export function ProjectDates({ dates }: { dates: string }) {
-  return <span className="project-box-dates"> <span className="project-meta-separator">·</span> {dates}</span>;
+  return <span className="project-box-dates"> <span className="project-date-divider" aria-hidden="true" /> {centerSeparators(dates)}</span>;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, matches }) => {
