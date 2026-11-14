@@ -63,9 +63,28 @@ export function centerSeparators(text: string): React.ReactNode {
     index % 2 ? <span className="project-meta-separator" key={index}>{part}</span> : part);
 }
 
-// Kept unbroken so narrow cards wrap the dates onto their own line.
+// Kept unbroken so narrow desktop cards wrap the dates onto their own line.
 export function ProjectDates({ dates }: { dates: string }) {
-  return <span className="project-box-dates"> <span className="project-date-divider" aria-hidden="true" /> {centerSeparators(dates)}</span>;
+  return <span className="project-box-dates"><span className="project-date-divider" aria-hidden="true" /> {centerSeparators(dates)}</span>;
+}
+
+export function ProjectMeta({
+  category,
+  dates,
+  ranges,
+}: {
+  category: string;
+  dates: string;
+  ranges?: ProjectTextMatches["category"];
+}) {
+  return (
+    <>
+      <span className="project-box-category">
+        <SearchMatchText text={category} ranges={ranges} format={centerSeparators} />
+      </span>{" "}
+      <ProjectDates dates={dates} />
+    </>
+  );
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, expanded = false, matches }) => {
@@ -115,7 +134,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onExpand, exp
                       <ProjectTitle project={project} matches={matches?.text} />
                     )}
                   </h3>
-                  <p className="project-box-type"><SearchMatchText text={project.category} ranges={matches?.text.category} format={centerSeparators} /><ProjectDates dates={project.dates} /></p>
+                  <p className="project-box-type"><ProjectMeta category={project.category} dates={project.dates} ranges={matches?.text.category} /></p>
                 </div>
               </div>
 

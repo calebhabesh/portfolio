@@ -1775,9 +1775,9 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 
   .project-dialog-heading .project-box-type {
-    font-size: clamp(0.75rem, 3.4cqi, 0.875rem);
-    letter-spacing: 0.04em;
-    line-height: 1.4;
+    font-size: clamp(0.65rem, 2.95cqi, 0.875rem);
+    letter-spacing: 0.025em;
+    line-height: 1.35;
   }
 
   .project-dialog-links .project-dialog-link {
@@ -2521,6 +2521,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
 @media (max-width: 640px) {
   .project-box-header {
+    container-type: inline-size;
     flex-wrap: nowrap;
   }
 
@@ -2549,10 +2550,40 @@ body:has(.project-dialog-overlay) .project-hover-background {
     order: 2;
   }
 
+  /* Keep category and dates on separate lines on mobile without the desktop divider. */
+  .project-box-type {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.35;
+  }
+
+  .project-box-category,
+  .project-box-dates {
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
+  }
+
+  .project-box-dates {
+    white-space: normal;
+  }
+
+  .project-date-divider {
+    display: none;
+  }
+
   .project-box-header .project-box-type {
     order: 3;
     flex: 0 0 100%;
-    margin-top: -4px;
+    margin-top: -2px;
+    font-size: clamp(0.64rem, 3.95cqi, 0.875rem);
+    letter-spacing: 0.025em;
+  }
+
+  /* Match single-line 44px button bottom centering slack when titles wrap on mobile. */
+  .project-box .project-box-title button {
+    padding-block: 7px;
   }
 
   .project-box-actions {
@@ -2585,10 +2616,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
   .project-box .project-box-descriptor {
     display: block;
     flex: 0 0 100%;
-    margin: -4px 0 0;
+    margin: -9px 0 0;
     font-size: 1.0625rem;
     font-weight: 600;
     line-height: 1.35;
+    text-box-trim: trim-both;
+    text-box-edge: cap alphabetic;
     color: color-mix(in srgb, var(--ink) 75%, #808080);
   }
 
