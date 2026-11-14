@@ -156,7 +156,18 @@ export function initBlueprintGrid() {
     if ((!filtering && originalsRestored) || measuredWidth !== width) {
       slotHeights = frames.map((_, index) => {
         const minimum = Math.max(0, ...measurements.slice(index).map(value => value?.minimumHeight || 0));
-        return Math.ceil((minimum + 2 * inset) / unit - 0.001) * unit;
+        const needed = minimum + 2 * inset;
+        const previous = measuredWidth === width ? slotHeights[index] : undefined;
+        // Applying a snapped height introduces up to ~0.02px CSS layout rounding;
+        // keep a deadband around row thresholds so cards never ping-pong rows.
+        if (
+          Number.isFinite(previous) &&
+          needed <= previous + 0.001 * unit &&
+          Math.ceil(needed / unit + 0.001) * unit >= previous
+        ) {
+          return previous;
+        }
+        return Math.ceil(needed / unit - 0.001) * unit;
       });
       measuredWidth = width;
     }
