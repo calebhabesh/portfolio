@@ -1774,6 +1774,10 @@ body:has(.project-dialog-overlay) .project-hover-background {
     flex-basis: 40px;
   }
 
+  .project-dialog-heading .project-box-title-stack {
+    gap: 7px;
+  }
+
   .project-dialog-heading .project-box-type {
     font-size: clamp(0.65rem, 2.95cqi, 0.875rem);
     letter-spacing: 0.025em;
@@ -2555,7 +2559,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 14px;
     line-height: 1.35;
   }
 
@@ -2576,7 +2580,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
   .project-box-header .project-box-type {
     order: 3;
     flex: 0 0 100%;
-    margin-top: -2px;
+    margin-top: 2px;
     font-size: clamp(0.64rem, 3.95cqi, 0.875rem);
     letter-spacing: 0.025em;
   }
