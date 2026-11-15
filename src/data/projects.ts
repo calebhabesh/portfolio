@@ -231,7 +231,7 @@ export const projects: ProjectItem[] = [
     dates: "Aug 2026 – Oct 2026",
     status: "Complete",
     summary:
-      "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine and driven from a CLI and keyboard terminal interface. Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
+      "A peer-to-peer file sync daemon for Linux, written in Go with its own sync engine and driven from a CLI and a terminal user interface (TUI). Edits made on separate devices while offline are kept side by side for review instead of one silently overwriting the other, and devices on different networks connect without a VPN.",
     evidence: [
       {
         heading: "Causal History",
@@ -424,7 +424,7 @@ export const projects: ProjectItem[] = [
     dates: "Sept 2024 – May 2025",
     status: "Capstone",
     summary:
-      "A four-person C++ capstone exploring parallel image processing with FAST and OpenMP. A FAST pipeline filters and segments DICOM brain scans on the GPU while OpenMP workers convert and export the results in parallel.",
+      "A four-person C++ capstone exploring parallel image processing with FAST and OpenMP. A FAST pipeline filters and segments DICOM brain scans on the GPU while OpenMP workers convert and export the results in parallel. With eight threads, processing and lossless export of 460 slices ran 3.15× faster, and every output matched the sequential reference byte for byte.",
     evidence: [
       {
         heading: "Pipeline",
@@ -486,7 +486,7 @@ export const projects: ProjectItem[] = [
     dates: "Apr 2025 – May 2025",
     status: "Course project",
     summary:
-      "A 16-node network-on-chip simulator with XY routing, five-port routers, input buffering, and wormhole output reservations. An automated scoreboard checks every delivered packet, and the simulator compares latency and throughput across traffic patterns and injection rates.",
+      "A 16-node network-on-chip simulator in SystemC that extends a two-node course baseline into a 4×4 mesh with XY routing, five-port routers, input buffering, and wormhole output reservations. Across fifteen traffic scenarios, an automated scoreboard checks every delivered packet while the simulator compares latency and throughput under neighbour, stride, and hotspot traffic.",
     evidence: [
       {
         heading: "Course Origin",
@@ -546,7 +546,7 @@ export const projects: ProjectItem[] = [
     dates: "Nov 2024 – Dec 2024",
     status: "Course project",
     summary:
-      "A two-player VHDL Pong game built on a Spartan-3E FPGA, with VGA video, switch-controlled paddles, and collision logic. GHDL testbenches check a full VGA frame along with paddle bounds, collisions, and goal resets.",
+      "A two-player VHDL Pong game built on a Spartan-3E FPGA, with VGA video, switch-controlled paddles, and collision logic. A 2026 refresh separates video timing, game state, and rendering, and drives every register from the 50 MHz board clock with synchronized switch inputs. GHDL testbenches check a full VGA frame along with paddle bounds, collisions, and goal resets.",
     evidence: [
       {
         heading: "Historical Board Demo",
@@ -613,7 +613,7 @@ export const projects: ProjectItem[] = [
     dates: "Sept 2026 – Oct 2026",
     status: "Live",
     summary:
-      "The site you are currently viewing! This portfolio brings together project write-ups, searchable technologies, and image galleries around an interactive 3D lion emblem. A blueprint grid and sketched details carry through light and dark themes, with keyboard navigation and reduced-motion support.",
+      "The site you are currently viewing! This portfolio brings together project write-ups, searchable technologies, and image galleries around an interactive 3D lion emblem. On wider screens, the mazes in the side margins are a live visualization of the A* pathfinding algorithm. A blueprint grid and sketched details carry through light and dark themes, with keyboard navigation and reduced-motion support.",
     evidence: [
       {
         heading: "Project Exploration",

@@ -199,7 +199,7 @@ try {
 
   // Initial cards still fly in when the emblem module is slow.
   // Keep two cards visible below the search controls and snapped grid rows.
-  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1280 } });
+  const loadingPage = await browser.newPage({ viewport: { width: 1440, height: 1400 } });
   await loadingPage.addInitScript(() => {
     window.initialCardAnimations = 0;
     window.contentEntrances = [];
@@ -270,7 +270,7 @@ try {
 
   // Delayed React still hydrates the same static cards; below-fold cards reveal on scroll.
   for (const islandDelay of [900, 2000]) {
-    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1280 } });
+    const reloadPage = await browser.newPage({ viewport: { width: 1440, height: 1400 } });
     await reloadPage.addInitScript(() => {
       window.cardEntranceStarts = [];
       window.animatedCards = new Map();
@@ -480,9 +480,9 @@ try {
     await page.waitForTimeout(250);
     assert.equal(await page.evaluate(() => window.scrollY), backgroundScrollBefore,
       "The background page scrolled while the project dialog was open.");
-    const dialogScroll = page.locator('.project-dialog-scroll');
+    const dialogScroll = page.locator('.project-dialog-overlay');
     assert.ok(await dialogScroll.evaluate(element => element.scrollHeight > element.clientHeight),
-      "Long project details must remain scrollable inside the dialog.");
+      "Long project details must scroll the expanded card within the overlay.");
     await dialogScroll.evaluate(element => { element.scrollTop = element.scrollHeight; });
     await page.waitForTimeout(100);
     assert.equal(await card.evaluate(element => getComputedStyle(element.closest('.project-comet-card')).opacity), '0',

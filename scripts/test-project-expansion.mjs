@@ -103,9 +103,13 @@ try {
     await trigger.evaluate(element => element.click());
     await page.getByRole("dialog").waitFor();
     await page.setViewportSize({ width: height, height: width });
+    // Long cards may be taller than the viewport (the overlay scrolls), so
+    // check the landed panel: on screen, full width, and no stale transform.
     await page.waitForFunction(() => {
       const rect = document.querySelector('[role="dialog"]').getBoundingClientRect();
-      return rect.top >= 0 && rect.bottom <= innerHeight + 1;
+      const surface = document.querySelector('.project-dialog-surface');
+      return rect.top >= 0 && rect.left >= 0 && rect.right <= innerWidth + 1
+        && getComputedStyle(surface).transform === "none";
     });
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").waitFor({ state: "detached" });
