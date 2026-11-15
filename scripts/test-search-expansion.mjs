@@ -92,12 +92,7 @@ try {
       const distance = Math.abs(opening.source[dimension] - final[dimension]);
       if (reducedMotion !== "reduce") {
         assert.ok(distance > 30, "The morph probe needs distinct compact and expanded dimensions.");
-        const morphs = opening.samples.some(sample => sample.t < 100 && Math.abs(sample[dimension] - opening.source[dimension]) < distance * 0.5);
-        // A phone card already fills the screen, so its morph would happen
-        // below the fold; the dialog lifts into place instead.
-        const lifts = width <= 640 && opening.samples.some(sample => sample.t < 100
-          && sample.width < final.width * 0.97 && sample.y > final.y + 8);
-        assert.ok(morphs || lifts,
+        assert.ok(opening.samples.some(sample => sample.t < 100 && Math.abs(sample[dimension] - opening.source[dimension]) < distance * 0.5),
           `The ${query || "default"} result must expand from its card at ${width}px.`);
       }
       assert.equal(await card.evaluate(element => getComputedStyle(element.closest(".project-comet-card")).opacity), "0");

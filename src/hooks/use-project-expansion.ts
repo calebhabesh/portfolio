@@ -55,19 +55,9 @@ export function useProjectExpansion({ dialog, surface, content, backdrop, origin
       : origin;
     const visibleSource = source && source.width > 0 && source.height > 0
       && source.y < innerHeight && source.y + source.height > 0;
-    // On phones the card already spans the screen, so the morph happens
-    // almost entirely below the fold. When the on-screen edges would barely
-    // move, open with a visible lift instead of an invisible morph.
-    const onScreen = (rect: { y: number; height: number }) =>
-      [Math.max(rect.y, 0), Math.min(rect.y + rect.height, innerHeight)];
-    const visibleMorph = visibleSource && (closing || Math.max(
-      Math.abs(source.x - target.x),
-      Math.abs(source.x + source.width - target.x - target.width),
-      ...onScreen(source).map((edge, index) => Math.abs(edge - onScreen(target)[index])),
-    ) > 48);
-    const folded = visibleMorph
+    const folded = visibleSource
       ? `translate(${source.x - target.x}px, ${source.y - target.y}px) scale(${source.width / target.width}, ${source.height / target.height})`
-      : `translate(${target.width * 0.04}px, 28px) scale(0.92)`;
+      : "translate(0px, 16px) scale(0.98)";
     const current = (element: HTMLElement) => {
       const style = getComputedStyle(element);
       return { transform: style.transform, opacity: style.opacity };
@@ -77,8 +67,8 @@ export function useProjectExpansion({ dialog, surface, content, backdrop, origin
     elements.forEach(element => { element.style.willChange = "transform, opacity"; });
     const animations = [
       paper.animate(closing
-        ? [current(paper), { transform: folded, opacity: visibleMorph ? 1 : 0 }]
-        : [{ transform: folded, opacity: visibleMorph ? 1 : 0 }, { transform: "none", opacity: 1 }],
+        ? [current(paper), { transform: folded, opacity: visibleSource ? 1 : 0 }]
+        : [{ transform: folded, opacity: visibleSource ? 1 : 0 }, { transform: "none", opacity: 1 }],
       { duration, easing, fill: "both" }),
       details.animate(closing
         ? [current(details), { opacity: 0, transform: "translateY(6px)" }]
@@ -104,11 +94,15 @@ export function useProjectExpansion({ dialog, surface, content, backdrop, origin
     void Promise.all(animations.map(animation => animation.finished)).then(finish, () => {});
     // A rotated phone or resized window uses the new layout immediately.
     // Do not keep a transform whose destination was measured in an old viewport.
-    window.addEventListener("resize", finish, { once: true });
-    window.visualViewport?.addEventListener("resize", finish, { once: true });
+    // Only width counts: locking page scroll on open can move a phone's address
+    // bar, and treating that height change as a resize skipped the animation.
+    const startWidth = document.documentElement.clientWidth;
+    const resized = () => {
+      if (document.documentElement.clientWidth !== startWidth) finish();
+    };
+    window.addEventListener("resize", resized);
     return () => {
-      window.removeEventListener("resize", finish);
-      window.visualViewport?.removeEventListener("resize", finish);
+      window.removeEventListener("resize", resized);
       if (!disposed) {
         // Snapshot before cancelling so an early close reverses the visible
         // surface, rather than jumping to the end of its opening animation.
