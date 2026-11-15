@@ -2354,6 +2354,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
   border-radius: 3px;
 }
 
+/* Focus returns here after a tapped or clicked close; the ring would read
+   as a stray selection box, so it waits for keyboard use (ProjectsList). */
+[data-project] [data-quiet-focus]:focus-visible {
+  outline: none;
+}
+
 .project-box-actions {
   display: flex;
   align-items: center;

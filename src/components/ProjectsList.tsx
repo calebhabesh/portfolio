@@ -68,7 +68,13 @@ export const ProjectsList: React.FC = () => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
-  const closeProject = useCallback(() => setClosing(true), []);
+  // Closing by tap or click returns focus to the card without its keyboard
+  // ring; closing from the keyboard keeps the ring so the place stays visible.
+  const closedByPointerRef = useRef(false);
+  const closeProject = useCallback((byPointer = false) => {
+    closedByPointerRef.current = byPointer;
+    setClosing(true);
+  }, []);
   const finishClose = useCallback(() => {
     setActive(null);
     setClosing(false);
@@ -119,8 +125,21 @@ export const ProjectsList: React.FC = () => {
       document.body.style.overflow = "hidden";
       closeButtonRef.current?.focus({ preventScroll: true });
     } else {
-      triggerRef.current?.focus({ preventScroll: true });
+      const trigger = triggerRef.current;
+      if (trigger && closedByPointerRef.current) {
+        // Hide the ring until focus moves or a key is pressed.
+        trigger.dataset.quietFocus = "";
+        const restoreRing = () => {
+          delete trigger.dataset.quietFocus;
+          trigger.removeEventListener("blur", restoreRing);
+          window.removeEventListener("keydown", restoreRing, true);
+        };
+        trigger.addEventListener("blur", restoreRing);
+        window.addEventListener("keydown", restoreRing, true);
+      }
+      trigger?.focus({ preventScroll: true });
       triggerRef.current = null;
+      closedByPointerRef.current = false;
     }
 
     window.addEventListener("keydown", onKeyDown);
@@ -183,7 +202,7 @@ export const ProjectsList: React.FC = () => {
             data-closing={closing || undefined}
             onPointerDown={event => { backdropPressRef.current = event.target === event.currentTarget; }}
             onClick={event => {
-              if (backdropPressRef.current && event.target === event.currentTarget) closeProject();
+              if (backdropPressRef.current && event.target === event.currentTarget) closeProject(true);
               backdropPressRef.current = false;
             }}
           >
@@ -224,7 +243,8 @@ export const ProjectsList: React.FC = () => {
                       ref={closeButtonRef}
                       type="button"
                       className="project-dialog-close flex items-center justify-center p-2 rounded-full border-0 transition-colors shrink-0 cursor-pointer"
-                      onClick={closeProject}
+                      // Keyboard activation reports detail 0; pointer clicks count up from 1.
+                      onClick={event => closeProject(event.detail > 0)}
                       aria-label="Close dialog"
                     >
                       <CloseIcon />
