@@ -120,6 +120,26 @@ function applyTheme(theme, persist = false) {
 const savedTheme = readSavedTheme();
 applyTheme(savedTheme === "dark" || savedTheme === "light" ? savedTheme : systemTheme.matches ? "dark" : "light");
 
+// A touch tap releases within ~100ms, too soon for the header fill to ease
+// in. Hold the pressed look briefly so it fades in and back out smoothly.
+for (const control of document.querySelectorAll(".header-grid-link, .theme-toggle")) {
+  let releaseTimer;
+  control.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse") return;
+    clearTimeout(releaseTimer);
+    control.dataset.pressed = "";
+  });
+  control.addEventListener("pointerup", () => {
+    clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(() => delete control.dataset.pressed, 240);
+  });
+  // A scroll that starts on a control cancels the press: drop it at once.
+  control.addEventListener("pointercancel", () => {
+    clearTimeout(releaseTimer);
+    delete control.dataset.pressed;
+  });
+}
+
 themeToggle?.addEventListener("click", () => {
   applyTheme(root.dataset.theme === "dark" ? "light" : "dark", true);
 });

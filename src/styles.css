@@ -514,7 +514,7 @@ canvas:focus-visible {
   color: var(--muted);
   cursor: pointer;
   text-decoration: none;
-  transition: color 150ms ease;
+  transition: color 280ms ease-in-out;
 }
 
 .header-grid-link--github {
@@ -538,13 +538,13 @@ canvas:focus-visible {
   --header-hover-bg: #a67c00;
 }
 
-.header-grid-link--email:is(:focus-visible, :active) .header-grid-icon {
+.header-grid-link--email:is(:focus-visible, :active, [data-pressed]) .header-grid-icon {
   fill: #ffffff;
   stroke: #ea4335;
 }
 
-.header-grid-link:is(:focus-visible, :active),
-.theme-toggle:is(:focus-visible, :active) {
+.header-grid-link:is(:focus-visible, :active, [data-pressed]),
+.theme-toggle:is(:focus-visible, :active, [data-pressed]) {
   color: #ffffff;
   text-decoration: none;
 }
@@ -558,12 +558,12 @@ canvas:focus-visible {
   /* Fade a fixed-color layer without animating layout or the glass blur. */
   background: var(--header-hover-bg);
   opacity: 0;
-  transition: opacity 180ms ease;
+  transition: opacity 280ms ease-in-out;
   pointer-events: none;
 }
 
-.header-grid-link:is(:focus-visible, :active):after,
-.theme-toggle:is(:focus-visible, :active):after {
+.header-grid-link:is(:focus-visible, :active, [data-pressed]):after,
+.theme-toggle:is(:focus-visible, :active, [data-pressed]):after {
   opacity: 1;
 }
 
@@ -575,7 +575,7 @@ canvas:focus-visible {
 .header-grid-icon {
   width: 20px;
   height: 20px;
-  transition: translate 180ms var(--ease-out), scale 180ms var(--ease-out);
+  transition: translate 280ms ease-in-out, scale 280ms ease-in-out;
 }
 
 .theme-icon {
@@ -587,19 +587,20 @@ canvas:focus-visible {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.8;
-  transition: opacity 160ms ease, transform 240ms var(--ease-out), translate 180ms var(--ease-out), scale 180ms var(--ease-out);
+  transition: opacity 160ms ease, transform 240ms var(--ease-out), translate 280ms ease-in-out, scale 280ms ease-in-out;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .header-grid-link:is(:focus-visible, :active) .header-grid-icon,
-  .theme-toggle:is(:focus-visible, :active) .theme-icon {
+  .header-grid-link:is(:focus-visible, :active, [data-pressed]) .header-grid-icon,
+  .theme-toggle:is(:focus-visible, :active, [data-pressed]) .theme-icon {
     translate: 0 -2px;
     scale: 1.08;
   }
 }
 
 /* Touch screens keep :hover on the last tapped control, which left the
-   fill stuck on. They get the fill only while pressed (:active above). */
+   fill stuck on. They get the fill only while pressed; main.js holds
+   [data-pressed] briefly so a quick tap still eases in and out. */
 @media (hover: hover) {
   .header-grid-link--email:hover .header-grid-icon {
     fill: #ffffff;
