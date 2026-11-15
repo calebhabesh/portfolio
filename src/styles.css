@@ -538,13 +538,13 @@ canvas:focus-visible {
   --header-hover-bg: #a67c00;
 }
 
-.header-grid-link--email:is(:hover, :focus-visible) .header-grid-icon {
+.header-grid-link--email:is(:focus-visible, :active) .header-grid-icon {
   fill: #ffffff;
   stroke: #ea4335;
 }
 
-.header-grid-link:is(:hover, :focus-visible),
-.theme-toggle:is(:hover, :focus-visible) {
+.header-grid-link:is(:focus-visible, :active),
+.theme-toggle:is(:focus-visible, :active) {
   color: #ffffff;
   text-decoration: none;
 }
@@ -562,8 +562,8 @@ canvas:focus-visible {
   pointer-events: none;
 }
 
-.header-grid-link:is(:hover, :focus-visible):after,
-.theme-toggle:is(:hover, :focus-visible):after {
+.header-grid-link:is(:focus-visible, :active):after,
+.theme-toggle:is(:focus-visible, :active):after {
   opacity: 1;
 }
 
@@ -591,8 +591,35 @@ canvas:focus-visible {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .header-grid-link:is(:hover, :focus-visible) .header-grid-icon,
-  .theme-toggle:is(:hover, :focus-visible) .theme-icon {
+  .header-grid-link:is(:focus-visible, :active) .header-grid-icon,
+  .theme-toggle:is(:focus-visible, :active) .theme-icon {
+    translate: 0 -2px;
+    scale: 1.08;
+  }
+}
+
+/* Touch screens keep :hover on the last tapped control, which left the
+   fill stuck on. They get the fill only while pressed (:active above). */
+@media (hover: hover) {
+  .header-grid-link--email:hover .header-grid-icon {
+    fill: #ffffff;
+    stroke: #ea4335;
+  }
+
+  .header-grid-link:hover,
+  .theme-toggle:hover {
+    color: #ffffff;
+  }
+
+  .header-grid-link:hover::after,
+  .theme-toggle:hover::after {
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .header-grid-link:hover .header-grid-icon,
+  .theme-toggle:hover .theme-icon {
     translate: 0 -2px;
     scale: 1.08;
   }

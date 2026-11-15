@@ -55,9 +55,19 @@ export function useProjectExpansion({ dialog, surface, content, backdrop, origin
       : origin;
     const visibleSource = source && source.width > 0 && source.height > 0
       && source.y < innerHeight && source.y + source.height > 0;
-    const folded = visibleSource
+    // On phones the card already spans the screen, so the morph happens
+    // almost entirely below the fold. When the on-screen edges would barely
+    // move, open with a visible lift instead of an invisible morph.
+    const onScreen = (rect: { y: number; height: number }) =>
+      [Math.max(rect.y, 0), Math.min(rect.y + rect.height, innerHeight)];
+    const visibleMorph = visibleSource && (closing || Math.max(
+      Math.abs(source.x - target.x),
+      Math.abs(source.x + source.width - target.x - target.width),
+      ...onScreen(source).map((edge, index) => Math.abs(edge - onScreen(target)[index])),
+    ) > 48);
+    const folded = visibleMorph
       ? `translate(${source.x - target.x}px, ${source.y - target.y}px) scale(${source.width / target.width}, ${source.height / target.height})`
-      : "translate(0px, 16px) scale(0.98)";
+      : `translate(${target.width * 0.04}px, 28px) scale(0.92)`;
     const current = (element: HTMLElement) => {
       const style = getComputedStyle(element);
       return { transform: style.transform, opacity: style.opacity };
@@ -67,8 +77,8 @@ export function useProjectExpansion({ dialog, surface, content, backdrop, origin
     elements.forEach(element => { element.style.willChange = "transform, opacity"; });
     const animations = [
       paper.animate(closing
-        ? [current(paper), { transform: folded, opacity: visibleSource ? 1 : 0 }]
-        : [{ transform: folded, opacity: visibleSource ? 1 : 0 }, { transform: "none", opacity: 1 }],
+        ? [current(paper), { transform: folded, opacity: visibleMorph ? 1 : 0 }]
+        : [{ transform: folded, opacity: visibleMorph ? 1 : 0 }, { transform: "none", opacity: 1 }],
       { duration, easing, fill: "both" }),
       details.animate(closing
         ? [current(details), { opacity: 0, transform: "translateY(6px)" }]
