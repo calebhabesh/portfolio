@@ -158,6 +158,8 @@
 }
 
 html {
+  /* Mobile browsers flash a box over tapped elements; it reads as a glitch. */
+  -webkit-tap-highlight-color: transparent;
   min-height: 100%;
   scroll-behavior: smooth;
   scroll-padding-top: 20px;
