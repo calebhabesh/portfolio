@@ -47,7 +47,8 @@
   --glass-elevation: 0 2px 6px rgba(22, 31, 27, 0.08);
   --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.07);
-  --grid-line: rgba(35, 61, 58, 0.1);
+  --grid-ink: rgb(35, 61, 58);
+  --grid-line: color-mix(in srgb, var(--grid-ink) 10%, transparent);
   --maze-wall: rgba(35, 61, 58, 0.42);
   --maze-spotlight: rgba(78, 129, 204, 0.115);
   --maze-wall-width: 2.4px;
@@ -116,7 +117,8 @@
   --glass-elevation: 0 2px 6px rgba(0, 0, 0, 0.14);
   --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   --card-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.45);
-  --grid-line: rgba(224, 239, 232, 0.1);
+  --grid-ink: rgb(224, 239, 232);
+  --grid-line: color-mix(in srgb, var(--grid-ink) 10%, transparent);
   --maze-wall: rgba(224, 239, 232, 0.4);
   --maze-boundary: #c8b05d;
   --maze-boundary-opacity: 0.5;
@@ -2700,11 +2702,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid color-mix(in srgb, var(--green) 55%, var(--paper-raised));
+  /* The outline and halo use the gridline ink so the arrow sits on the grid. */
+  border: 1.5px solid color-mix(in srgb, var(--grid-ink) 55%, transparent);
   border-radius: 50%;
   background: color-mix(in srgb, var(--green) 6%, var(--paper-raised));
   color: var(--green);
-  box-shadow: var(--card-shadow), 0 0 0 3px color-mix(in srgb, var(--green) 7%, transparent);
+  box-shadow: var(--card-shadow), 0 0 0 3px var(--grid-line);
   cursor: pointer;
   opacity: 1;
   transition: opacity 250ms ease, transform 200ms ease, color 160ms ease, border-color 160ms ease, background-color 160ms ease;
@@ -2713,7 +2716,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .projects-scroll-arrow:hover {
   opacity: 1;
   color: var(--green);
-  border-color: var(--green);
+  border-color: color-mix(in srgb, var(--grid-ink) 85%, transparent);
   background: color-mix(in srgb, var(--green) 12%, var(--paper-raised));
 }
 
