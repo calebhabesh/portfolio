@@ -458,6 +458,10 @@ try {
         settledMs: settled?.t,
         morphsFromCard: samples.some(sample => sample.t < 100
           && Math.abs(sample[dimension] - source[dimension]) < distance * 0.5),
+        // A phone card already fills the screen, so its morph would happen
+        // below the fold; the dialog lifts into place instead.
+        lifts: samples.some(sample => sample.t < 100 && sample.width
+          && sample.width < final.width * 0.97 && sample.y > final.y + 8),
         projectPauseFlag: document.body.hasAttribute("data-project-interacting") || document.body.dataset.projectDialogOpen === "true",
         orientationBefore,
         orientationAfter: emblem?.dataset.orientation,
@@ -470,8 +474,13 @@ try {
     }
     assert.ok(result.firstMs < 150, `Dialog appeared after ${result.firstMs?.toFixed(0)} ms at ${width}px.`);
     assert.ok(result.settledMs < 600, `Dialog took ${result.settledMs?.toFixed(0)} ms to settle at ${width}px.`);
-    assert.equal(result.morphsFromCard, true,
-      "The expanded view must morph from the original card's dimensions.");
+    if (width <= 640) {
+      assert.equal(result.morphsFromCard || result.lifts, true,
+        "The expanded view must visibly morph or lift into place on phones.");
+    } else {
+      assert.equal(result.morphsFromCard, true,
+        "The expanded view must morph from the original card's dimensions.");
+    }
     assert.equal(await page.locator('[data-projects-scroll-arrow]').isVisible(), false,
       "The page scroll cue should be hidden while the project dialog is open.");
     const backgroundScrollBefore = await page.evaluate(() => window.scrollY);
