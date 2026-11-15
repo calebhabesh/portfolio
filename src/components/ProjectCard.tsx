@@ -63,9 +63,8 @@ export function centerSeparators(text: string): React.ReactNode {
     index % 2 ? <span className="project-meta-separator" key={index}>{part}</span> : part);
 }
 
-// Kept unbroken so narrow desktop cards wrap the dates onto their own line.
 export function ProjectDates({ dates }: { dates: string }) {
-  return <span className="project-box-dates"><span className="project-date-divider" aria-hidden="true" /> {centerSeparators(dates)}</span>;
+  return <span className="project-box-dates">{centerSeparators(dates)}</span>;
 }
 
 export function ProjectMeta({

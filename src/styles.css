@@ -1622,27 +1622,32 @@ body:has(.project-dialog-overlay) .project-hover-background {
   cursor: text;
 }
 
+/* The overlay scrolls, so a long card reads like a page. The card's auto
+   margins centre a short card and top-align one taller than the viewport. */
 .project-dialog-overlay {
+  --dialog-gutter: 16px;
   position: fixed;
   inset: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100dvh;
-  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted) 55%, transparent) transparent;
+  padding: max(var(--dialog-gutter), env(safe-area-inset-top)) max(var(--dialog-gutter), env(safe-area-inset-right)) max(var(--dialog-gutter), env(safe-area-inset-bottom)) max(var(--dialog-gutter), env(safe-area-inset-left));
 }
 
 @media (min-width: 640px) {
   .project-dialog-overlay {
-    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    --dialog-gutter: 24px;
   }
 }
 
 .project-dialog {
   isolation: isolate;
   position: relative;
-  max-height: 100%;
+  min-width: 0;
+  margin: auto;
 }
 
 .project-dialog-surface {
@@ -1663,8 +1668,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
 .project-dialog-content {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  min-height: 0;
+  /* A shrinkable column keeps wide galleries from stretching the card. */
+  grid-template-columns: minmax(0, 1fr);
   border-radius: inherit;
   overflow: hidden;
 }
@@ -1722,66 +1727,79 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-dialog-links {
-  grid-row: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
-  padding: 8px 24px 12px;
+  padding: 8px 24px 24px;
 }
 
 @media (min-width: 640px) {
   .project-dialog-header { padding: 32px 32px 16px; }
-  .project-dialog-links { padding: 8px 32px 16px; }
+  .project-dialog-links { padding: 8px 32px 32px; }
 }
 
 @media (max-width: 639px) {
-  .project-dialog-content {
-    container-type: inline-size;
-  }
-
   .project-dialog-header {
-    column-gap: 12px;
-  }
-
-  /* The heading runs under the close button so the stack has the full
-     width; a float keeps only the name's first line clear of the button. */
-  .project-dialog-heading {
-    grid-area: 1 / 1 / 2 / -1;
-  }
-
-  .project-dialog-actions {
-    grid-area: 1 / 2;
-    position: relative;
-  }
-
-  .project-dialog-heading h3::before {
-    content: "";
-    float: right;
-    width: 48px;
-    height: 44px;
-  }
-
-  .project-dialog-header .project-box-title-group {
+    container-type: inline-size;
+    display: flex;
+    flex-wrap: wrap;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 12px;
   }
 
-  .project-dialog-header .project-dialog-heading .project-sketch {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-  }
-
+  /* Match the mobile card header: icon and title share row 1 with close,
+     and descriptor, category, and dates span the full dialog width below. */
+  .project-dialog-heading,
+  .project-dialog-heading .project-box-title-group,
   .project-dialog-heading .project-box-title-stack {
-    gap: 7px;
+    display: contents;
   }
 
-  .project-dialog-heading .project-box-type {
-    font-size: clamp(0.65rem, 2.95cqi, 0.875rem);
+  .project-dialog-header .project-dialog-heading .project-sketch {
+    align-self: center;
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+    translate: none;
+  }
+
+  .project-dialog-heading h3 {
+    flex: 1;
+    min-width: 0;
+    align-self: center;
+    font-size: 1.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    padding-block: 7px;
+    hyphens: auto;
+  }
+
+  .project-dialog-heading .project-title-descriptor {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .project-dialog-actions {
+    order: 1;
+  }
+
+  .project-dialog-header .project-box-descriptor {
+    display: block;
+  }
+
+  .project-dialog-header .project-box-type {
+    order: 3;
+    flex: 0 0 100%;
+    margin-top: 2px;
+    font-size: clamp(0.64rem, 3.95cqi, 0.875rem);
     letter-spacing: 0.025em;
-    line-height: 1.35;
   }
 
   .project-dialog-links .project-dialog-link {
@@ -1790,24 +1808,23 @@ body:has(.project-dialog-overlay) .project-hover-background {
   }
 }
 
-.project-dialog-scroll {
-  grid-row: 2;
+.project-dialog-body {
   position: relative;
   z-index: 1;
-  min-height: 0;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--muted) 55%, var(--surface-bottom)) var(--surface-bottom);
 }
 
-.project-dialog-content:has(.project-dialog-scroll-hint[data-visible="true"]) .project-dialog-scroll {
-  mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent);
+/* Fade the content (not the paper) into the viewport's bottom edge while
+   more of the card lies below; the variable tracks that edge on scroll. */
+.project-dialog-content[data-more-below] {
+  mask-image: linear-gradient(to bottom, black calc(var(--dialog-visible-bottom, 100%) - 32px), transparent var(--dialog-visible-bottom, 100%));
 }
 
 .project-dialog-scroll-hint {
-  position: absolute;
-  grid-row: 2 / 3;
-  z-index: 2;
-  inset: auto 0 0;
+  position: fixed;
+  z-index: 51;
+  bottom: env(safe-area-inset-bottom);
+  left: 0;
+  width: 100%;
   height: 28px;
   display: flex;
   align-items: flex-end;
@@ -1823,34 +1840,15 @@ body:has(.project-dialog-overlay) .project-hover-background {
   opacity: 1;
 }
 
-.project-dialog-scroll::-webkit-scrollbar {
-  width: 10px;
-}
-
-.project-dialog-scroll::-webkit-scrollbar-track {
-  background: var(--surface-bottom);
-}
-
-.project-dialog-scroll::-webkit-scrollbar-thumb {
-  border: 2px solid var(--surface-bottom);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--muted) 55%, var(--surface-bottom));
-}
-
-.project-dialog-scroll::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
-
 .project-dialog-close {
   width: 44px;
   height: 44px;
-  background: var(--evidence-bg);
-  color: var(--ink-soft);
-  box-shadow: inset 0 1px 0 var(--surface-edge);
+  background: color-mix(in srgb, var(--ink) 20%, transparent);
+  color: var(--ink);
 }
 
 .project-dialog-close:hover {
-  background: var(--action-bg);
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
   color: var(--ink);
 }
 
@@ -2245,9 +2243,12 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
 .project-box .project-sketch,
 .project-dialog-heading .project-sketch {
-  width: 56px;
-  height: 56px;
-  flex-basis: 56px;
+  width: 76px;
+  height: 76px;
+  flex-basis: 76px;
+  /* Box centring sits high: the name's line box has room above its capitals.
+     Measured ink centres put the icons ~3px above the text block's centre. */
+  translate: 0 3px;
 }
 
 .project-box-header + .project-box-summary {
@@ -2279,6 +2280,15 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
 .project-box-descriptor {
   display: none;
+  flex: 0 0 100%;
+  order: 2;
+  margin: -9px 0 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+  color: color-mix(in srgb, var(--ink) 75%, #808080);
 }
 
 /* The resume descriptor is a subtitle beneath the name. The separator stays
@@ -2385,13 +2395,23 @@ body:has(.project-dialog-overlay) .project-hover-background {
   transform: translateY(-1px);
 }
 
+/* Category and dates sit on separate lines rather than behind a divider. */
 .project-box-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
   margin: 0;
   color: var(--green);
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.06em;
+  line-height: 1.35;
   text-transform: uppercase;
+}
+
+.project-box-category,
+.project-box-dates {
   text-box-trim: trim-both;
   text-box-edge: cap alphabetic;
 }
@@ -2402,20 +2422,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
 }
 
 .project-box-dates {
-  white-space: nowrap;
   color: color-mix(in srgb, var(--ink) 75%, #808080);
-}
-
-/* Drawn rather than typed: the font's "|" overshoots the uppercase line. Sized
-   to land flush with the rendered capitals; margins match the dot's gaps. */
-.project-date-divider {
-  display: inline-block;
-  width: 2px;
-  height: 0.95cap;
-  margin: 0 0.09em 0 0.06em;
-  border-radius: 999px;
-  vertical-align: -0.025cap;
-  background: currentColor;
 }
 
 .project-box-summary {
@@ -2550,33 +2557,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
     order: 1;
   }
 
-  .project-box-header .project-box-descriptor {
-    order: 2;
-  }
-
-  /* Keep category and dates on separate lines on mobile without the desktop divider. */
-  .project-box-type {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    line-height: 1.35;
-  }
-
-  .project-box-category,
-  .project-box-dates {
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
-  }
-
-  .project-box-dates {
-    white-space: normal;
-  }
-
-  .project-date-divider {
-    display: none;
-  }
-
   .project-box-header .project-box-type {
     order: 3;
     flex: 0 0 100%;
@@ -2601,9 +2581,8 @@ body:has(.project-dialog-overlay) .project-hover-background {
     hyphens: auto;
   }
 
-  /* Beside the card actions the heading is too narrow for the descriptor, so
-     cards show it as a full-width line instead; the heading keeps it for
-     screen readers. The roomier dialog keeps it in the heading. */
+  /* Narrow headers keep the descriptor in the heading for screen readers and
+     render it as its own full-width line underneath. */
   .project-box .project-title-descriptor {
     position: absolute;
     width: 1px;
@@ -2619,14 +2598,6 @@ body:has(.project-dialog-overlay) .project-hover-background {
 
   .project-box .project-box-descriptor {
     display: block;
-    flex: 0 0 100%;
-    margin: -9px 0 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    line-height: 1.35;
-    text-box-trim: trim-both;
-    text-box-edge: cap alphabetic;
-    color: color-mix(in srgb, var(--ink) 75%, #808080);
   }
 
   .project-box-summary {
@@ -2637,6 +2608,7 @@ body:has(.project-dialog-overlay) .project-hover-background {
     width: 36px;
     height: 36px;
     flex-basis: 36px;
+    translate: none;
   }
 
 }

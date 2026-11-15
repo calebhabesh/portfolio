@@ -200,6 +200,7 @@ async function checkPage(browser, viewport, screenshotName) {
   assert.equal(await page.locator('article[data-project="linewatch"] .project-icon-link').count(), 2, "LineWatchTO needs both live and GitHub actions.");
   // Projects without a live site offer their demo video from the card.
   for (const [project, href] of [
+    ["doorlink", "https://github.com/calebhabesh/doorlink#demo"],
     ["orbit", "https://github.com/calebhabesh/orbit#demo"],
     ["medical-imaging", "https://github.com/calebhabesh/NM03-Capstone-Project#demo"],
     ["systemc-noc", "https://github.com/calebhabesh/systemc-noc#demo"],
@@ -207,7 +208,6 @@ async function checkPage(browser, viewport, screenshotName) {
   ]) {
     assert.equal(await page.locator(`article[data-project="${project}"] a.project-icon-link[href="${href}"]`).count(), 1, `${project} card should link its demo video.`);
   }
-  assert.equal(await page.locator('article[data-project="doorlink"] button.project-icon-link:disabled').count(), 1, "Doorlink's demo action stays disabled until a demo is published.");
   // Visitors are already on the portfolio, so its card links only to the source.
   assert.equal(await page.locator('article[data-project="portfolio-site"] .project-icon-link').count(), 1, "Portfolio card should only link its GitHub repository.");
 

@@ -6,7 +6,6 @@ import { ProjectCard, ProjectMeta, ProjectTitle, crumpleVariant } from "./Projec
 import { ProjectLinkButton } from "./ProjectLinkButton";
 import { ProjectGallery } from "./ProjectGallery";
 import { ProjectSketch } from "./ProjectSketch";
-import { useOutsideClick } from "@/hooks/use-outside-click";
 import { CloseIcon } from "./expandable-card-demo-standard";
 import CardHoverEffectDemo from "./card-hover-effect-demo";
 import { TechnologyBadges } from "./TechnologyBadges";
@@ -59,8 +58,13 @@ export const ProjectsList: React.FC = () => {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Backdrop clicks close only when the press also started on the backdrop,
+  // so text selections and scrollbar drags that end there keep it open.
+  const backdropPressRef = useRef(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [hasMoreBelow, setHasMoreBelow] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
 
@@ -127,26 +131,43 @@ export const ProjectsList: React.FC = () => {
     };
   }, [active, closeProject]);
 
-  useOutsideClick(modalRef, () => { if (active) closeProject(); });
 
+  // The card scrolls inside the overlay, so the "more below" fade and arrow
+  // track the viewport's bottom edge. Offsets ignore the opening transform.
   useEffect(() => {
-    const scroll = scrollRef.current;
-    if (!active || !scroll) {
+    const overlay = overlayRef.current;
+    const panel = modalRef.current;
+    const content = contentRef.current;
+    if (!active || !overlay || !panel || !content) {
       setHasMoreBelow(false);
+      setShowScrollHint(false);
       return;
     }
-
-    const updateScrollHint = () => {
-      setHasMoreBelow(scroll.scrollHeight - scroll.clientHeight - scroll.scrollTop > 2);
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const panelTop = panel.offsetTop - overlay.scrollTop;
+      const hiddenBelow = panelTop + panel.offsetHeight - overlay.clientHeight;
+      content.style.setProperty("--dialog-visible-bottom", `${overlay.clientHeight - panelTop}px`);
+      // Centre the arrow on the card, which sits beside the overlay scrollbar.
+      scrollHintRef.current?.style.setProperty("left", `${panel.offsetLeft}px`);
+      scrollHintRef.current?.style.setProperty("width", `${panel.offsetWidth}px`);
+      setHasMoreBelow(hiddenBelow > 16);
+      // The arrow retires once the last row is nearly in view. Cards that
+      // barely overflow (tall screens) scale the distance so it still shows.
+      const overflow = hiddenBelow + overlay.scrollTop;
+      setShowScrollHint(hiddenBelow > Math.min(240, overflow * 2 / 3));
     };
-    const observer = new ResizeObserver(updateScrollHint);
-    observer.observe(scroll);
-    for (const child of scroll.children) observer.observe(child);
-    scroll.addEventListener("scroll", updateScrollHint, { passive: true });
-    updateScrollHint();
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(overlay);
+    observer.observe(panel);
+    overlay.addEventListener("scroll", schedule, { passive: true });
+    update();
     return () => {
+      cancelAnimationFrame(frame);
       observer.disconnect();
-      scroll.removeEventListener("scroll", updateScrollHint);
+      overlay.removeEventListener("scroll", schedule);
     };
   }, [active]);
 
@@ -155,7 +176,17 @@ export const ProjectsList: React.FC = () => {
       {active && (
         <>
           <div ref={backdropRef} className="project-dialog-backdrop fixed inset-0 bg-black/55 z-50 pointer-events-none" aria-hidden="true" />
-          <div className="project-dialog-overlay" data-closing={closing || undefined}>
+          {/* The overlay is the scroller: the whole card scrolls like a page. */}
+          <div
+            ref={overlayRef}
+            className="project-dialog-overlay"
+            data-closing={closing || undefined}
+            onPointerDown={event => { backdropPressRef.current = event.target === event.currentTarget; }}
+            onClick={event => {
+              if (backdropPressRef.current && event.target === event.currentTarget) closeProject();
+              backdropPressRef.current = false;
+            }}
+          >
             <div
               ref={modalRef}
               role="dialog"
@@ -165,7 +196,7 @@ export const ProjectsList: React.FC = () => {
               className="project-dialog w-full max-w-[900px] flex flex-col rounded-2xl"
             >
               <div ref={surfaceRef} className="project-dialog-surface" data-crumple={crumpleVariant(active.id)} aria-hidden="true" />
-              <div ref={contentRef} className="project-dialog-content">
+              <div ref={contentRef} className="project-dialog-content" data-more-below={hasMoreBelow || undefined}>
                 <div className="project-dialog-header">
                   <div className="project-dialog-heading flex flex-col gap-1.5">
                     <div className="project-box-title-group">
@@ -199,9 +230,13 @@ export const ProjectsList: React.FC = () => {
                       <CloseIcon />
                     </button>
                   </div>
+
+                  <p className="project-box-descriptor" aria-hidden="true">
+                    <SearchMatchText text={active.descriptor} ranges={projectMatches.get(active.id)?.text.descriptor} />
+                  </p>
                 </div>
 
-                <div ref={scrollRef} tabIndex={active.images?.length ? undefined : 0} className="project-dialog-scroll px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4 overflow-y-auto">
+                <div className="project-dialog-body px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col gap-4">
 
                   <p className="project-dialog-summary text-[var(--ink-soft)] text-base leading-relaxed m-0">
                     {highlightText(active.summary)}
@@ -238,11 +273,6 @@ export const ProjectsList: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="project-dialog-scroll-hint" data-visible={hasMoreBelow} aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </div>
                 <div className="project-dialog-links">
                   {active.links.map((link) => (
                     <ProjectLinkButton key={link.url} link={link} />
@@ -250,6 +280,11 @@ export const ProjectsList: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+          <div ref={scrollHintRef} className="project-dialog-scroll-hint" data-project-tone={active.tone} data-visible={showScrollHint && !closing} aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
           </div>
         </>
       )}
