@@ -137,7 +137,7 @@ export const projects: ProjectItem[] = [
     title: "LineWatchTO",
     descriptor: "Transit Reliability Platform",
     category: "Transit intelligence · full stack",
-    dates: "May 2026 – Sept 2026",
+    dates: "May 2026 – Nov 2026",
     status: "Live",
     summary:
       "A transit dashboard for TTC, GO Transit, and UP Express riders, purpose-built for both desktop web and an installable mobile PWA. It maps service alerts, planned closures, station arrivals, and disruptions affecting saved commutes, clearly labeling outdated data, scheduled arrivals, unavailable information, and demo data.",
@@ -145,7 +145,7 @@ export const projects: ProjectItem[] = [
       {
         heading: "Two Networks",
         detail:
-          "Custom maps for TTC and GO Transit / UP Express show service disruptions and station details for each network's lines and stops, with purpose-built layouts for desktop and mobile.",
+          "Custom maps for TTC and GO Transit / UP Express show service disruptions and station details for each network's lines and stops, with purpose-built layouts for desktop and mobile. A geographic map adds streetcar, bus, and night routes with live vehicle positions and stop departures, and one search box finds any of 9,830 stops by stop number or street names.",
       },
       {
         heading: "Personal Impact",
@@ -321,72 +321,70 @@ export const projects: ProjectItem[] = [
     title: "CourtLens",
     descriptor: "NBA Analytics Platform",
     category: "Data engineering · ML · statistics",
-    dates: "Aug 2026 – Oct 2026",
+    dates: "Aug 2026 – Nov 2026",
     status: "Live",
     summary:
-      "An NBA research workbench covering 26 seasons and 882,849 player-game records. Every number traces to a source version and a cutoff date, forecasts are scored against what actually happened, and an optional assistant answers questions from the warehouse.",
+      "An NBA analytics site for exploring and comparing players and teams, with box scores back to 1983–84 and season totals back to 1946–47, 1.29 million player-game rows in all. Every number traces to a source version and a cutoff date, every research model is tested on seasons it never saw, and a win-probability model is graded after every game.",
     evidence: [
       {
         heading: "Versioned Warehouse",
         detail:
-          "Python ingestion and tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release. Growing from 3 to 26 seasons left every existing-season fact unchanged, and query and index tuning cut a 25-season cold read from 35.1 to 12.1 seconds.",
+          "Python ingestion and tested dbt models build PostgreSQL serving marts from content-hashed inputs. Releases are published by an atomic pointer swap, so a failed rebuild never replaces the last good release. Backfilling 19,082 games from 1983–84 to 1999–2000 checked each game's player points against its final score, with no mismatches.",
       },
       {
         heading: "No Look-Ahead",
         detail:
-          "Features use only games before the replay date, and players traded mid-season keep separate team stints. A missing box score is recorded as unknown, not as zero points.",
+          "Features use only games before the replay date, and players traded mid-season keep separate team stints. A missing box score is recorded as unknown, not as zero points. Each research model was registered before it was fit and tested once on held-out seasons, and the models that failed are published too.",
       },
       {
         heading: "Impact Ratings",
         detail:
-          "202,063 lineup stints across 3,901 games, rebuilt from public play-by-play, feed ridge-regression RAPM, on/off and six-factor ratings, shown with sample sizes and source gaps.",
+          "719,529 lineup stints, rebuilt from 12 seasons of public play-by-play, feed ridge-regression RAPM (regularized adjusted plus-minus), on/off, and six-factor ratings, each with a confidence interval. With ratings fixed before each of 11,979 games, time-decayed RAPM predicted final margins better than every other metric tested.",
       },
       {
-        heading: "Forecast Evaluation",
+        heading: "Win Probability",
         detail:
-          "On a sealed 2025–26 holdout of 48,870 forecasts, a transparent prior-season blend scored a 4.643-point mean absolute error with 80.6% of results inside its 80% interval. Gradient-boosted challengers failed the pre-registered promotion gates, so the baseline was kept.",
+          "A LightGBM model built on a random-walk baseline beat that baseline on 2,439 held-out games (log loss 0.403 against 0.416) and performed level with ESPN's model. Since it was frozen, each prediction is sealed before tip-off and graded after the final buzzer, beside ESPN and the betting line.",
       },
       {
         heading: "Checked Assistant",
         detail:
-          "An optional tool-calling agent queries the warehouse through typed read-only tools. Numbers in its answers are checked against query results, and unsupported figures are flagged rather than presented as verified. A read-only public instance runs on an ARM64 VPS behind a Cloudflare Tunnel.",
+          "A tool-calling agent queries the warehouse through typed read-only tools. Numbers in its answers are checked against query results, and unsupported figures are flagged rather than presented as verified. Visitors sign in with Google, email, or a shared demo account to ask a few questions a day.",
+      },
+      {
+        heading: "Production Hosting",
+        detail:
+          "An ARM64 virtual machine behind a Cloudflare Tunnel serves the site and runs every scheduled data job, including the nightly prediction grading. A read cache refilled after each data change cut warm page loads from up to 1.5 seconds to under 0.3 seconds, and weekly database backups are tested by restoring them.",
       },
     ],
-    tags: ["Python · FastAPI", "SQL · dbt", "PostgreSQL", "scikit-learn", "TypeScript · Next.js"],
-    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "LLM tool calling"],
+    tags: ["Python · FastAPI", "SQL · dbt", "PostgreSQL", "LightGBM · scikit-learn", "TypeScript · Next.js"],
+    additionalTags: ["React", "SQLAlchemy", "Alembic", "Docker", "LLM tool calling", "OAuth", "Cloudflare"],
     images: [
       {
         src: "/projects/courtlens/stats-explorer.webp",
-        alt: "CourtLens Stats explorer listing 2025–26 players with impact, counting and efficiency columns, each with a league percentile",
-        caption: "Stats explorer with qualified percentiles",
+        alt: "CourtLens Stats explorer listing 2025–26 players with impact, counting, and efficiency columns, each with a league percentile",
+        caption: "Stats explorer with league percentiles",
         width: 2400,
         height: 1500,
       },
       {
-        src: "/projects/courtlens/player-comparison.webp",
-        alt: "CourtLens Player Comparison of Tyrese Maxey and Austin Reaves for 2026–27, with portrait cards above counting, efficiency, availability and accolade rows and per-stat difference chips",
-        caption: "Player comparison · per-stat differences",
-        width: 2400,
-        height: 2092,
-      },
-      {
-        src: "/projects/courtlens/team-comparison.webp",
-        alt: "CourtLens Team Comparison of the 2025–26 Oklahoma City Thunder and San Antonio Spurs, showing their head-to-head record above rotations matched by position and rated by DARKO DPM",
-        caption: "Team comparison · rotations by position",
-        width: 2400,
-        height: 1800,
-      },
-      {
-        src: "/projects/courtlens/player-showcase.webp",
-        alt: "CourtLens Player Showcase ranking the 2025–26 DARKO DPM leaders as team-colored player cards with stats and league percentiles",
-        caption: "Player showcase · season leaders as cards",
+        src: "/projects/courtlens/live-predictions.webp",
+        alt: "CourtLens Live page for November 11, 2026, showing final scores with each game's sealed pregame pick marked right or wrong",
+        caption: "Live scores · sealed picks graded after each game",
         width: 2400,
         height: 1500,
       },
       {
-        src: "/projects/courtlens/roster-shapes.webp",
-        alt: "CourtLens Roster Shapes page drawing projected 2026–27 NBA rosters as boxes filled with player shapes, where bigger shapes are better players and color marks each role",
-        caption: "Roster shapes · projected 2026–27 rosters",
+        src: "/projects/courtlens/win-probability.webp",
+        alt: "CourtLens Win Probability evidence comparing its log loss with ESPN Analytics on the same game states, with the gap and its 95% interval",
+        caption: "Win probability · tested against ESPN",
+        width: 2400,
+        height: 1500,
+      },
+      {
+        src: "/projects/courtlens/rapm-leaders.webp",
+        alt: "CourtLens RAPM Ratings page listing the 2025–26 leaders in one-year regularized adjusted plus-minus, with bars, games, and minutes",
+        caption: "RAPM ratings from play-by-play",
         width: 2400,
         height: 1500,
       },
@@ -396,6 +394,13 @@ export const projects: ProjectItem[] = [
         caption: "Player profile · season and career view",
         width: 2400,
         height: 1500,
+      },
+      {
+        src: "/projects/courtlens/player-comparison.webp",
+        alt: "CourtLens Player Comparison of Tyrese Maxey and Trae Young for 2026–27, with portrait cards above counting and efficiency rows and per-stat difference chips",
+        caption: "Player comparison · per-stat differences",
+        width: 2400,
+        height: 2092,
       },
     ],
     links: [

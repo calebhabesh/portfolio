@@ -509,7 +509,7 @@ try {
     ["doorlink", ["/projects/doorlink-enclosure.jpg", "/projects/doorlink-pcb.jpg", "/projects/doorlink-wiring.webp", "/projects/doorlink-pcb-3d.png", "/projects/doorlink-pcb-layout.png"]],
     ["linewatch", ["/projects/linewatch-ttc-dashboard.webp","/projects/linewatch-ttc-mobile.webp", "/projects/linewatch-station-details.webp", "/projects/linewatch-regional-dashboard.webp"]],
     ["orbit", ["/projects/orbit/demo-three-device-conflict.webp", "/projects/orbit/tui-review-versions.png", "/projects/orbit/soak-timeline.png", "/projects/orbit/network-matrix.png", "/projects/orbit/round-cost.png"]],
-    ["courtlens", ["/projects/courtlens/stats-explorer.webp", "/projects/courtlens/player-comparison.webp", "/projects/courtlens/team-comparison.webp", "/projects/courtlens/player-showcase.webp", "/projects/courtlens/roster-shapes.webp", "/projects/courtlens/player-profile.webp"]],
+    ["courtlens", ["/projects/courtlens/stats-explorer.webp", "/projects/courtlens/live-predictions.webp", "/projects/courtlens/win-probability.webp", "/projects/courtlens/rapm-leaders.webp", "/projects/courtlens/player-profile.webp", "/projects/courtlens/player-comparison.webp"]],
     ["medical-imaging", ["/projects/medical-imaging/stage-viewer.png", "/projects/medical-imaging/export-benchmark.svg"]],
     ["fpga-pong", ["/projects/fpga-pong/board-demo-2024.webp", "/projects/fpga-pong/rtl-frame-2026.png"]],
   ]) {
