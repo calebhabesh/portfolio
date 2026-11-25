@@ -113,9 +113,6 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
     await page.route(/\/emblem-scene(?:-[^/]+)?\.js(?:\?.*)?$/, route => route.abort());
-    // Keep the independent headshot island out of project hydration checks.
-    await page.route(/\/headshot-island(?:-[^/]+)?\.(?:js|tsx)(?:\?.*)?$/, route =>
-      route.fulfill({ contentType: "application/javascript", body: "" }));
     await page.goto(baseUrl, { waitUntil: "networkidle" });
     await page.locator('#projects-root[data-interactive="true"]').waitFor();
     const search = page.getByRole("searchbox", { name: "Search technologies" });

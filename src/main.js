@@ -61,9 +61,6 @@ const textureImagesPromise = Promise.all(Object.entries(emblemTextureUrls).map(a
 })).then(Object.fromEntries);
 
 const emblemSceneModulePromise = import("./emblem-scene.js");
-import("./headshot-island.tsx").catch((error) => {
-  console.error("The headshot hover could not start.", error);
-});
 import("./technology-loop-island.jsx").catch((error) => {
   console.error("The technology logo loop could not start.", error);
 });

@@ -55,10 +55,12 @@ async function checkGrid(page) {
       header: rect(document.querySelector(".site-header")),
       brand: rect(document.querySelector(".brand")),
       logo: rect(document.querySelector(".calling-card-avatar")),
+      brandNameShown: document.querySelector(".brand-name").getClientRects().length > 0,
       toggle: rect(document.querySelector(".theme-toggle")),
       themeIcon: rect(document.querySelector(".theme-icon")),
       headerControls: [...document.querySelectorAll(".header-nav > a, .header-nav > button")].map(control => ({
-        ...rect(control), icon: rect(control.querySelector("svg")), label: control.getAttribute("aria-label"),
+        ...rect(control), icon: rect(control.querySelector("svg")), resume: control.matches(".header-grid-link--resume"),
+        caption: [...control.querySelectorAll(".header-grid-label")].filter(label => label.getClientRects().length).map(rect)[0], label: control.getAttribute("aria-label"),
         text: control.textContent.trim(), background: getComputedStyle(control).backgroundColor,
       })),
       sectionHeader: rect(document.querySelector(".project-section-header")),
@@ -104,18 +106,25 @@ async function checkGrid(page) {
   near(geometry.brand.x, geometry.shell.x, "Brand must start on the left guide");
   near(geometry.logo.x, geometry.shell.x, "Logo must start on the left guide");
   near(geometry.brand.y + geometry.brand.height / 2, unit / 2, "Brand must be centered in grid row zero");
-  assert.equal(geometry.headerControls.length, 4, "Header must contain three contact links and the theme toggle");
+  assert.equal(geometry.headerControls.length, 5, "Header must contain the resume, three contact links and the theme toggle");
+  const viewportWidth = page.viewportSize().width;
+  assert.equal(geometry.brandNameShown, viewportWidth > 468, "The header name must give way to the lion alone on phones");
   const controlRow = 0;
   for (const control of geometry.headerControls) {
-    near(control.width, unit, "Header control must fill one grid column");
+    near(control.width, control.resume ? unit * (viewportWidth <= 363 ? 1 : viewportWidth >= 769 && viewportWidth <= 920 ? 3 : 2) : unit,
+      "Header control must fill whole grid columns");
     near(control.height, unit, "Header control must fill one grid row");
     near(control.y, controlRow, "Header controls must share row zero with the brand");
     near(control.x, geometry.columnOrigin + Math.round((control.x - geometry.columnOrigin) / unit) * unit,
       "Header control must start on a grid column");
-    near(control.icon.x + control.icon.width / 2, control.x + unit / 2, "Control icon must be horizontally centered");
+    const right = control.caption ? control.caption.x + control.caption.width : control.icon.x + control.icon.width;
+    near((control.icon.x + right) / 2, control.x + control.width / 2, "Control icon and any label must be horizontally centered");
+    assert.ok(control.icon.x - control.x >= 4 && control.x + control.width - right >= 4, "Control content must fit its cells");
     near(control.icon.y + control.icon.height / 2, control.y + unit / 2, "Control icon must be vertically centered");
-    assert.ok(control.label, "Icon-only controls must have accessible names");
-    assert.equal(control.text, "", "Header cells must remain icon-only");
+    assert.ok(control.label?.startsWith(control.text), "Controls must have accessible names that include their visible label");
+    assert.equal(control.text, control.resume ? "Resume" : "", "Only the resume may carry a label");
+    if (control.caption) assert.ok(Math.abs(control.caption.y + control.caption.height / 2 - control.icon.y - control.icon.height / 2) <= 1.5,
+      "The resume label must align with its icon");
     assert.notEqual(control.background, "rgba(0, 0, 0, 0)", "Header cells must have a subtle resting shade");
   }
   near(geometry.sectionHeader.y, Math.round(geometry.sectionHeader.y / unit) * unit,

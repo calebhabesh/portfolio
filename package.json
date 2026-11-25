@@ -9,6 +9,7 @@
     "generate:collision": "node scripts/generate-collision-field.mjs",
     "generate:projects": "node scripts/generate-static-projects.mjs",
     "generate:og": "node scripts/generate-og-image.mjs",
+    "update:resume": "node scripts/update-resume.mjs",
     "prebuild": "node scripts/prepare-assets.mjs",
     "build": "vite build",
     "postbuild": "node scripts/build-cache.mjs --record",
