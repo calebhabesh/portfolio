@@ -3,7 +3,9 @@ import { createServer } from "vite";
 
 // Load the same TS modules as the app without requiring Node's type stripping.
 const { projects, matchProject, matchSearchText, matchTechnologyTags, matchTechnologyText, technologySearchTerms } = await (async () => {
-  const server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
+  // Rendering needs no browser bundles. Optimizing them here could delete the
+  // cache a running `npm run dev` serves from.
+  const server = await createServer({ server: { middlewareMode: true }, appType: "custom", optimizeDeps: { noDiscovery: true } });
   try {
     return {
       ...await server.ssrLoadModule("/src/data/projects.ts"),

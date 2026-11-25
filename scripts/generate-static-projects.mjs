@@ -6,7 +6,9 @@ import { createServer } from "vite";
 // Use the exact client tree, including the card structure and React text
 // boundaries, so hydration reuses every card and image instead of repainting it.
 export async function renderProjectsHtml() {
-  const server = await createServer({ server: { middlewareMode: true }, appType: "custom" });
+  // Rendering needs no browser bundles. Optimizing them here could delete the
+  // cache a running `npm run dev` serves from.
+  const server = await createServer({ server: { middlewareMode: true }, appType: "custom", optimizeDeps: { noDiscovery: true } });
   try {
     const { ProjectsList } = await server.ssrLoadModule("/src/components/ProjectsList.tsx");
     return renderToString(React.createElement(ProjectsList));
