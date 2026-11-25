@@ -519,6 +519,33 @@ canvas:focus-visible {
   transition: color 280ms ease-in-out;
 }
 
+/* The resume spans two cells to carry a label beside its icon. */
+.header-grid-link--resume {
+  --header-hover-bg: #c2410c;
+  display: flex;
+  width: calc(var(--grid-unit) * 2);
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.9375rem;
+}
+
+/* Mostly lowercase, the label reads high when its line box is centered, so it
+   sits a pixel lower. */
+.header-grid-label {
+  position: relative;
+  top: 1px;
+  font-weight: 550;
+  transition: translate 280ms ease-in-out;
+}
+
+/* Cells are under 46px here, too narrow for two to hold the label. */
+@media (min-width: 769px) and (max-width: 920px) {
+  .header-grid-link--resume {
+    width: calc(var(--grid-unit) * 3);
+  }
+}
+
 .header-grid-link--github {
   --header-hover-bg: #000000;
 }
@@ -598,6 +625,10 @@ canvas:focus-visible {
     translate: 0 -2px;
     scale: 1.08;
   }
+
+  .header-grid-link:is(:focus-visible, :active, [data-pressed]) .header-grid-label {
+    translate: 0 -2px;
+  }
 }
 
 /* Touch screens keep :hover on the last tapped control, which left the
@@ -625,6 +656,10 @@ canvas:focus-visible {
   .theme-toggle:hover .theme-icon {
     translate: 0 -2px;
     scale: 1.08;
+  }
+
+  .header-grid-link:hover .header-grid-label {
+    translate: 0 -2px;
   }
 }
 
@@ -2847,22 +2882,17 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   }
 }
 
-@media (max-width: 480px) {
-  :root {
-    --page-gutter: 12px;
-    --grid-columns: 6;
-  }
-
+@media (max-width: 540px) {
   .site-header {
     flex-wrap: nowrap;
     container-type: inline-size;
   }
 
-  /* Fit the brand to the space beside the four header links, keeping 8px
+  /* Fit the brand to the space beside the header's six control cells, keeping 8px
      clear of them after the 6px gap. At these sizes the name renders about
      6.72em wide and the 1.5em-tall lion 1.28em; 8.2em leaves rendering slack. */
   .site-header .brand {
-    --brand-size: min(1.0625rem, (100cqi - 4 * var(--grid-unit) - 14px) / 8.2);
+    --brand-size: min(1.0625rem, (100cqi - 6 * var(--grid-unit) - 14px) / 8.2);
     min-width: 0;
     gap: 6px;
   }
@@ -2878,6 +2908,13 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
   .brand-name {
     font-size: var(--brand-size);
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --page-gutter: 12px;
+    --grid-columns: 6;
   }
 
   .hero-identity {
@@ -2895,6 +2932,30 @@ body:has(.project-dialog-overlay) .projects-scroll-arrow {
 
   .project-box-inner {
     --project-card-inset: 16px;
+  }
+}
+
+/* With eight cells or fewer across, the six control cells leave the name under
+   12px. Show only the lion, which keeps the link's accessible name; the hero
+   repeats the name below. */
+@media (max-width: 468px) {
+  .site-header .brand {
+    --brand-size: 1.0625rem;
+  }
+
+  .calling-card-content {
+    display: none;
+  }
+}
+
+/* Six cells across: the resume drops its label so the lion keeps a cell. */
+@media (max-width: 363px) {
+  .header-grid-link--resume {
+    width: var(--grid-unit);
+  }
+
+  .header-grid-label {
+    display: none;
   }
 }
 

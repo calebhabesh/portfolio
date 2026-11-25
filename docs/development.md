@@ -86,6 +86,20 @@ the technology-only search returns.
 See [project demo links](project-demos.md) for README anchors, video publishing,
 and the distinction between source, recorded demos, and live applications.
 
+## Resume
+
+The header's resume button opens `public/Caleb_Habesh_Resume.pdf`. Build that file
+from the Typst master rather than replacing it by hand:
+
+```bash
+npm run update:resume -- <master.typ> [YYYY-MM-DD]
+```
+
+The date defaults to today. The command passes it to Typst as the `updated` input,
+which prints the date in the top margin. It then updates the link's cache version
+in `index.html`. It stops without changing anything if the PDF lacks the
+date or runs past one page. It needs `typst` and `pdftotext`.
+
 ## Emblem assets
 
 `models/emblem/` contains the original Blender project and GLB, the Blender backup,
